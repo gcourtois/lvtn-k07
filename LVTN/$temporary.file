@@ -1,0 +1,16 @@
+# 1 "D:\Study\LVTN\RES\TestData.cbl"  
+       Identification Division.
+       Program-Id.  Test-Redefines.
+       Environment Division.
+       Configuration Section.
+       Data Division.
+       Working-Storage Section.
+       01  Group-1.
+           05  Elementary-1       Pic 9(7).
+           05  Elementary-2   Pic 9(5)v999.
+       66  Group-2 renames Elementary-1 thru elementary-2.
+      
+       Procedure Division.
+       Chapt03b-Start.
+           MOVE 12345 to group-2.
+           Stop Run.
