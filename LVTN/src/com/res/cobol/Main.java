@@ -33,7 +33,6 @@ import com.res.common.RESConfig;
 import com.res.common.RESContext;
 import com.res.java.translation.engine.CobolFillTable;
 import com.res.java.translation.engine.CobolRecode;
-import com.res.java.translation.engine.TranUtil;
 import com.res.java.translation.symbol.SymbolTable;
 import com.res.java.util.ClassFile;
 import java.io.BufferedReader;
@@ -73,7 +72,6 @@ public class Main {
                 context.getCharStream().Done();
                 CobolFillTable.clear();
                 CobolRecode.clear();
-                TranUtil.clear();
                 SymbolTable.clear();
                 System.gc();
             }

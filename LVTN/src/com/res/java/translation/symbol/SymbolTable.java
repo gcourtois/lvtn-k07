@@ -6,7 +6,6 @@ import java.util.Stack;
 
 import com.res.cobol.syntaxtree.Node;
 import com.res.java.lib.RunTimeUtil;
-import com.res.java.translation.engine.TranUtil;
 
 /****************************************************************************************************
  *

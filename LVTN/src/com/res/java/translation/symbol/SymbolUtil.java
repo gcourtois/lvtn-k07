@@ -28,7 +28,6 @@ import com.res.common.RESConfig;
 import com.res.java.lib.Constants;
 import com.res.java.lib.FieldFormat;
 import com.res.java.lib.exceptions.InvalidCobolFormatException;
-import com.res.java.translation.engine.TranUtil;
 import com.res.java.translation.symbol.SymbolProperties.CobolSymbol;
 import com.res.java.util.ClassFile;
 import com.res.java.util.NameUtil;
@@ -99,11 +98,6 @@ public class SymbolUtil {
             printStringAccessors(props);
 
             printGroupAccessors(props, true, getGroupOccursIdx(props));
-            if (props.isIndexedFileRecord()) {
-                TranUtil.get().printSetSQLProperties(props);
-                TranUtil.get().printgetSQLResults(props);
-                TranUtil.get().printSetStartSQLProperties(props);
-            }
         }
 
         if (props.getType() != SymbolConstants.PROGRAM) {

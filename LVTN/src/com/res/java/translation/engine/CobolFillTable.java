@@ -493,38 +493,10 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
         } else if (doingPicture) {
             pictureString += n.tokenImage;
-        } else if (doingExecSQL) {
-            doExecSQLSetRefMod(n);
-
-        }
+        } 
     }
 
-    private void doExecSQLSetRefMod(NodeToken n) {
-        if (n.kind == CobolParserConstants.S_BIND) {
-            doSingleSQLParm(n.tokenImage);
-        } else {
-            ArrayList<String> parms = TranUtil.get().getParameters(n.tokenImage, false);
-            if (parms != null) {
-                for (String parm : parms) {
-                    doSingleSQLParm(parm);
-                }
-            }
-        }
-    }
-
-    private void doSingleSQLParm(String tokenImage) {
-        SymbolProperties data = TranUtil.get().getParameter(tokenImage);
-        if (data != null) {
-            setRef(data);
-            setMod(data);
-        }
-        data = TranUtil.get().getIndicator(tokenImage);
-        if (data != null) {
-            setRef(data);
-            setMod(data);
-        }
-    }
-    private boolean doingExecSQL = false;
+   
 
     @Override
     public void visit(Literal n) {
@@ -2367,9 +2339,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(ExecSqlStatement n) {
         context.setSqlTranslated(true);
-        doingExecSQL = true;
         super.visit(n);
-        doingExecSQL = false;
     }
 
     @Override
