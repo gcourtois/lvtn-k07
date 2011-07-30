@@ -198,9 +198,6 @@ public class Main {
             }
 
             unit = cobolParser.CompilationUnit();
-            System.out.println("************************************************************************");
-            PrintVisitor dump = new PrintVisitor();
-            System.out.println(dump.visit(unit, ""));
             if (context.isTraceOn() && context.getTraceLevel() % 2 != 0) {
 //                System.out.println("************************************************************************");
 //                TreeDumper dump = new TreeDumper();
