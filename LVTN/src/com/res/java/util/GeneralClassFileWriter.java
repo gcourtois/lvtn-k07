@@ -30,9 +30,9 @@ public class GeneralClassFileWriter extends ClassFileWriter {
 	public void printHeader() {
 		println("/************************************************************************");
 		println(" ** RES generated this file from a part of Cobol program.");
-		println(" ** Generated at time "+RESUtil.getTime()+ 
-				" on "+RESUtil.getDayOfWeek()+
-				", "+RESUtil.getDate());
+		println(" ** Generated at time "+DateUtil.getTime()+ 
+				" on "+DateUtil.getDayOfWeek()+
+				", "+DateUtil.getDate());
 		println(" ************************************************************************/");
 		println("import com.res.java.lib.*;");
 		println("import java.math.BigDecimal;");

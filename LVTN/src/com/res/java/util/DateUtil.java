@@ -1,6 +1,6 @@
 package com.res.java.util;
 
-public class RESUtil {
+public class DateUtil {
 	
 	public static String getTime() {
 		String s=com.res.java.lib.Console.readTime();

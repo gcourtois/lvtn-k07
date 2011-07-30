@@ -51,9 +51,9 @@ public class DataClassFileWriter extends ClassFileWriter {
 					props.getDataName().toUpperCase()+" in source file "
 						+Main.getContext().getSourceFileName().toUpperCase());
 		}
-		println(" ** Generated at time "+RESUtil.getTime()+ 
-				" on "+RESUtil.getDayOfWeek()+
-				", "+RESUtil.getDate());
+		println(" ** Generated at time "+DateUtil.getTime()+ 
+				" on "+DateUtil.getDayOfWeek()+
+				", "+DateUtil.getDate());
 		if(Main.getContext().isProcessVerbose()) {
 			println(" ** "+Main.getContext().getOptionsVerbose().toString());
 		}

@@ -25,8 +25,6 @@ import com.res.cobol.parser.ParseException;
 import com.res.cobol.parser.RESCharStream;
 import com.res.cobol.parser.TokenMgrError;
 import com.res.cobol.syntaxtree.CompilationUnit;
-import com.res.cobol.visitor.PrintVisitor;
-import com.res.cobol.visitor.TreeDumper;
 import java.io.File;
 
 import com.res.common.RESConfig;
