@@ -4,7 +4,6 @@
 
 package com.res.cobol.visitor;
 import com.res.cobol.syntaxtree.*;
-import java.util.*;
 
 /**
  * All GJ visitors with no argument must implement this interface.
