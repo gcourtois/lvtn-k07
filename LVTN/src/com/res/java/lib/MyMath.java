@@ -24,25 +24,25 @@ public class MyMath {
 	}
 	
 	 private static final byte[] PACKED_DECIMALS = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x5,
-													         0x06, 0x07, 0x08, 0x09, 0x10, 11,
-													         12, 13, 14, 15, 16,
-													         17, 18, 19, 20, 21,
-													         22, 23, 24, 25, 26,
-													         27, 28, 29, 30, 31,
-													         32, 33, 34, 35, 36,
-													         37, 38, 39, 40, 41,
-													         42, 43, 44, 45, 46,
-													         47, 48, 49, 50, 51,
-													         52, 53, 54, 55, 56,
-													         57, 58, 59, 60, 61,
-													         62, 63, 64, 65, 66,
-													         67, 68, 69, 70, 71,
-													         72, 73, 74, 75, 76,
-													         77, 78, 79, 80, 81,
-													         82, 83, 84, 85, 86,
-													         87, 88, 89, 90, 91,
-													         92, 93, 94, 95, 96,
-													         97, 98, 99 };
+													         0x06, 0x07, 0x08, 0x09, 0x10, 0x11,
+													         0x12, 0x13, 0x14, 0x15, 0x16,
+													         0x17, 0x18, 0x19, 0x20, 0x21,
+													         0x22, 0x23, 0x24, 0x25, 0x26,
+													         0x27, 0x28, 0x29, 0x30, 0x31,
+													         0x32, 0x33, 0x34, 0x35, 0x36,
+													         0x37, 0x38, 0x39, 0x40, 0x41,
+													         0x42, 0x43, 0x44, 0x45, 0x46,
+													         0x47, 0x48, 0x49, 0x50, 0x51,
+													         0x52, 0x53, 0x54, 0x55, 0x56,
+													         0x57, 0x58, 0x59, 0x60, 0x61,
+													         0x62, 0x63, 0x64, 0x65, 0x66,
+													         0x67, 0x68, 0x69, 0x70, 0x71,
+													         0x72, 0x73, 0x74, 0x75, 0x76,
+													         0x77, 0x78, 0x79, (byte) 0x80, (byte) 0x81,
+													         (byte) 0x82, (byte) 0x83, (byte) 0x84, (byte) 0x85, (byte) 0x86,
+													         (byte) 0x87, (byte) 0x88, (byte) 0x89, (byte) 0x90, (byte) 0x91,
+													         (byte) 0x92, (byte) 0x93, (byte) 0x94, (byte) 0x95, (byte) 0x96,
+													         (byte) 0x97, (byte) 0x98, (byte) 0x99 };
 	
 	public BigDecimal convertBCDToBigDec(byte[] input, int scale) {
 		boolean sign = false;
@@ -129,17 +129,24 @@ public class MyMath {
 	}
 	
 	private int calculateByteLengthBCD(int input) {
-		int length = String.valueOf(input).length() + 1;
+		int length = String.valueOf(Math.abs(input)).length() + 1;
+		if (length > 10) {
+			throw new OverflowException("Length of int is too long. > 9");
+		}
 		return ((length / 2) + (length % 2));
 	}
 	
+	/**
+	 * Convert int to BCD format
+	 * @param input
+	 * @param signed
+	 * @return
+	 */
 	public byte[] convertIntToBCD(int input, boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
 		byte[] result = new byte[byteLength];
-		System.out.println("LENGTH " + calculateByteLengthBCD(input));
 		buffer = ByteBuffer.wrap(result);
-		String inputStr = String.valueOf(Math.abs(input));
 		byte signByte = 0x0F;
 		if (signed) {
 			if  (input < 0) {
@@ -148,20 +155,72 @@ public class MyMath {
 				signByte = 0x0C;
 			}
 		}
+		input = Math.abs(input);
 		int lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
 		buffer.position(byteLength - 1);
 		buffer.put(signByte);
 		input = input / 10;
-		buffer.position(0);
-		for (int index = 1; index < inputStr.length(); index++, input /= 100) {
+		for (int index = 1; index < byteLength; index++ , input /= 100) {
+			buffer.position(byteLength - index - 1);
 			buffer.put(PACKED_DECIMALS[input % 100]);
 		}
 		
 		return buffer.array();
 	}
 	
+	private int calculateByteLengthBCD(long input) {
+		int length = String.valueOf(Math.abs(input)).length() + 1;
+		if (length > 19) {
+			throw new OverflowException("Length of long is too long. > 18");
+		}
+		return ((length / 2) + (length % 2));
+	}
 	
+	/**
+	 * Convert long to BCD format
+	 * @param input
+	 * @param signed
+	 * @return
+	 */
+	public byte[] convertLongToBCD(long input, boolean signed) {
+		ByteBuffer buffer;
+		int byteLength = calculateByteLengthBCD(input);
+		byte[] result = new byte[byteLength];
+		buffer = ByteBuffer.wrap(result);
+		byte signByte = 0x0F;
+		if (signed) {
+			if  (input < 0) {
+				signByte = 0x0D;
+			} else {
+				signByte = 0x0C;
+			}
+		}
+		input = Math.abs(input);
+		long lastDigit = input % 10;
+		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
+		buffer.position(byteLength - 1);
+		buffer.put(signByte);
+		input = input / 10;
+		for (int index = 1; index < byteLength; index++ , input /= 100) {
+			buffer.position(byteLength - index - 1);
+			buffer.put(PACKED_DECIMALS[(int) (input % 100)]);
+		}
+		
+		return buffer.array();
+	}
+	/**
+	 * Convert BigDecimal to BCD, remember to normalize BigDecimal before set
+	 * @param input
+	 * @param signed
+	 * @return
+	 */
+	public byte[] convertBigDecimalToBCD(BigDecimal input, boolean signed) {
+		input = input.scaleByPowerOfTen(input.scale());
+		long longVal = input.longValue();
+		return convertLongToBCD(longVal, signed);
+		
+	}
 	
 	/*
 	 * Need more refinements
@@ -224,7 +283,7 @@ public class MyMath {
 	public int convertDisplayToInt(byte[] input, boolean signed) {
 		int result = 0;
 		if (input.length > 9) {
-			throw new OverflowException("Convert Bytes(Display) to Int failed " + input);
+			throw new OverflowException("Length of bytes array is too Long");
 		}
 		if (signed) {
 			boolean negate = false;
@@ -314,7 +373,7 @@ public class MyMath {
 	 * @param signed
 	 * @return
 	 */
-	public BigDecimal convertDisplayToLong(byte[] input, int scale,  boolean signed) {
+	public BigDecimal convertDisplayToBigDecimal(byte[] input, int scale,  boolean signed) {
 		BigDecimal result;
 		if (input.length > 18) {
 			throw new OverflowException("Convert Bytes(Display) to BigDecimal failed " + input); 
@@ -372,15 +431,19 @@ public class MyMath {
 	
 	public static void main(String[] args) {
 		MyMath test = new MyMath();
-//		byte[] testInput = {0x45,0x12,0x3D};
-//		System.out.println(test.convertBCDToBigDec(testInput, 1).toString());
+		byte[] testInput = {0x01,0x45,0x12,0x3D};
+		BigDecimal testBig = test.convertBCDToBigDec(testInput, 2);
+		System.out.println(test.convertBCDToBigDec(testInput, 2).toString());
 //		System.out.println(test.convertBCDToInt(testInput));
 //		byte[] testInput = {(byte) 0x0f,(byte) 0xff, (byte) 0xfb, 0x2e};
 //		System.out.println(test.convertBytesToInt(testInput, false));
 //		byte[] testInput2 = {(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte) 0xD4};
 //		System.out.println(test.convertDisplayToLong(testInput2, true));
-		int testInt = 151;
-		System.out.println(test.printByteArray(test.convertIntToBCD(testInt, false)));
+		long testInt = 123456789123456789L;
+		System.out.println(test.printByteArray(test.convertLongToBCD(testInt, true)));
+		//BigDecimal testBig = new BigDecimal(123123123.1);
+		//testBig.setScale(1);
+		System.out.println(test.printByteArray(test.convertBigDecimalToBCD(testBig, true)));
 		//System.out.println(Integer.toHexString(-123));
 	}
 	
