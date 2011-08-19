@@ -274,7 +274,7 @@ public class MyMath {
 	}
 	
 	/**
-	 * Convert  Bytes to Int usage Display
+	 * Convert Bytes to Int usage Display
 	 * TODO:Handle EBCDIC
 	 * @param input
 	 * @param signed
@@ -283,7 +283,7 @@ public class MyMath {
 	public int convertDisplayToInt(byte[] input, boolean signed) {
 		int result = 0;
 		if (input.length > 9) {
-			throw new OverflowException("Length of bytes array is too Long");
+			throw new OverflowException("Length of bytes array is too Long > 9");
 		}
 		if (signed) {
 			boolean negate = false;
@@ -330,7 +330,7 @@ public class MyMath {
 	public long convertDisplayToLong(byte[] input, boolean signed) {
 		long result = 0;
 		if (input.length > 18) {
-			throw new OverflowException("Convert Bytes(Display) to Long failed " + input); 
+			throw new OverflowException("Length of Bytes array is too Long > 18"); 
 		}
 		if (signed) {
 			boolean negate = false;
@@ -418,6 +418,85 @@ public class MyMath {
 		return result;
 	}
 	
+	/**
+	 * Convert Int to bytes array (usage display)
+	 * TODO: Handle EBCDIC
+	 * @param input
+	 * @param signed
+	 * @return
+	 */
+	public byte[] convertIntToDisplay(int input, boolean signed) {
+		String inputStr = String.valueOf(Math.abs(input));
+		int byteLength = inputStr.length();
+		if (byteLength > 9) {
+			throw new ArithmeticException("Length of int value is too long > 9"); 
+		}
+		ByteBuffer buffer;
+		buffer = ByteBuffer.wrap(new byte[byteLength]);
+		byte signByte = (byte) 0xF0;
+		if (signed) {
+			if  (input < 0) {
+				signByte = (byte) 0xD0;
+			} else {
+				signByte = (byte) 0xC0;
+			}
+		}
+		input = Math.abs(input);
+		int lastDigit = input % 10;
+		signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
+		buffer.position(byteLength - 1);
+		buffer.put(signByte);
+		buffer.position(0);
+		buffer.put(inputStr.substring(0, byteLength-1).getBytes());
+		return buffer.array();
+	}
+	
+	/**
+	 * Convert Long to bytes array (usage display)
+	 * TODO: Handle EBCDIC
+	 * @param input
+	 * @param signed
+	 * @return
+	 */
+	public byte[] convertLongToDisplay(long input, boolean signed) {
+		String inputStr = String.valueOf(Math.abs(input));
+		int byteLength = inputStr.length();
+		if (byteLength > 18) {
+			throw new ArithmeticException("Length of long value is too long > 18"); 
+		}
+		ByteBuffer buffer;
+		buffer = ByteBuffer.wrap(new byte[byteLength]);
+		byte signByte = (byte) 0xF0;
+		if (signed) {
+			if  (input < 0) {
+				signByte = (byte) 0xD0;
+			} else {
+				signByte = (byte) 0xC0;
+			}
+		}
+		input = Math.abs(input);
+		int lastDigit = (int) (input % 10);
+		signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
+		buffer.position(byteLength - 1);
+		buffer.put(signByte);
+		buffer.position(0);
+		buffer.put(inputStr.substring(0, byteLength-1).getBytes());
+		return buffer.array();
+	}
+	/**
+	 * Convert Long to bytes array (usage display)
+	 * TODO: Handle EBCDIC
+	 * @param input
+	 * @param signed
+	 * @return
+	 */
+	public byte[] convertBigDecimalToDisplay(BigDecimal input, boolean signed) {
+		input = input.scaleByPowerOfTen(input.scale());
+		long longVal = input.longValue();
+		return this.convertLongToDisplay(longVal, signed);
+	}
+	
+	
 	public String printByteArray(byte[] input) {
 		String result = "";
 		for (byte b : input) {
@@ -437,14 +516,17 @@ public class MyMath {
 //		System.out.println(test.convertBCDToInt(testInput));
 //		byte[] testInput = {(byte) 0x0f,(byte) 0xff, (byte) 0xfb, 0x2e};
 //		System.out.println(test.convertBytesToInt(testInput, false));
-//		byte[] testInput2 = {(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte) 0xD4};
-//		System.out.println(test.convertDisplayToLong(testInput2, true));
+		byte[] testInput2 = {(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte)0x31,(byte) 0xD4};
+		System.out.println(test.convertDisplayToLong(testInput2, true));
 		long testInt = 123456789123456789L;
 		System.out.println(test.printByteArray(test.convertLongToBCD(testInt, true)));
 		//BigDecimal testBig = new BigDecimal(123123123.1);
 		//testBig.setScale(1);
 		System.out.println(test.printByteArray(test.convertBigDecimalToBCD(testBig, true)));
 		//System.out.println(Integer.toHexString(-123));
+		int testIntDisplay = -123;
+		System.out.println(test.printByteArray(test.convertIntToDisplay(testIntDisplay, false)));
+		System.out.println(test.printByteArray(test.convertLongToDisplay(test.convertDisplayToLong(testInput2, true),true)));
 	}
 	
 };
