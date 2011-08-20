@@ -6,7 +6,9 @@ import java.nio.ByteBuffer;
 import com.res.java.lib.exceptions.OverflowException;
 
 public class BaseClass {
-	private byte[] data;
+	public byte[] data;
+	
+	
 	public BigDecimal convertBCDToBigDec(byte[] input, int scale) {
 		boolean sign = false;
 		BigDecimal result = new BigDecimal(0);
@@ -105,11 +107,10 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertIntToBCD(int input, boolean signed) {
+	public byte[] convertIntToBCD(int input, byte[] dest, int offset, boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
-		byte[] result = new byte[byteLength];
-		buffer = ByteBuffer.wrap(result);
+		buffer = ByteBuffer.wrap(dest);
 		byte signByte = 0x0F;
 		if (signed) {
 			if  (input < 0) {
@@ -121,11 +122,11 @@ public class BaseClass {
 		input = Math.abs(input);
 		int lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
-		buffer.position(byteLength - 1);
+		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
 		input = input / 10;
 		for (int index = 1; index < byteLength; index++ , input /= 100) {
-			buffer.position(byteLength - index - 1);
+			buffer.position(byteLength + offset - index - 1);
 			buffer.put(TranslateConstants.PACKED_DECIMALS[input % 100]);
 		}
 		
@@ -146,11 +147,10 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertLongToBCD(long input, boolean signed) {
+	public void convertLongToBCD(long input, byte[] dest, int offset, boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
-		byte[] result = new byte[byteLength];
-		buffer = ByteBuffer.wrap(result);
+		buffer = ByteBuffer.wrap(dest);
 		byte signByte = 0x0F;
 		if (signed) {
 			if  (input < 0) {
@@ -162,15 +162,14 @@ public class BaseClass {
 		input = Math.abs(input);
 		long lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
-		buffer.position(byteLength - 1);
+		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
 		input = input / 10;
-		for (int index = 1; index < byteLength; index++ , input /= 100) {
-			buffer.position(byteLength - index - 1);
+		for (int index = 1 ; index < byteLength ; index++ , input /= 100) {
+			buffer.position(byteLength + offset - index - 1);
 			buffer.put(TranslateConstants.PACKED_DECIMALS[(int) (input % 100)]);
 		}
 		
-		return buffer.array();
 	}
 	/**
 	 * Convert BigDecimal to BCD, remember to normalize BigDecimal before set
@@ -178,11 +177,10 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertBigDecimalToBCD(BigDecimal input, boolean signed) {
+	public void convertBigDecimalToBCD(BigDecimal input, byte[] dest, int offset, boolean signed) {
 		input = input.scaleByPowerOfTen(input.scale());
 		long longVal = input.longValue();
-		return convertLongToBCD(longVal, signed);
-		
+		convertLongToBCD(longVal, dest, offset, signed);
 	}
 	
 	/*
@@ -388,14 +386,14 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertIntToDisplay(int input, boolean signed) {
+	public void convertIntToDisplay(int input, byte[] dest, int offset, boolean signed) {
 		String inputStr = String.valueOf(Math.abs(input));
 		int byteLength = inputStr.length();
 		if (byteLength > 9) {
 			throw new ArithmeticException("Length of int value is too long > 9"); 
 		}
 		ByteBuffer buffer;
-		buffer = ByteBuffer.wrap(new byte[byteLength]);
+		buffer = ByteBuffer.wrap(dest);
 		byte signByte = (byte) 0xF0;
 		if (signed) {
 			if  (input < 0) {
@@ -407,11 +405,10 @@ public class BaseClass {
 		input = Math.abs(input);
 		int lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
-		buffer.position(byteLength - 1);
+		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
-		buffer.position(0);
+		buffer.position(offset);
 		buffer.put(inputStr.substring(0, byteLength-1).getBytes());
-		return buffer.array();
 	}
 	
 	/**
@@ -421,14 +418,14 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertLongToDisplay(long input, boolean signed) {
+	public void convertLongToDisplay(long input, byte[] dest, int offset, boolean signed) {
 		String inputStr = String.valueOf(Math.abs(input));
 		int byteLength = inputStr.length();
 		if (byteLength > 18) {
 			throw new ArithmeticException("Length of long value is too long > 18"); 
 		}
 		ByteBuffer buffer;
-		buffer = ByteBuffer.wrap(new byte[byteLength]);
+		buffer = ByteBuffer.wrap(dest);
 		byte signByte = (byte) 0xF0;
 		if (signed) {
 			if  (input < 0) {
@@ -440,11 +437,10 @@ public class BaseClass {
 		input = Math.abs(input);
 		int lastDigit = (int) (input % 10);
 		signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
-		buffer.position(byteLength - 1);
+		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
-		buffer.position(0);
+		buffer.position(offset);
 		buffer.put(inputStr.substring(0, byteLength-1).getBytes());
-		return buffer.array();
 	}
 	/**
 	 * Convert Long to bytes array (usage display)
@@ -453,10 +449,10 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertBigDecimalToDisplay(BigDecimal input, boolean signed) {
+	public void convertBigDecimalToDisplay(BigDecimal input, byte[] dest, int offset, boolean signed) {
 		input = input.scaleByPowerOfTen(input.scale());
 		long longVal = input.longValue();
-		return this.convertLongToDisplay(longVal, signed);
+		convertLongToDisplay(longVal, dest, offset, signed);
 	}
 	
 	
