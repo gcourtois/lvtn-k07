@@ -224,12 +224,14 @@ public class BaseClass {
 			return result;
 		}
 	}
+	
+	
 	/**
-	 * 
+	 * Convert EBCDIC to ASCII
 	 * @param input
 	 * @return
 	 */
-	private byte[] convertEBCDICtoAscii(byte[] input) {
+	private byte[] convertEBCDICtoAscii(byte[] input, int offset) {
 		
 		return null;
 	}
@@ -456,7 +458,7 @@ public class BaseClass {
 	}
 	
 	
-	public String printByteArray(byte[] input) {
+	private String printByteArray(byte[] input) {
 		String result = "";
 		for (byte b : input) {
 			 result +=
