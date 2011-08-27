@@ -1,4 +1,12 @@
 package com.res.java.lib;
+/**
+ * TODO: Handle overflow when putting to bytes array
+ * TODO: Alignment of data
+ * TODO: Sign Trailing/ Sign Leading
+ * TODO: Unsigned Integer/Long
+ * TODO: Convert EBCDIC --> ASCII or EBCDIC --> number
+ */
+
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -8,7 +16,6 @@ import com.res.java.lib.exceptions.OverflowException;
 
 public class BaseClass {
 	public byte[] data;
-	
 	
 	/**
 	 * Convert BCD bytes array to BigDecimal
