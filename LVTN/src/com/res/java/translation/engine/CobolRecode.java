@@ -90,7 +90,7 @@ public class CobolRecode extends DepthFirstVisitor {
 				nextStatementDead.push(true);
 			super.visit(n);
 			((NodeSequence)n.nodeChoice.choice).elementAt(0).accept(this);
-			props=SymbolTable.getScope().lookup(lastTokenString);
+			props=SymbolTable.getInstance().lookup(lastTokenString);
 			if(props!=null) { 
 				props.setGotoTarget(true);
 			}
@@ -98,7 +98,7 @@ public class CobolRecode extends DepthFirstVisitor {
 			NodeListOptional nodelistopt=(NodeListOptional) ((NodeSequence)nodeopt.node).elementAt(0);
 			for(Enumeration<Node> e=nodelistopt.elements();e.hasMoreElements();) {
 				e.nextElement().accept(this);
-				props=SymbolTable.getScope().lookup(lastTokenString);
+				props=SymbolTable.getInstance().lookup(lastTokenString);
 				if(props!=null) { 
 					props.setGotoTarget(true);
 				}
@@ -373,7 +373,7 @@ public class CobolRecode extends DepthFirstVisitor {
 			for(Enumeration<Node> e=n.nodeList.elements();e.hasMoreElements();) {
 				NodeSequence nodeseq=(NodeSequence)e.nextElement();
 				nodeseq.elementAt(0).accept(this);
-				props=SymbolTable.getScope().lookup(lastTokenString);
+				props=SymbolTable.getInstance().lookup(lastTokenString);
 				if(props!=null)
 					props.setAlteredParagraph(true);
 			}

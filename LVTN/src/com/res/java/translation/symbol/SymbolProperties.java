@@ -19,13 +19,11 @@ along with RES.  If not, see <http://www.gnu.org/licenses/>.
 
 @author VenkatK mailto: open.cobol.to.java at gmail.com
  ******************************************************************************/
-import com.res.cobol.Main;
 import java.util.ArrayList;
 
 import com.res.cobol.syntaxtree.DataDescriptionEntry;
 import com.res.java.lib.Constants;
 import com.res.java.translation.engine.ExpressionString;
-import com.res.java.util.NameUtil;
 
 public class SymbolProperties implements Cloneable {
 
@@ -36,8 +34,18 @@ public class SymbolProperties implements Cloneable {
     public void setDataName(String dataName) {
         this.dataName = dataName;
     }
+    
+    private String qualifiedName;
+    
+    public String getQualifiedName() {
+		return qualifiedName;
+	}
 
-    public short getLevelNumber() {
+	public void setQualifiedName(String qualifiedName) {
+		this.qualifiedName = qualifiedName;
+	}
+
+	public short getLevelNumber() {
         return levelNumber;
     }
 
@@ -53,6 +61,12 @@ public class SymbolProperties implements Cloneable {
         this.pictureString = pictureString;
     }
 
+    /**
+     * @return
+     * 0 = BINARY, 1 = PACKED DECIMAL, 2 = DISPLAY, 3 = COMPUTATIONAL1, 4 = COMPUTATIONAL2,
+     * 5 = FLOATING POINT, 6 = COMPUTATIONAL5
+     * @see: {@link Constants}
+     */
     public short getDataUsage() {
         return dataUsage;
     }
@@ -75,6 +89,16 @@ public class SymbolProperties implements Cloneable {
         this.identifierType = javaType.type;
     }
 
+    /**
+     * @return:
+     * 0 = PROGRAM
+     * 1 = DATA
+     * 2 = PARAGRAPH
+     * 3 = SECTION
+     * 4 = FILE
+     * 5 = DUMMY
+     * @see: {@link SymbolConstants}
+     */
     public short getType() {
         return type;
     }
@@ -121,22 +145,6 @@ public class SymbolProperties implements Cloneable {
 
     public void setMajorIndex(SymbolProperties fallThruPara) {
         this.majorIndex = fallThruPara;
-    }
-
-    public String getValue1() {
-        return value1;
-    }
-
-    public void setValue1(String value1) {
-        this.value1 = value1;
-    }
-
-    public String getValue2() {
-        return value2;
-    }
-
-    public void setValue2(String value2) {
-        this.value2 = value2;
     }
 
     public boolean getIsFiller() {
@@ -297,7 +305,8 @@ public class SymbolProperties implements Cloneable {
 
     public String getMaxOccurs() {
         if (dependingOnOccurs != null) {
-            return NameUtil.getJavaName(dependingOnOccurs, false);
+//            return NameUtil.getJavaName(dependingOnOccurs, false);
+        	return dependingOnOccurs.getDataName();
         }
         return String.valueOf(maxOccurs);
     }
@@ -692,7 +701,6 @@ public class SymbolProperties implements Cloneable {
     private boolean isAlphabeticTested;
     private boolean isAlphabeticLowerTested;
     private boolean isAlphabeticUpperTested;
-    private boolean isSpacesTested;
     private boolean isAParentInOccurs;
     private boolean isSigned;//These are duplicated here with Constants.
     //May have to re-factor out the duplications
@@ -716,7 +724,6 @@ public class SymbolProperties implements Cloneable {
     private boolean fromRESLibrary;
     private boolean isGotoTarget;
     private boolean isIndexRedefines;
-    private boolean isAsBytesAccessor;
     private boolean isLinkageSection;
     private boolean isIndexedFileRecord;
     private boolean isAllIndexes = true;
@@ -861,14 +868,6 @@ public class SymbolProperties implements Cloneable {
         return dataUsage == Constants.COMPUTATIONAL1 || dataUsage == Constants.COMPUTATIONAL2;
     }
 
-    public void setSpacesTested(boolean isSpacesTested) {
-        this.isSpacesTested = isSpacesTested;
-    }
-
-    public boolean isSpacesTested() {
-        return isSpacesTested;
-    }
-
     public void setIndexRedefines(boolean isIndexRedefines) {
         this.isIndexRedefines = isIndexRedefines;
     }
@@ -883,14 +882,6 @@ public class SymbolProperties implements Cloneable {
 
     public boolean isAllIndexes() {
         return isAllIndexes;
-    }
-
-    public void setAsBytesAccessor(boolean isAsBytesAccessor) {
-        this.isAsBytesAccessor = isAsBytesAccessor;
-    }
-
-    public boolean isAsBytesAccessor() {
-        return isAsBytesAccessor;
     }
 
     public SymbolProperties findNearestCobolBean() {
@@ -925,14 +916,6 @@ public class SymbolProperties implements Cloneable {
 
     public SymbolProperties getDependingOnOccurs() {
         return dependingOnOccurs;
-    }
-
-    public String getCobolBeanName() {
-        if (this.isProgram()) {
-            return "this";
-        } else {
-            return this.getJavaName1();
-        }
     }
 
     public boolean equals(SymbolProperties to) {
@@ -983,6 +966,10 @@ public class SymbolProperties implements Cloneable {
         this.dataCategory = dataCategory;
     }
 
+    /**
+     * @return
+     * @see: {@link Constants} 
+     */
     public short getDataCategory() {
         return dataCategory;
     }
@@ -1150,20 +1137,6 @@ public class SymbolProperties implements Cloneable {
         public CobolSymbol(int t) {
             type = (byte) t;
         }
-    }
-
-    public boolean isANumber() {
-        if (this.getJavaType().type <= Constants.BIGDECIMAL && this.getJavaType().type > Constants.CHAR) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isADisplayNumber() {
-        if (isANumber() && dataUsage == Constants.DISPLAY) {
-            return true;
-        }
-        return false;
     }
 
     private long internalMark;

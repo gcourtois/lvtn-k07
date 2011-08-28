@@ -20,21 +20,16 @@ package com.res.java.util;
  @author VenkatK mailto: open.cobol.to.java at gmail.com
  ******************************************************************************/
 
-import com.res.cobol.Main;
-import java.util.Iterator;
-import java.util.Stack;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.TreeSet;
 
 import com.res.common.RESConfig;
-import com.res.java.lib.Constants;
 import com.res.java.lib.RunTimeUtil;
-import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
-import com.res.java.translation.symbol.SymbolUtil;
-import java.util.Arrays;
-import java.util.Collection;
 
+@SuppressWarnings("unchecked")
 public class NameUtil {
 
 	public static String convertCobolNameToJava(String cobolName,
@@ -43,298 +38,40 @@ public class NameUtil {
 		if (cobolName == null)
 			return "";
 
-		cobolName = cobolName.toUpperCase();
-
-		StringBuilder javaName = new StringBuilder(cobolName.length() + 5);
-
 		int i = 0;
-		int j = 0;
-
+		StringBuilder javaName = new StringBuilder();
 		while (i < cobolName.length()) {
+			char c = cobolName.charAt(i);
 			if (i == 0) {
-				if (cobolName.charAt(i) >= 'A' && cobolName.charAt(i) <= 'Z') {
-					if (firstUpper)
-						javaName.append(cobolName.charAt(i));
-					else
-						javaName.append((char) NameUtil.lowerCase[cobolName
-								.charAt(i) - 'A']);
+				// first character
+				if (Character.isLetter(c)) {
+					if (firstUpper) {
+						javaName.append(Character.toUpperCase(c));
+					} else {
+						javaName.append(Character.toLowerCase(c));
+					}
 				} else {
-					javaName.append("_").append(cobolName.charAt(i));
+					javaName.append('_').append(c);
 				}
-			} else if (cobolName.charAt(i) == '-' || cobolName.charAt(i) == '.') {
-				i++;
-				if (cobolName.charAt(i) >= 'A' && cobolName.charAt(i) <= 'Z') {
-					javaName.append(cobolName.charAt(i));
-				} else {
+			} else {
+				// other characters
+				if (c == '-')
 					javaName.append('_');
-					if (cobolName.charAt(i) >= '0'
-							&& cobolName.charAt(i) <= '9')
-						javaName.append(cobolName.charAt(i));
-				}
-			} else {
-				if (cobolName.charAt(i) >= 'A' && cobolName.charAt(i) <= 'Z') {
-					javaName.append((char) NameUtil.lowerCase[cobolName
-							.charAt(i) - 'A']);
-				} else if (cobolName.charAt(i) >= '0'
-						&& cobolName.charAt(i) <= '9'
-						|| cobolName.charAt(i) == '_')
-					javaName.append(cobolName.charAt(i));
-				else
-					;
+				if (Character.isLetterOrDigit(c))
+					javaName.append(c);
 			}
-			i++;
-			j++;
+			i ++;
 		}
-		String name = javaName.toString().trim();
-		if (JAVA_RESERVED_WORDS.contains(name.toLowerCase()))
-			name += String.valueOf(nameMark++) + "_";
-		return name;
+		
+		if (JAVA_RESERVED_WORDS.contains(javaName.toString().toLowerCase())) {
+			javaName.append('_');
+		}
+		
+		return javaName.toString().trim();
 	}
 
-	private static byte[] lowerCase = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-			'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-			'v', 'w', 'x', 'y', 'z' };
-
-	public static String getJavaName(SymbolProperties props2, boolean lastSet) {
-		return getJavaName(props2, lastSet, false);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static String getJavaName(SymbolProperties props2, boolean lastSet,
-			boolean asString) {
-		if (props2.getType() == SymbolConstants.DUMMY)
-			if (!lastSet)
-				return "getNull()";
-			else
-				return "setNull(%0)";
-		if (props2.getIsFiller())
-			if (!lastSet)
-				return SymbolUtil.getInstance().getFillerGetter(props2);
-			else
-				return SymbolUtil.getInstance().getFillerSetter(props2, "%0");
-
-		SymbolProperties props;
-		String s = "";
-
-		if (props2.isVaryingArray() && props2.getParent().isVarying()) {
-			props2 = props2.getParent();
-		} else if (props2.isVaryingLen() && props2.getParent().isVarying()) {
-			if (!lastSet)
-				return getJavaName(props2.getParent(), false) + ".length()";
-			else {
-				RunTimeUtil.getInstance().reportError(
-						"Warning: Setting Varying Length Ignored.", false);
-				return "setNull(%0)";
-			}
-		}
-
-		if (props2.getLevelNumber() == 1
-				&& props2.getPictureString() == null
-				|| (props2.getLevelNumber() == 88
-						&& (props2.getParent().getLevelNumber() == 1 || props2
-								.getParent().getLevelNumber() == 77) && props2
-						.getPictureString() == null)) {
-			if (RESConfig.getInstance().isUsePointers()) {
-				s = "get" + getJavaName2(props2) + (asString ? "AsString" : "")
-						+ "()";
-				if (lastSet) {
-					s += "set" + "(%0)";
-				}
-			} else {
-				if (!lastSet) {
-					s = "get" + getJavaName2(props2)
-							+ (asString ? "AsString" : "") + "()";
-				} else {
-					s = "set" + getJavaName2(props2) + "(%0)";
-				}
-			}
-			if (!lastSet && asString) {
-				props2.setIdentifierType(Constants.STRING);
-			}
-			if (NameUtil.appendInstance)
-				return "instance_." + s;
-			else
-				return s;
-		}
-
-		props = props2;
-
-		@SuppressWarnings("rawtypes")
-		Stack st = new Stack();
-		boolean isFirst = true;
-		while (props != null) {
-			if (!props.getIsSuppressed()
-					&& !(props.getIsFiller() && !props.is01Group()))
-				if (props.getType() == SymbolConstants.DATA)
-					if (props.getLevelNumber() == 1
-							|| props.getLevelNumber() == 77 || isFirst)
-						st.push(props);
-			props = (SymbolProperties) props.getParent();
-			isFirst = false;
-		}
-
-		boolean doRefModSet = false;
-		String refModSet = "";
-		if (lastSet
-				&& !(props2.getSubstringWorkSpace() == null || props2
-						.getSubstringWorkSpace().size() <= 0)) {
-			doRefModSet = true;
-		}
-		boolean first = true;
-		while (st != null && st.size() > 0) {
-			props = (SymbolProperties) st.pop();
-			if (!first) {
-				s += ".";
-				if (doRefModSet)
-					refModSet += ".";
-			}
-
-			if (st.size() > 0) {
-				s += getJavaName1(props);
-				if (doRefModSet)
-					refModSet += getJavaName1(props);
-			} else if (!lastSet) {
-				s += "get" + getJavaName2(props) + (asString ? "AsString" : "");
-			} else {
-				if (doRefModSet)
-					refModSet += "get" + getJavaName2(props)
-							+ (asString ? "AsString" : "");
-				s += "set" + getJavaName2(props);
-			}
-			first = false;
-		}
-		if (!lastSet) {
-			s += "(" + NameUtil.getJavaIndexes(props2) + ")";
-		} else {
-			if (RESConfig.getInstance().isUsePointers()) {
-				s = "get" + getJavaName2(props2) + (asString ? "AsString" : "")
-						+ "()";
-				if (lastSet) {
-					s += "set" + "(%0)";
-				}
-			} else {
-				String ind;
-				if ((ind = NameUtil.getJavaIndexes(props2)).length() <= 0) {
-					s += "(%0)";
-					if (doRefModSet) {
-						refModSet += "()";
-					}
-				} else {
-					s += "(%0," + ind + ")";
-					if (doRefModSet) {
-						refModSet += "(" + ind + ")";
-					}
-				}
-			}
-		}
-
-		if (!lastSet)
-			s = NameUtil.doRefMod(props2, s);
-		else if (doRefModSet)
-			s = NameUtil.doRefMod2(props2, s, refModSet);
-
-		if (NameUtil.appendInstance)
-			return "instance_." + s;
-		else
-			return s;
-	}
-
-	public static String getJavaIndexes(SymbolProperties props) {
-		if (props.getIndexesWorkSpace() == null
-				|| props.getIndexesWorkSpace().size() <= 0)
-			return "";
-		String s = "";
-		if (props.getIndexesWorkSpace() != null
-				&& props.getIndexesWorkSpace().size() > 0) {
-			for (Iterator<String> ite = props.getIndexesWorkSpace().iterator(); ite
-					.hasNext();) {
-				s += ite.next();
-				if (ite.hasNext())
-					s += ",";
-			}
-		}
-		return s;
-	}
-
-	static String doRefMod(SymbolProperties props, String s) {
-
-		if (props.getSubstringWorkSpace() == null
-				|| props.getSubstringWorkSpace().size() <= 0) {
-			return s;
-
-		}
-		if (props.getIsFormat()) {
-			s = NameUtil.getFormatName2(props, true).replace("%0", s);
-
-		}
-		s = "new CobolString(" + s + ").substring("
-				+ NameUtil.simplify(props.getSubstringWorkSpace().get(0));
-		if (props.getSubstringWorkSpace().size() > 1) {
-			s += "," + NameUtil.simplify(props.getSubstringWorkSpace().get(1));
-
-		}
-		s += ")";
-
-		// s = TranslationTable.getInstance().convertType(s,
-		// props.getJavaType().type, Constants.STRING);
-		props.setIdentifierType(Constants.STRING);
-		return s;
-
-	}
-
-	static String doRefMod2(SymbolProperties props, String s, String g) {// Set
-																			// RefMod
-
-		return "";
-	}
-
-	static String simplify(String expr) {
-		return expr;// simply.simplify(expr);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Deprecated
-	public static String getFormatName(final SymbolProperties props2,
-			boolean force) {
-		if (!props2.getIsFormat())
-			return "";
-		SymbolProperties props = props2;
-		String s = "";
-		@SuppressWarnings("rawtypes")
-		Stack st = new Stack();
-		while (props != null) {
-			if (!props.getIsSuppressed())
-				if (props.getType() == SymbolConstants.DATA)
-					if (props.getLevelNumber() == 1
-							|| props.getLevelNumber() == 77
-							|| props.getPictureString() != null)
-						st.push(props);
-
-			props = (SymbolProperties) props.getParent();
-		}
-		boolean first = true;
-		while (st != null && st.size() > 0) {
-			props = (SymbolProperties) st.pop();
-			String name1 = (String) getJavaName1(props);
-			String name2 = (String) getJavaName2(props);
-			if (!first)
-				s += ".";
-			if (st.size() == 0) {
-				s += name1 + "Fmt_";
-			} else
-				s += name2;
-			first = false;
-		}
-		return s + ".format";
-	}
-
-	public static String getSetName(SymbolProperties props2) {
-		return "set" + getJavaName2(props2);
-	}
-
-	public static String getFileName(SymbolProperties props2, boolean isData) {
-		String s = getJavaName2(props2) + ".java";
-		return s;
+	public static String getFileName(SymbolProperties props) {
+		return getJavaName2(props) + ".java";
 	}
 
 	public static String getBeanInfoFileName(SymbolProperties props2,
@@ -354,7 +91,7 @@ public class NameUtil {
 
 			SymbolProperties props = props2;
 
-			props = SymbolTable.getScope().getFirstProgram();
+			props = SymbolTable.getInstance().getFirstProgram();
 
 			if (props != null && !props.isProgram())
 				props = null;
@@ -382,16 +119,6 @@ public class NameUtil {
 		return p;
 	}
 
-	public static String getPackageName(String suffix, boolean isData) {
-		String p = null;
-		if (isData)
-			p = RESConfig.getInstance().getDataPackage();
-		else
-			p = RESConfig.getInstance().getProgramPackage();
-		if (suffix != null && suffix.trim().length() > 0)
-			p += '.' + suffix.toLowerCase();
-		return p;
-	}
 
 	public static String getClassName(String fileName, String suffix,
 			boolean isData) {
@@ -401,26 +128,6 @@ public class NameUtil {
 		}
 		return c;
 	}
-
-	public static String getLongClassName(String fileName, String suffix,
-			boolean isData) {
-		String lc = getPackageName(suffix, isData) + "."
-				+ convertCobolNameToJava(fileName, true);
-		if (suffix != null && suffix.trim().length() > 0) {
-			lc += convertCobolNameToJava(suffix, true);
-		}
-		return lc;
-	}
-
-	public static String getProgramName(SymbolProperties props) {
-		while (props != null && props.getType() != SymbolConstants.PROGRAM)
-			props = props.getParent();
-		if (props != null)
-			return props.getDataName();
-		return "";
-	}
-
-	private static boolean appendInstance = false;
 
 	private static final TreeSet<String> JAVA_RESERVED_WORDS = new TreeSet<String>();
 
@@ -437,8 +144,6 @@ public class NameUtil {
 				"while" }));
 
 	}
-
-	public static long nameMark = 1;
 
 	public static String getJavaName1(SymbolProperties props) {
 		if (props.getJavaName1() != null)
@@ -457,58 +162,5 @@ public class NameUtil {
 				"Error: Java name for " + props.getDataName()
 						+ " is null. Contact RES support.", true);
 		return "NullName";
-	}
-
-	public static String convertCobolNameToSQL(String name) {
-		return convertCobolNameToJava(
-				RunTimeUtil.getInstance().stripQuotes(name.toUpperCase())
-						.replace('.', '_'), true);
-	}
-
-	public static String getFormatName2(SymbolProperties lhs, boolean b) {
-
-		if (!lhs.getIsFormat() || lhs.getType() == SymbolConstants.DUMMY) {
-			lhs.setIsFormat(false);
-			return "%0";
-		}
-
-		SymbolProperties props = lhs;
-		String s = "";
-		Stack<SymbolProperties> st = new Stack<SymbolProperties>();
-		while (props != null) {
-			if (!props.getIsSuppressed())
-				if (props.getType() == SymbolConstants.DATA)
-					if (props.getLevelNumber() == 1
-							|| props.getLevelNumber() == 77
-							|| props.getPictureString() != null)
-						st.push(props);
-
-			props = (SymbolProperties) props.getParent();
-		}
-
-		boolean first = true;
-
-		while (st != null && st.size() > 0) {
-			props = (SymbolProperties) st.pop();
-			String name1 = (String) getJavaName1(props);
-			String name2 = (String) getJavaName2(props);
-			if (!first)
-				s += ".";
-			if (st.size() == 0) {
-				s += name1 + "Fmt_";
-			} else
-				s += name2;
-			first = false;
-		}
-		/*
-		 * if(Main.getContext().isDecimalPointIsComma())
-		 * if(Main.getContext().getCurrencySign()!=null) return
-		 * s+".format(%0,"+Main.getContext().getCurrencySign()+",true"+")"; else
-		 * return s+".format(%0"+",true"+")"; else
-		 * if(Main.getContext().getCurrencySign()!=null) return
-		 * s+".format(%0,"+Main.getContext().getCurrencySign()+",false)"; else
-		 */
-		return s + ".format(%0)";
-
 	}
 }

@@ -32,7 +32,7 @@ public class Files {
 	
 	public static PrintStream openClassFile(SymbolProperties props,boolean isData) {
 			String path=NameUtil.getPackageName(props,!isData).replace('.',File.separatorChar);
-			path+=File.separatorChar+NameUtil.getFileName(props,isData);	
+			path+=File.separatorChar+NameUtil.getFileName(props);	
 			return openClassFile(path);
 	}
 	
@@ -47,7 +47,7 @@ public class Files {
 			
 			String path=NameUtil.getPackageName(props,!isData).replace('.',File.separatorChar);
 			
-			path+=File.separatorChar+NameUtil.getFileName(props,isData);		
+			path+=File.separatorChar+NameUtil.getFileName(props);		
 			int i = path.indexOf(File.separatorChar);
 			String dirStr = "";
 			File dir = null;

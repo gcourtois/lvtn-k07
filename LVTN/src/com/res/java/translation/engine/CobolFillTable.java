@@ -21,20 +21,115 @@ along with RES.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 import com.res.cobol.RESNode;
 import com.res.cobol.parser.CobolParserConstants;
-import com.res.cobol.syntaxtree.*;
+import com.res.cobol.syntaxtree.AcceptStatement;
+import com.res.cobol.syntaxtree.AccessModeClause;
+import com.res.cobol.syntaxtree.AddStatement;
+import com.res.cobol.syntaxtree.AlternateRecordKeyClause;
+import com.res.cobol.syntaxtree.ArithIdentifier;
+import com.res.cobol.syntaxtree.ArithmeticExpression;
+import com.res.cobol.syntaxtree.AssignClause;
+import com.res.cobol.syntaxtree.Basis;
+import com.res.cobol.syntaxtree.BeforeAfterPhrase;
+import com.res.cobol.syntaxtree.CallByContentArgs;
+import com.res.cobol.syntaxtree.CallByReferenceArgs;
+import com.res.cobol.syntaxtree.CallStatement;
+import com.res.cobol.syntaxtree.CancelStatement;
+import com.res.cobol.syntaxtree.CdName;
+import com.res.cobol.syntaxtree.ClassCondition;
+import com.res.cobol.syntaxtree.CommunicationIOClause;
+import com.res.cobol.syntaxtree.CommunicationInputClause;
+import com.res.cobol.syntaxtree.CommunicationOutputClause;
+import com.res.cobol.syntaxtree.CompilationUnit;
+import com.res.cobol.syntaxtree.ComputeStatement;
+import com.res.cobol.syntaxtree.ConditionNameReference;
+import com.res.cobol.syntaxtree.ConvertingPhrase;
+import com.res.cobol.syntaxtree.DataBlankWhenZeroClause;
+import com.res.cobol.syntaxtree.DataDescriptionEntry;
+import com.res.cobol.syntaxtree.DataExternalClause;
+import com.res.cobol.syntaxtree.DataJustifiedClause;
+import com.res.cobol.syntaxtree.DataName;
+import com.res.cobol.syntaxtree.DataOccursClause;
+import com.res.cobol.syntaxtree.DataPictureClause;
+import com.res.cobol.syntaxtree.DataRedefinesClause;
+import com.res.cobol.syntaxtree.DataSignClause;
+import com.res.cobol.syntaxtree.DataUsageClause;
+import com.res.cobol.syntaxtree.DataValueClause;
+import com.res.cobol.syntaxtree.Declaratives;
+import com.res.cobol.syntaxtree.DivideStatement;
+import com.res.cobol.syntaxtree.EntryStatement;
+import com.res.cobol.syntaxtree.ExecSqlStatement;
+import com.res.cobol.syntaxtree.ExternalClause;
+import com.res.cobol.syntaxtree.FigurativeConstant;
+import com.res.cobol.syntaxtree.FileAndSortDescriptionEntry;
+import com.res.cobol.syntaxtree.FileName;
+import com.res.cobol.syntaxtree.FileStatusClause;
+import com.res.cobol.syntaxtree.IdOrLiteral;
+import com.res.cobol.syntaxtree.InitializeStatement;
+import com.res.cobol.syntaxtree.InspectStatement;
+import com.res.cobol.syntaxtree.IntegerConstant;
+import com.res.cobol.syntaxtree.KeyClause;
+import com.res.cobol.syntaxtree.LeftmostCharacterPosition;
+import com.res.cobol.syntaxtree.Length;
+import com.res.cobol.syntaxtree.LevelNumber;
+import com.res.cobol.syntaxtree.LinkageSection;
+import com.res.cobol.syntaxtree.Literal;
+import com.res.cobol.syntaxtree.MoveStatement;
+import com.res.cobol.syntaxtree.MultiplyStatement;
+import com.res.cobol.syntaxtree.NestedProgramIdParagraph;
+import com.res.cobol.syntaxtree.NestedProgramUnit;
+import com.res.cobol.syntaxtree.Node;
+import com.res.cobol.syntaxtree.NodeChoice;
+import com.res.cobol.syntaxtree.NodeList;
+import com.res.cobol.syntaxtree.NodeListOptional;
+import com.res.cobol.syntaxtree.NodeOptional;
+import com.res.cobol.syntaxtree.NodeSequence;
+import com.res.cobol.syntaxtree.NodeToken;
+import com.res.cobol.syntaxtree.OpenStatement;
+import com.res.cobol.syntaxtree.OrganizationClause;
+import com.res.cobol.syntaxtree.Paragraph;
+import com.res.cobol.syntaxtree.ParagraphName;
+import com.res.cobol.syntaxtree.PerformOption;
+import com.res.cobol.syntaxtree.PerformVarying;
+import com.res.cobol.syntaxtree.PictureCurrency;
+import com.res.cobol.syntaxtree.PictureString;
+import com.res.cobol.syntaxtree.ProcedureDivision;
+import com.res.cobol.syntaxtree.ProcedureName;
+import com.res.cobol.syntaxtree.ProcedureSection;
+import com.res.cobol.syntaxtree.ProgramIdParagraph;
+import com.res.cobol.syntaxtree.ProgramName;
+import com.res.cobol.syntaxtree.ProgramUnit;
+import com.res.cobol.syntaxtree.QualifiedDataName;
+import com.res.cobol.syntaxtree.ReadStatement;
+import com.res.cobol.syntaxtree.RecordContainsClause;
+import com.res.cobol.syntaxtree.RenamesClause;
+import com.res.cobol.syntaxtree.ReplacingPhrase;
+import com.res.cobol.syntaxtree.RewriteStatement;
+import com.res.cobol.syntaxtree.SameAreaClause;
+import com.res.cobol.syntaxtree.SearchStatement;
+import com.res.cobol.syntaxtree.SectionHeader;
+import com.res.cobol.syntaxtree.SectionName;
+import com.res.cobol.syntaxtree.SelectClause;
+import com.res.cobol.syntaxtree.SetStatement;
+import com.res.cobol.syntaxtree.Statement;
+import com.res.cobol.syntaxtree.StringStatement;
+import com.res.cobol.syntaxtree.Subscript;
+import com.res.cobol.syntaxtree.SubtractStatement;
+import com.res.cobol.syntaxtree.TallyingPhrase;
+import com.res.cobol.syntaxtree.UnstringStatement;
+import com.res.cobol.syntaxtree.UsingArgs;
+import com.res.cobol.syntaxtree.WorkingStorageSection;
+import com.res.cobol.syntaxtree.WriteStatement;
 import com.res.cobol.visitor.DepthFirstVisitor;
 import com.res.common.RESConfig;
 import com.res.common.RESContext;
 import com.res.java.lib.Constants;
 import com.res.java.lib.FieldFormat;
 import com.res.java.lib.RunTimeUtil;
-import com.res.java.translation.engine.ExpressionString;
-import com.res.java.translation.symbol.SymbolProperties.CobolSymbol;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
@@ -73,7 +168,7 @@ public class CobolFillTable extends DepthFirstVisitor {
 
     @Override
     public void visit(CompilationUnit n) {
-        SymbolTable.getScope().setCloneOnLookup(false);
+        SymbolTable.getInstance().setCloneOnLookup(false);
         super.visit(n);
     }
 
@@ -87,7 +182,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         postProcess(n);
         n.nodeOptional2.accept(this);
         n.nodeListOptional.accept(this);
-        SymbolTable.getScope().endProgram();
+        SymbolTable.getInstance().endProgram();
         firstParagraph = saveFirstParagraph;
     }
 
@@ -106,7 +201,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 for (Object o : file.getOtherData()) {
                     //o=SymbolTable.getScope().lookup((String)o,SymbolConstants.DATA);
                     if (o == null) {
-                        reportError(n, "Invalid Alternat key in file " + file.getDataName() + ".");
+                        reportError(n, "Invalid Alternate key in file " + file.getDataName() + ".");
                     } else {
                         setRef(((SymbolProperties) o));
                         a.add(o);
@@ -121,7 +216,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                     props = null;
                     ((Node) dep.getOtherData2()).accept(this);
                     if (props == null) {
-                        reportError(n, "Unknwon symbol in depending on clase of " + dep.getDataName() + ".");
+                        reportError(n, "Unknown symbol in DEPENDING ON clause of " + dep.getDataName() + ".");
                     } else {
                         dep.setDependingOnOccurs(props);
                         setRef(props);
@@ -136,62 +231,62 @@ public class CobolFillTable extends DepthFirstVisitor {
         firstParagraph = true;
         n.identificationDivision.accept(this);
         n.nodeOptional1.accept(this);
-        createSystemSymbols();
+//        createSystemSymbols();
         n.nodeOptional.accept(this);
         postProcess(n);
         n.nodeOptional2.accept(this);
-        SymbolTable.getScope().endProgram();
+        SymbolTable.getInstance().endProgram();
         //super.visit(n);
     }
 
     private void createSystemSymbols() {
 
-        props = createIndexSymbol("RETURN-CODE", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("RETURN-CODE", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setFromRESLibrary(true);
         //props.setJavaType(new CobolSymbol());
         adjustSetJavaName(props);
 
-        props = createIndexSymbol("FILE-STATUS", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("FILE-STATUS", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setFromRESLibrary(true);
         //props.setJavaType(new CobolSymbol());
         adjustSetJavaName(props);
 
-        props = createIndexSymbol("DEBUG-LINE", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("DEBUG-LINE", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("9(6)");
         props.setDataUsage((short) Constants.DISPLAY);
         //props.setJavaType(new CobolSymbol());
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
-        props = createIndexSymbol("DEBUG-CONTENTS", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("DEBUG-CONTENTS", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(100)");
         props.setDataUsage((short) Constants.DISPLAY);
         props.getJavaType().setType(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
-        props = createIndexSymbol("DEBUG-NAME", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("DEBUG-NAME", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(100)");
         props.setDataUsage((short) Constants.DISPLAY);
         props.getJavaType().setType(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
-        props = createIndexSymbol("DEBUG-SUB-1", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("DEBUG-SUB-1", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(10)");
         props.setDataUsage((short) Constants.DISPLAY);
         props.getJavaType().setType(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
-        props = createIndexSymbol("DEBUG-SUB-2", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("DEBUG-SUB-2", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(10)");
         props.setDataUsage((short) Constants.DISPLAY);
         props.getJavaType().setType(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
-        props = createIndexSymbol("DEBUG-SUB-3", SymbolTable.getScope().getCurrentProgram(), true);
+        props = createIndexSymbol("DEBUG-SUB-3", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(10)");
         props.setDataUsage((short) Constants.DISPLAY);
         props.getJavaType().setType(Constants.STRING);
@@ -199,23 +294,18 @@ public class CobolFillTable extends DepthFirstVisitor {
         adjustSetJavaName(props);
     }
 
-    @Override
-    public void visit(DataDivision n) {
-        super.visit(n);
-    }
-    
     @Override
     public void visit(SectionName n) {
         super.visit(n);
         sectionName = lastTokenString;
-        sectionProps = SymbolTable.getScope().lookup(sectionName, SymbolConstants.SECTION);
+        sectionProps = SymbolTable.getInstance().lookup(sectionName, SymbolConstants.SECTION);
     }
 
     @Override
     public void visit(ParagraphName n) {
         super.visit(n);
         paragraphName = lastTokenString;
-        paragraphProps = SymbolTable.getScope().lookup(paragraphName, SymbolConstants.PARAGRAPH);
+        paragraphProps = SymbolTable.getInstance().lookup(paragraphName, SymbolConstants.PARAGRAPH);
     }
 
     @Override
@@ -223,7 +313,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         sectionName = paragraphName = null;
         n.nodeChoice.choice.accept(this);
         if (paragraphName != null && sectionName != null) {
-            paragraphProps = SymbolTable.getScope().lookup(paragraphName, sectionName);
+            paragraphProps = SymbolTable.getInstance().lookup(paragraphName, sectionName);
         }
     }
 
@@ -283,10 +373,10 @@ public class CobolFillTable extends DepthFirstVisitor {
         parent.getParagraphList().add(props);
 
         //Lookup and Insert
-        if (SymbolTable.getScope().lookup(sectionName) != null) {
+        if (SymbolTable.getInstance().lookup(sectionName) != null) {
             return null;
         } else {
-            SymbolTable.getScope().insert(sectionName, props);
+            SymbolTable.getInstance().insert(sectionName, props);
             dataStack.push(props);
             return props;
         }
@@ -343,11 +433,11 @@ public class CobolFillTable extends DepthFirstVisitor {
             parent.setParagraphList(new ArrayList<SymbolProperties>());
         }
         parent.getParagraphList().add(props);
-        if (SymbolTable.getScope().lookup(paragraphName, parent.getDataName()) != null) {
+        if (SymbolTable.getInstance().lookup(paragraphName, parent.getDataName()) != null) {
             reportError(n, "Duplcate Paragraph: " + paragraphName);
             return;
         } else {
-            SymbolTable.getScope().insert(paragraphName, props);
+            SymbolTable.getInstance().insert(paragraphName, props);
             ((RESNode) n).props = props;
             dataStack.push(props);
         }
@@ -358,43 +448,6 @@ public class CobolFillTable extends DepthFirstVisitor {
     public void visit(EntryStatement n) {
         n.literal.accept(this);
         createProgram(paragraphName = RunTimeUtil.getInstance().stripQuotes(literal.toString(), true), true);
-    }
-
-    @Override
-    public void visit(Paragraphs n) {
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(ProcedureBody n) {
-        super.visit(n);
-    }
-
-    private boolean isInGroupDictionary(String name, SymbolProperties par) {
-        if (par == null) {
-            return false;
-        }
-        ArrayList<String> others = (ArrayList<String>) find01Level(par).getGroupDictionary();
-        if (others != null && others.size() > 0) {
-            for (Iterator<String> ite = others.iterator(); ite.hasNext();) {
-                if (ite.next().equals(name)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private void addToGroupDictionary(String name, SymbolProperties par) {
-        if (par == null) {
-            return;
-        }
-        ArrayList<String> others = (ArrayList<String>) find01Level(par).getGroupDictionary();
-        if (others == null) {
-            others = new ArrayList<String>();
-        }
-        others.add(name);
-        par.setGroupDictionary(others);
     }
 
     private SymbolProperties find01Level(SymbolProperties par) {
@@ -423,7 +476,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         doUseStatementsInDeclaratives = true;
         n.nodeOptional1.accept(this);
         if (!RESConfig.getInstance().isInError()) {
-            SymbolTable.visit(SymbolTable.getScope().getCurrentProgram(), new CalculateSymbolLength());
+            SymbolTable.visit(SymbolTable.getInstance().getCurrentProgram(), new CalculateSymbolLength());
         }
     }
 
@@ -566,7 +619,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         if (lastTokenString != null && lastTokenString.trim().length() > 0
                 && parent != null && parent.getType() == SymbolConstants.PROGRAM
-                && (SymbolTable.getScope().lookup(lastTokenString, parent.getDataName())) == null) {
+                && (SymbolTable.getInstance().lookup(lastTokenString, parent.getDataName())) == null) {
             props = new SymbolProperties();
             props.setType(SymbolConstants.FILE);
             props.setDataName(lastTokenString);
@@ -579,13 +632,13 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
             addChild(props, parent);
             adjustSetJavaName(props);
-            SymbolTable.getScope().insert(props.getDataName(), props);
+            SymbolTable.getInstance().insert(props.getDataName(), props);
             dataStack.push(props);
             filesToPostProcess.add(dataStack.peek());
             props = null;
             if (RESConfig.getInstance().isPrintCobolStatementsAsComments()
                     || RESConfig.getInstance().isRetainCobolComments()) {
-                //props.setDataDescriptionEntry(n);//TODO
+                //props.setDataDescriptionEntry(n);
             }
         }
 
@@ -762,7 +815,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         props.setDataName(dataName);
 
         if (props.getLevelNumber() == 78) {
-            createIndexSymbol(dataName, SymbolTable.getScope().getCurrentProgram(), false);
+            createIndexSymbol(dataName, SymbolTable.getInstance().getCurrentProgram(), false);
             if (props.getValues() == null || props.getValues().size() <= 0) {
                 reportError(n, "78 level VALUE must not be null.");
             }
@@ -779,7 +832,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         props.setType(SymbolConstants.DATA);
         if (usage == Constants.INDEX) {//INDEX
-            parent = SymbolTable.getScope().getCurrentProgram();
+            parent = SymbolTable.getInstance().getCurrentProgram();
         } else {
             parent = find01Level(dataStack.peek());
             if (parent != null && parent.getDataUsage() == Constants.INDEX
@@ -790,8 +843,9 @@ public class CobolFillTable extends DepthFirstVisitor {
                 props.setDataUsage((short) Constants.INDEX);
                 props.setIndexRedefines(true);
                 props.setRedefines(parent);
-                parent = SymbolTable.getScope().getCurrentProgram();
+                parent = SymbolTable.getInstance().getCurrentProgram();
             } else if (props.getLevelNumber() == 66) {
+            	parent = SymbolTable.getInstance().getCurrentProgram();
                 parent.setHasRenames(true);
             } else {
                 while (dataStack.size() > 0
@@ -812,6 +866,8 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         if (parent != null) {
             props.setParent(parent);
+            if (parent.isForceCobolBytes())
+            	props.setForceCobolBytes(true);
             props.setExternal(props.isExternal() || parent.isExternal());
             if (doExternal(SymbolConstants.DATA)) {
                 return;
@@ -836,7 +892,32 @@ public class CobolFillTable extends DepthFirstVisitor {
             props.setPictureString(pictureString);
         }
         adjustSetJavaName(props);
-        SymbolTable.getScope().insert(props.getDataName(), props);
+        
+        if (parent != null && parent.getQualifiedName().contains(props.getDataName())) {
+        	System.err.println("Duplicate name exist in parent group: " + props.getDataName());
+        	System.exit(0);
+        }
+        
+        SymbolProperties tmp = SymbolTable.getInstance().lookup(
+				props.getDataName(),
+				(parent == null ? null : parent.getDataName()));
+        
+        if (tmp != null && tmp.getType() == SymbolConstants.DATA) {
+        	if (parent == null) {
+        		System.err.println("Duplicate data name: " + props.getDataName());
+        		System.exit(0);
+        	} else {
+        		String qName = parent.getQualifiedName() + "." + props.getJavaName2();
+        		if (qName.equalsIgnoreCase(tmp.getQualifiedName())) {
+        			System.err.println("Duplicate data name: "
+							+ props.getDataName() + " in "
+							+ parent.getDataName());
+        			System.exit(0);
+        		}
+        	}
+        }
+        
+        SymbolTable.getInstance().insert(props.getDataName(), props);
         dataStack.push(props);
 
         if (RESConfig.getInstance().isAllSymbols()) {
@@ -886,7 +967,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         if (props == null) {
             return false;
         }
-        SymbolProperties props2 = SymbolTable.getScope().lookup(props.getDataName(), type);
+        SymbolProperties props2 = SymbolTable.getInstance().lookup(props.getDataName(), type);
         if (props2 != null) {
             boolean b = props2.isExternal();
 
@@ -918,8 +999,8 @@ public class CobolFillTable extends DepthFirstVisitor {
         String key1 = props.getDataName() + "-LEN";
         String key2 = props.getDataName() + "-ARR";
         if (props != null && props.isVarying() && pictureString != null
-                && (tempProps = SymbolTable.getScope().lookup(key1, props.getDataName())) == null
-                && (tempProps = SymbolTable.getScope().lookup(key2, props.getDataName())) == null) {
+                && (tempProps = SymbolTable.getInstance().lookup(key1, props.getDataName())) == null
+                && (tempProps = SymbolTable.getInstance().lookup(key2, props.getDataName())) == null) {
 
             tempProps = new SymbolProperties();
             tempProps.setType(SymbolConstants.DATA);
@@ -929,7 +1010,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             //tempProps.setJavaType(new CobolSymbol());
             addChild(tempProps, props);
             tempProps.setVaryingLen(true);
-            SymbolTable.getScope().insert(key1, tempProps);
+            SymbolTable.getInstance().insert(key1, tempProps);
             tempProps = new SymbolProperties();
             tempProps.setType(SymbolConstants.DATA);
             tempProps.setDataName(key2);
@@ -938,7 +1019,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.getJavaType().setType(Constants.STRING);
             addChild(tempProps, props);
             tempProps.setVaryingArray(true);
-            SymbolTable.getScope().insert(key2, tempProps);
+            SymbolTable.getInstance().insert(key2, tempProps);
         }
         return;
 
@@ -955,14 +1036,21 @@ public class CobolFillTable extends DepthFirstVisitor {
                 return;
             }
             if (par == null) {
-                data2 = SymbolTable.getScope().lookup(redefinesName);
+                data2 = SymbolTable.getInstance().lookup(redefinesName);
             } else {
-                data2 = SymbolTable.getScope().lookup(redefinesName, par.getDataName());
+                data2 = SymbolTable.getInstance().lookup(redefinesName, par.getDataName());
             }
         }
         if (data2 == null);//TODO Semantic error
         else {
+        	if (data2.isOccurs()) {
+        		System.out.println("Occurs field cannot be redefined.");
+        		System.exit(0);
+        	}
             props.setRedefines(data2);
+//            setForceByte(props);
+            props.setForceCobolBytes(true);
+            setForceByte(data2);
             ArrayList<SymbolProperties> a = data2.getRedefinedBy();
             if (a == null) {
                 a = new ArrayList<SymbolProperties>();
@@ -978,6 +1066,15 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
     }
 
+    private void setForceByte(SymbolProperties props) {
+    	props.setForceCobolBytes(true);
+    	if (props.getChildren() != null) {
+    		for (SymbolProperties p : props.getChildren()) {
+    			setForceByte(p);
+    		}
+    	}
+    }
+    
     @Override
     public void visit(Subscript n) {
         SymbolProperties propsDataName = props;
@@ -1025,11 +1122,6 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(AddBody n) {
-        super.visit(n);
-    }
-
-    @Override
     public void visit(ArithIdentifier n) {
         super.visit(n);
         if (props == null) {
@@ -1040,11 +1132,6 @@ public class CobolFillTable extends DepthFirstVisitor {
             //SymbolTable.programs.peek().setImportBigDecimal(true);
             expressionType = Constants.BIGDECIMAL;
         }
-    }
-
-    @Override
-    public void visit(ArithIdentifierList n) {
-        super.visit(n);
     }
 
     @Override
@@ -1068,15 +1155,10 @@ public class CobolFillTable extends DepthFirstVisitor {
                 //int prevExpressionType=expressionType;
                 //formatLiteral(literal);
                 if (expressionType == Constants.BIGDECIMAL) {
-                    SymbolTable.getScope().getCurrentProgram().setImportBigDecimal(true);
+                    SymbolTable.getInstance().getCurrentProgram().setImportBigDecimal(true);
                 }
             default:
         }
-    }
-
-    @Override
-    public void visit(IdOrLiteralList n) {
-        super.visit(n);
     }
 
     @Override
@@ -1085,7 +1167,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         //super.visit(n);
         n.programName.accept(this);
         doingProgramName = false;
-        SymbolTable.getScope().startProgram((SymbolProperties) dataStack.peek());
+        SymbolTable.getInstance().startProgram((SymbolProperties) dataStack.peek());
     }
 
     @Override
@@ -1105,7 +1187,7 @@ public class CobolFillTable extends DepthFirstVisitor {
 
         if (isEntry) {
             adjustSetJavaName(props);
-            SymbolTable.getScope().insert(name, props);
+            SymbolTable.getInstance().insert(name, props);
             return;
         }
 
@@ -1128,7 +1210,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         SymbolProperties symbol = null;
         if (parent != null) {
             symbol =
-                    SymbolTable.getScope().lookup(name, (String) parent.getDataName());
+                    SymbolTable.getInstance().lookup(name, (String) parent.getDataName());
             if (symbol != null) {
                 reportError("*** Error: Duplicate Symbol"
                         + (String) props.getDataName() + " IN " + parent.getDataName());
@@ -1138,7 +1220,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 addChild(props, parent);
             }
         } else {
-            symbol = SymbolTable.getScope().lookup(name, SymbolConstants.DATA);
+            symbol = SymbolTable.getInstance().lookup(name, SymbolConstants.DATA);
             if (symbol != null && props.getParent() == null) {
                 reportError("*** Error: Duplicate Symbol"
                         + (String) props.getDataName());
@@ -1146,7 +1228,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
         }
         adjustSetJavaName(props);
-        SymbolTable.getScope().insert(name, props);
+        SymbolTable.getInstance().insert(name, props);
         dataStack.push(props);
         props = null;
     }
@@ -1155,18 +1237,13 @@ public class CobolFillTable extends DepthFirstVisitor {
     public void visit(NestedProgramIdParagraph n) {
         doingProgramName = true;
         super.visit(n);
-        SymbolTable.getScope().startProgram((SymbolProperties) dataStack.peek());
+        SymbolTable.getInstance().startProgram((SymbolProperties) dataStack.peek());
         doingProgramName = false;
     }
 
     @Override
     public void visit(DataExternalClause n) {
         props.setExternal(true);
-    }
-
-    @Override
-    public void visit(DataGlobalClause n) {
-        super.visit(n);
     }
 
     @Override
@@ -1183,7 +1260,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.setType(SymbolConstants.DUMMY);
             //tempProps.setJavaType(new CobolSymbol());
             tempProps.getJavaType().setType(Constants.OBJECT);
-            SymbolTable.getScope().insert(tempProps.getDataName(), tempProps);
+            SymbolTable.getInstance().insert(tempProps.getDataName(), tempProps);
         }
     }
 
@@ -1195,7 +1272,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         tempProps.setType(SymbolConstants.DUMMY);
        // tempProps.setJavaType(new CobolSymbol());
         tempProps.getJavaType().setType(Constants.OBJECT);
-        SymbolTable.getScope().insert(tempProps.getDataName(), tempProps);
+        SymbolTable.getInstance().insert(tempProps.getDataName(), tempProps);
     }
 
     @Override
@@ -1338,7 +1415,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 case 0:
                     break;
                 case 1:
-                    tempprops = SymbolTable.getScope().lookup(lastTokenString);
+                    tempprops = SymbolTable.getInstance().lookup(lastTokenString);
                     if (tempprops == null) {
                         reportError(n, "Unknown Symbol :" + lastTokenString);
                         return;
@@ -1357,7 +1434,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 case 0:
                     break;
                 case 1:
-                    tempprops = SymbolTable.getScope().lookup(lastTokenString);
+                    tempprops = SymbolTable.getInstance().lookup(lastTokenString);
                     if (tempprops == null) {
                         reportError(n, "Unknown Symbol :" + lastTokenString);
                         return;
@@ -1378,7 +1455,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 case 0:
                     break;
                 case 1:
-                    tempprops = SymbolTable.getScope().lookup(lastTokenString);
+                    tempprops = SymbolTable.getInstance().lookup(lastTokenString);
                     if (tempprops == null) {
                         reportError(n, "Unknown Symbol :" + lastTokenString);
                         return;
@@ -1406,7 +1483,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             NodeList nodelist = (NodeList) ((NodeSequence) n.nodeOptional3.node).elementAt(2);
             for (Enumeration<Node> e = nodelist.elements(); e.hasMoreElements();) {
                 ((NodeSequence) e.nextElement()).elementAt(0).accept(this);
-                tempprops = createIndexSymbol(lastTokenString, SymbolTable.getScope().getCurrentProgram(), true);
+                tempprops = createIndexSymbol(lastTokenString, SymbolTable.getInstance().getCurrentProgram(), true);
                 tempprops.setRef(true);
                 if (props.getMajorIndex() == null) {
                     props.setMajorIndex(tempprops);
@@ -1420,7 +1497,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private SymbolProperties createDataSymbol(String dataName, SymbolProperties parent, String picture,
             int usage, int level) {
         SymbolProperties tempProps;
-        if ((tempProps = SymbolTable.getScope().lookup(dataName, parent.getDataName())) == null) {
+        if ((tempProps = SymbolTable.getInstance().lookup(dataName, parent.getDataName())) == null) {
             tempProps = new SymbolProperties();
             tempProps.setType(SymbolConstants.DATA);
             tempProps.setDataName(dataName);
@@ -1433,7 +1510,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             if (RESConfig.getInstance().isAllSymbols()) {
                 tempProps.setRef(true);
             }
-            SymbolTable.getScope().insert(dataName, tempProps);
+            SymbolTable.getInstance().insert(dataName, tempProps);
         } else {
             return null;
         }
@@ -1442,7 +1519,7 @@ public class CobolFillTable extends DepthFirstVisitor {
 
     private SymbolProperties createIndexSymbol(String dataName, SymbolProperties parent, boolean create) {
         SymbolProperties tempProps;
-        if ((tempProps = SymbolTable.getScope().lookup(dataName, parent.getDataName())) == null) {
+        if ((tempProps = SymbolTable.getInstance().lookup(dataName, parent.getDataName())) == null) {
             if (create) {
                 tempProps = new SymbolProperties();
             } else {
@@ -1456,7 +1533,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.setDataUsage((short) Constants.BINARY);
             adjustSetJavaName(tempProps);
             addChild(tempProps, parent);
-            SymbolTable.getScope().insert(dataName, tempProps);
+            SymbolTable.getInstance().insert(dataName, tempProps);
             if (RESConfig.getInstance().isAllSymbols()) {
                 tempProps.setRef(true);
             }
@@ -1502,31 +1579,10 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(NonDotChars n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
     public void visit(PictureCurrency n) {
         this.pictureString += n.nodeToken.tokenImage;
     }
 
-    @Override
-    public void visit(PictureOccurence n) {
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(PicturePunctuation n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(DataRecordClause n) {
-        super.visit(n);
-    }
     private String redefinesName = null;
 
     @Override
@@ -1538,20 +1594,105 @@ public class CobolFillTable extends DepthFirstVisitor {
     public void visit(RenamesClause n) {
         SymbolProperties tempProps;
         tempProps = props;
+        
         n.qualifiedDataName.accept(this);
+        if (props.getLevelNumber() < 2 || props.getLevelNumber() > 50) {
+        	System.out.println("RENAMES cannot reference level 01 or > 50");
+        	System.exit(0);
+        }
         tempProps.setRedefinedBy(new ArrayList<SymbolProperties>());
         tempProps.getRedefinedBy().add(props);
+        
         if (n.nodeOptional.present()) {
+        	// renames a range
             tempProps.setPictureString(null);
+            SymbolProperties from = props;
+            
             n.nodeOptional.accept(this);
+            
+            if (props.getLevelNumber() < 2 || props.getLevelNumber() > 50) {
+            	System.out.println("RENAMES cannot reference level 01 or > 50");
+            	System.exit(0);
+            }
+            
+            SymbolProperties to = props;
+
+            if (from == to) {
+            	System.out.println("Invalid THROUGH clause, same data name: " + from.getDataName());
+            }
+            
+            setForceByte(from, to);
+            
             tempProps.getRedefinedBy().add(props);
+            
         } else {
+        	// if renames another group/element, the renaming field has same data description as redefined field
             tempProps.setPictureString(props.getPictureString());
+            props.setForceCobolBytes(true);
         }
+        tempProps.setForceCobolBytes(true);
         props = tempProps;
     }
 
-    @Override
+    private void setForceByte(SymbolProperties from, SymbolProperties to) {
+    	SymbolProperties parFrom, parTo;
+    	parFrom = from;
+    	while (parFrom.getLevelNumber() != 1) {
+    		parFrom = parFrom.getParent();
+    	}
+    	parTo = to;
+    	while (parTo.getLevelNumber() != 1) {
+    		parTo = parTo.getParent();
+    	}
+    	
+    	if (parFrom != parTo) {
+    		System.out.println("Invalid RENAMES clause. Must reference items within level-01 entry: " + to.getDataName());
+    		System.exit(0);
+    	}
+    	
+    	if (parFrom.isForceCobolBytes())
+    		return;
+    	
+    	List<SymbolProperties> listSym = new ArrayList<SymbolProperties>();
+    	Stack<SymbolProperties> tmp = new Stack<SymbolProperties>();
+    	tmp.push(parFrom);
+    	while (!tmp.isEmpty()) {
+    		SymbolProperties p = tmp.pop();
+    		listSym.add(p);
+    		if (p.getChildren() != null) {
+    			ArrayList<SymbolProperties> children = p.getChildren();
+    			for (int i = children.size() - 1 ; i >= 0; i --) {
+    				tmp.push(children.get(i));
+    			}
+    		}
+    	}
+    	
+    	boolean force = false;
+    	for (int i = 0; i < listSym.size(); i ++) {
+    		SymbolProperties s = listSym.get(i);
+    		if (s == from) {
+    			/*if (i > 0 && listSym.get(i - 1).isGroupData()) {
+					listSym.get(i - 1).setForceCobolBytes(true);
+				}*/
+    			force = true;
+    		}
+    		if (force) {
+    			s.setForceCobolBytes(true);
+    		}
+    		if (s == to) {
+    			/*if (i < listSym.size() - 1 && listSym.get(i + 1).isGroupData()
+						&& !s.getParent().is01Group()) {
+					s.getParent().setForceCobolBytes(true);
+				}*/
+    			if (s.isGroupData()) {
+    				setForceByte(s);
+    			}
+    			break;
+    		}
+    	}
+    }
+
+	@Override
     public void visit(DataSignClause n) {
         if (n.nodeChoice.which == 0) {
             props.setSignLeading(true);
@@ -1560,11 +1701,6 @@ public class CobolFillTable extends DepthFirstVisitor {
             props.setSignSeparate(true);
         }
         //super.visit(n);
-    }
-
-    @Override
-    public void visit(DataSynchronizedClause n) {
-        super.visit(n);
     }
 
     @Override
@@ -1581,15 +1717,15 @@ public class CobolFillTable extends DepthFirstVisitor {
                 pictureString = "-.9(8)E-99";
                 usage = Constants.BINARY;
                 break;
+            case 1://Comp
+            case 7://Computational
             case 4://Comp-3
             case 10://Compuational-3
             case 16://Packed-Decimal
                 usage = Constants.PACKED_DECIMAL;
                 break;
             case 0://Binary
-            case 1://Comp
             case 5://Comp-4
-            case 7://Computational
             case 11://Compuational-4
             case 6://Comp-5
             case 12://Compuational-5
@@ -1679,14 +1815,14 @@ public class CobolFillTable extends DepthFirstVisitor {
                 if (props2 != null) {
                     props2 = findChild(props2, curr);
                 } else {
-                    props2 = SymbolTable.getScope().lookup(curr, prev);
+                    props2 = SymbolTable.getInstance().lookup(curr, prev);
                 }
                 if (props2 == null) {
                     reportError(n, "Unknown Symbol : " + curr + " IN " + prev);
                     break;
                 }
             } else {
-                props2 = SymbolTable.getScope().lookup(curr);
+                props2 = SymbolTable.getInstance().lookup(curr);
                 if (props2 == null) {
                     reportError(n, "Unknown Symbol : " + curr);
                     break;
@@ -1740,37 +1876,9 @@ public class CobolFillTable extends DepthFirstVisitor {
         props = propsDataName;
     }
 
-    @Override
-    public void visit(Identifier n) {
-        super.visit(n);
-    }
     private ArrayList<SymbolProperties> refList = new ArrayList<SymbolProperties>();
     private ArrayList<SymbolProperties> modList = new ArrayList<SymbolProperties>();
 
-    @Override
-    public void visit(DisplayStatement n) {
-        super.visit(n);
-        /*
-        for(Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
-        Node node = ((NodeSequence)e.nextElement()).elementAt(0);
-        if (node instanceof NodeChoice) {
-        NodeChoice nodechoice = (NodeChoice) node;
-        switch(nodechoice.which) {
-        case 0:
-        nodechoice.accept(this);
-        if(isStatementInError||props==null) return;
-        setRef(props);
-        if(props.getPictureString()!=null)
-        props.setIsFormat(true);
-        break;
-        case 1:
-        break;
-        default:
-        }
-        }
-        }
-         */
-    }
     private int expressionType = 0;
 
     @Override
@@ -1885,16 +1993,6 @@ public class CobolFillTable extends DepthFirstVisitor {
             props.setImportLib(Boolean.TRUE);
         }
         //super.visit(n);
-    }
-
-    @Override
-    public void visit(TimesDiv n) {
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(Power n) {
-        super.visit(n);
     }
 
     private void propagateRef(SymbolProperties node) {
@@ -2120,11 +2218,6 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(PerformBody n) {
-        super.visit(n);
-    }
-
-    @Override
     public void visit(PerformOption n) {
         props = null;
         if (n.nodeChoice.which == 0) {
@@ -2252,16 +2345,6 @@ public class CobolFillTable extends DepthFirstVisitor {
      }
 
     @Override
-    public void visit(AbbreviationLeaf n) {
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(AbbreviationRest n) {
-        super.visit(n);
-    }
-
-    @Override
     public void visit(ConditionNameReference n) {
         qualified.clear();
         doQualified = true;
@@ -2282,11 +2365,6 @@ public class CobolFillTable extends DepthFirstVisitor {
                 processQualifiedStack(n);
                 setRef(props);
         }
-    }
-
-    @Override
-    public void visit(RelationCondition n) {
-        super.visit(n);
     }
 
     @Override
@@ -2597,11 +2675,6 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(FileControlClause n) {
-        super.visit(n);
-    }
-
-    @Override
     public void visit(AssignClause n) {
         n.nodeChoice.accept(this);
         if (props != null && props.getType() == SymbolConstants.FILE) {
@@ -2621,7 +2694,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(FileName n) {
         super.visit(n);
-        props = SymbolTable.getScope().lookup(lastTokenString, SymbolConstants.FILE);
+        props = SymbolTable.getInstance().lookup(lastTokenString, SymbolConstants.FILE);
         if (props != null) {
             props.setRef(true);
             propagateRef(props);
@@ -2653,57 +2726,15 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
     }
 
-    @Override
-    public void visit(InputOutputSectionParagraph n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(InputOutputSection n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(EnvironmentSection n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(EnvironmentDivision n) {
-        super.visit(n);
-    }
-    private long dataRenameMark = 0;
-
-    private SymbolProperties findValidParent(SymbolProperties ch) {
+    /*private SymbolProperties findValidParent(SymbolProperties ch) {
         if (ch.is01Group()) {
-            return SymbolTable.getScope().getFirstProgram();
+            return SymbolTable.getInstance().getFirstProgram();
         }
         do {
             ch = ch.getParent();
         } while (ch != null && ch.getIsFiller() && !ch.isProgram());
         return ch;
-    }
-
-    private boolean checkChildExists(SymbolProperties ch, SymbolProperties par) {
-        if (ch.getParent() == null || ch == null || ch.getIsFiller()) {
-            return false;
-        }
-        SymbolProperties symbol = null;
-        do {
-            if (par == null) {
-                break;
-            }
-            symbol = SymbolTable.getScope().lookup(ch.getDataName(), par.getDataName());
-            par = par.getParent();
-        } while (par != null);
-        if (symbol != null) {
-            return true;
-        }
-        return false;
-    }
+    }*/
 
     private void adjustSetJavaName(SymbolProperties p) {
         if (p.isFromRESLibrary()) {
@@ -2718,35 +2749,35 @@ public class CobolFillTable extends DepthFirstVisitor {
             p.setMod(false);
             return;
         }
-        boolean childExists = checkChildExists(p, findValidParent(p));
+//        boolean childExists = checkChildExists(p, findValidParent(p));
         String saveDataName = p.getDataName().replace('.', '-');
         boolean isData = !(p.getType() == SymbolConstants.PROGRAM);
         String javaName = NameUtil.convertCobolNameToJava(p.getDataName(), false);
         char ch = javaName.charAt(0);
-        if (childExists) {
+        /*if (childExists) {
             javaName += "_" + String.valueOf(++dataRenameMark);
-        }
+        }*/
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')); else {
             javaName = "_" + javaName;
         }
-        if (isInGroupDictionary(javaName, p.getParent())) {
-            javaName += new Integer(SymbolTable.duplicateJavaNameMark++).toString().trim();
-        }
-        addToGroupDictionary(javaName, p.getParent());
+//        if (isInGroupDictionary(javaName, p.getParent())) {
+//            javaName += new Integer(SymbolTable.duplicateJavaNameMark++).toString().trim();
+//        }
+//        addToGroupDictionary(javaName, p.getParent());
         p.setJavaName1(javaName);
         javaName = NameUtil.convertCobolNameToJava(p.getDataName(), true);
         ch = javaName.charAt(0);
-        if (childExists) {
+        /*if (childExists) {
             javaName += "_" + String.valueOf(dataRenameMark);
-        }
+        }*/
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')); else {
             javaName = "_" + javaName;
         }
 
-        if (isInGroupDictionary(javaName, p.getParent())) {
-            javaName += new Integer(SymbolTable.duplicateJavaNameMark++).toString().trim();
-        }
-        addToGroupDictionary(javaName, p.getParent());
+//        if (isInGroupDictionary(javaName, p.getParent())) {
+//            javaName += new Integer(SymbolTable.duplicateJavaNameMark++).toString().trim();
+//        }
+//        addToGroupDictionary(javaName, p.getParent());
         p.setJavaName2(javaName);
         p.setDataName(saveDataName);
 
@@ -2848,16 +2879,6 @@ public class CobolFillTable extends DepthFirstVisitor {
                 nodeseq.elementAt(2).accept(this);
             }
         }
-    }
-
-    @Override
-    public void visit(FileAndSortDescriptionEntryClause n) {
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(IntrinsicFunction n) {
-        super.visit(n);
     }
 
     @Override

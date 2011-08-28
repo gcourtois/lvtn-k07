@@ -30,6 +30,7 @@ import com.res.java.lib.RunTimeUtil;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
+import com.res.java.translation.symbol.SymbolUtil;
 import com.res.java.translation.symbol.Visitor;
 import com.res.java.util.FieldAttributes;
 
@@ -58,7 +59,7 @@ public class CalculateSymbolLength implements Visitor {
                 unAdjustedOffset.push(props.getRedefines().getUnAdjustedOffset());
             }
         } else if (props.getType() == SymbolConstants.PROGRAM
-                || (props.is01Group())) {
+                /*|| props.is01Group()*/) {
             offset.push(0);
             unAdjustedOffset.push(0);
         }
@@ -84,8 +85,8 @@ public class CalculateSymbolLength implements Visitor {
     public void visitPostprocess(SymbolProperties props) {
 
         if (Main.getContext().getTraceLevel() >= 2) {
-            System.out.println("Done CalculateSymbolLength symbol " + props.getDataName() + "O=" + props.getOffset()
-                    + "L=" + props.getLength() + "UO=" + props.getUnAdjustedOffset() + "AL=" + props.getAdjustedLength());
+            System.out.println("Done CalculateSymbolLength symbol " + props.getDataName() + " O=" + props.getOffset()
+                    + " L=" + props.getLength() + " UO=" + props.getUnAdjustedOffset() + " AL=" + props.getAdjustedLength());
         }
 
         if (alwaysNoFormat) {
@@ -130,7 +131,7 @@ public class CalculateSymbolLength implements Visitor {
                 }
                 props2 = props2.getRedefines();
             }
-            props2 = props;
+            /*props2 = props;
             props2.setLength(maxLen);
             props2.setAdjustedLength(maxAdjLen);
             if (props2.getRedefinedBy() != null) {
@@ -149,10 +150,10 @@ public class CalculateSymbolLength implements Visitor {
                         r.setAdjustedLength(maxAdjLen);
                     }
                 }
-            }
+            }*/
 
         } else {
-            if (props.getType() == SymbolConstants.PROGRAM || props.is01Group()) {
+            if (props.getType() == SymbolConstants.PROGRAM /*|| props.is01Group()*/) {
                 offset.pop();
                 unAdjustedOffset.pop();
             }
@@ -220,8 +221,6 @@ public class CalculateSymbolLength implements Visitor {
     private static Stack<SymbolProperties> subscriptParents = new Stack<SymbolProperties>();
     private static Stack<Integer> offset = new Stack<Integer>();
     private static Stack<Integer> unAdjustedOffset = new Stack<Integer>();
-    private static Stack<Integer> noLiveFillers = new Stack<Integer>();
-
     private void calculateGroupLength(SymbolProperties props) {
 
         int leng;
@@ -244,9 +243,27 @@ public class CalculateSymbolLength implements Visitor {
         props.setOffset(offset.peek());
         props.setUnAdjustedOffset(unAdjustedOffset.peek());
 
+        switch (RESConfig.getInstance().getOptimizeAlgorithm()) {
+            case 0:
+                SymbolUtil.setCheckUseNativeJavaTypes(props, alwaysCobolBytes);
+                break;
+            case 1:
+                //SymbolUtil.setCheckUseNativeJavaTypes(props,alwaysCobolBytes);
+                props.setUsedNativeJavaTypes(
+                        (props.getRef() || props.getMod())
+                        && (props.getLevelNumber() == 1 || props.getType() == SymbolConstants.PROGRAM));
+                props.setUsedNativeJavaTypes(props.isUsedNativeJavaTypes() && !alwaysCobolBytes
+                        && !props.isForceCobolBytes());
+                break;
+            case 2:                
+                SymbolUtil.setCheckUseNativeJavaTypes(props, alwaysCobolBytes);
+        }
+
+        unAdjustedOffset.push(0);
         if (props.hasChildren()) {
             SymbolTable.visit(props.getChildren(), this);
         }
+        unAdjustedOffset.pop();
 
         if (props.isOccurs() || props.isAParentInOccurs()) {
             ArrayList<SymbolProperties> b = new ArrayList<SymbolProperties>();
@@ -256,25 +273,30 @@ public class CalculateSymbolLength implements Visitor {
         }
 
 
-        leng = unAdjustedOffset.peek() - prevOffset;
-        int adjustedLength = offset.peek() - prevAdjustedOffset;
+//        leng = unAdjustedOffset.peek() - prevOffset;
+//        int adjustedLength = offset.peek() - prevAdjustedOffset;
 
+        leng = offset.peek() - prevAdjustedOffset;
+//        int adjustedLength = unAdjustedOffset.peek() - prevOffset;
+        
         props.setLength(leng);
-        props.setAdjustedLength(adjustedLength);
+//        props.setAdjustedLength(adjustedLength);
 
         if (props.isOccurs() && props.getMaxOccursInt() > 0) {
-            leng *= (props.getMaxOccursInt() - 1);
-        } else {
+            leng *= props.getMaxOccursInt();
+        }/* else {
             leng = 0;
-        }
+        }*/
 
         if (props.getRedefines() != null) {
             offset.pop();
             unAdjustedOffset.pop();
         } else {
             unAdjustedOffset.push(unAdjustedOffset.pop() + leng);
-            if (!props.isUsedNativeJavaTypes() && adjustedLength > 0) {
-                offset.push(offset.pop() + leng);
+            if (!props.isUsedNativeJavaTypes() /*&& adjustedLength > 0*/) {
+//                offset.push(offset.pop() + leng);
+            	offset.pop();
+            	offset.push(prevAdjustedOffset + leng);
             }
         }
     }
@@ -291,19 +313,25 @@ public class CalculateSymbolLength implements Visitor {
         if (thru == null) {
             RunTimeUtil.getInstance().reportError("Invalid RENAMES clause in symbol: " + props.getDataName(), true);
         }
-        if (thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength() <= 0) {
+        /*if (thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength() <= 0) {
             RunTimeUtil.getInstance().reportError("Invalid RENAMES clause in symbol: " + props.getDataName(), true);
         }
         props.setOffset(from.getOffset());
         props.setUnAdjustedOffset(from.getUnAdjustedOffset());
         props.setAdjustedLength(thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength());
-        props.setLength(thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength());
+        props.setLength(thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength());*/
+        if (thru.getOffset() - from.getOffset() + thru.getLength() <= 0) {
+            RunTimeUtil.getInstance().reportError("Invalid RENAMES clause in symbol: " + props.getDataName(), true);
+        }
+        props.setOffset(from.getOffset());
+        props.setUnAdjustedOffset(from.getUnAdjustedOffset());
+        props.setLength(thru.getOffset() - from.getOffset() + thru.getLength());
     }
 
     private void calculateElementLength(SymbolProperties props) {
 
         int leng;
-        boolean isSuppressed = (Boolean) props.getIsSuppressed() || !(props.getRef() || props.getMod());
+        boolean isSuppressed = (Boolean) props.getIsSuppressed() || !(props.getRef() || props.getMod()) || !props.isForceCobolBytes();
 
         if (isSuppressed || props.isFromRESLibrary()) {
             return;
@@ -313,7 +341,7 @@ public class CalculateSymbolLength implements Visitor {
        // com.res.java.translation.symbol.SymbolProperties.CobolSymbol sym = new com.res.java.translation.symbol.SymbolProperties.CobolSymbol();
         props.getJavaType().setPic((String) props.getPictureString());
 
-        String u = props.getJavaType().getPic().toUpperCase();
+        String u = props.getJavaType().getPic();
        // props.getJavaType().setUsage((byte) props.getDataUsage());
 
         if (FieldFormat.verifyCobolPicture(u) == Constants.BIGDECIMAL) {
@@ -328,7 +356,9 @@ public class CalculateSymbolLength implements Visitor {
             if (FieldFormat.verifyCobolPicture(u) == Constants.STRING) {
                 FieldAttributes.processAlpha(u, props.getJavaType());
             } else {
-            	//Error
+                SymbolUtil.getInstance().reportError("Error In Usage or Picture of: " + props.getDataName()
+                        + ((props.getParent() != null) ? " IN " + props.getParent().getDataName() : "")
+                        + ((props.getPictureString() != null) ? " PICTURE " + props.getPictureString() : ""));
             }
         }
 
@@ -351,18 +381,26 @@ public class CalculateSymbolLength implements Visitor {
             props.setNoOccursSubscripts(b.size());
         }
         props.setLength(leng);
+        boolean b = SymbolUtil.setCheckUseNativeJavaTypes(props, alwaysCobolBytes);
         if (props.getRedefines() == null) {
             props.setOffset(offset.peek());
             props.setUnAdjustedOffset(unAdjustedOffset.peek());
             if (props.isOccurs() && props.getMaxOccursInt() > 1) {
                 leng *= (props.getMaxOccursInt());
             }
-            offset.push(offset.pop() + leng);
-            unAdjustedOffset.push(unAdjustedOffset.pop() + leng);
+            if (b) {
+                unAdjustedOffset.push(unAdjustedOffset.pop() + leng);
+                leng = 0;
+            } else {
+                offset.push(offset.pop() + leng);
+                unAdjustedOffset.push(unAdjustedOffset.pop() + leng);
+            }
         } else {
             props.setOffset(props.getRedefines().getOffset());
             props.setUnAdjustedOffset(props.getRedefines().getUnAdjustedOffset());
             leng = Math.max(leng, props.getRedefines().getLength());
+            offset.pop();
+            offset.push(props.getOffset() + leng);
         }
 
 

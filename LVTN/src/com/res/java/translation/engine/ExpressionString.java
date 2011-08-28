@@ -1,14 +1,7 @@
 package com.res.java.translation.engine;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import com.res.java.lib.Constants;
-import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
-import com.res.java.translation.symbol.SymbolTable;
-import com.res.java.translation.symbol.SymbolUtil;
-import com.res.java.util.ClassFile;
 import com.res.java.util.NameUtil;
 
 public class ExpressionString implements Cloneable {
@@ -46,8 +39,9 @@ public class ExpressionString implements Cloneable {
 			literal = new StringBuilder("");
 		} else {
 			isIdSymbol = true;
-			literal = new StringBuilder(
-					NameUtil.getJavaName(props = sym, false));
+//			literal = new StringBuilder(
+//					NameUtil.getJavaName(props = sym, false));
+			literal = new StringBuilder(props.getDataName());
 			type = sym.getIdentifierType();
 			if (scale != 0) {
 				if (scale < 0) {

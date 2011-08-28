@@ -39,7 +39,7 @@ public class ClassFile {
 		if(dataLevel)
 			current=new DataClassFileWriter(props);
 		else  {
-			if(SymbolTable.getScope().isCurrentProgramTopLevel()) {			
+			if(SymbolTable.getInstance().isCurrentProgramTopLevel()) {			
 			current=new ProgramClassFileWriter(props);
 			} else
 				((ProgramClassFileWriter)current).printHeader(props,true);
@@ -57,7 +57,7 @@ public class ClassFile {
 			return;
 		current.println("}");
 		current.println("}",true);
-		if(files.peek().isData()||SymbolTable.getScope().isCurrentProgramTopLevel()) {			
+		if(files.peek().isData()||SymbolTable.getInstance().isCurrentProgramTopLevel()) {			
 		current.close();
 		
 		} else 
