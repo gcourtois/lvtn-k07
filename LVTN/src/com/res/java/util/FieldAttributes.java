@@ -20,244 +20,52 @@ package com.res.java.util;
  @author VenkatK mailto: open.cobol.to.java at gmail.com
  ******************************************************************************/
 
+import java.util.regex.Pattern;
+
 import com.res.java.lib.Constants;
-import com.res.java.translation.symbol.SymbolProperties.CobolSymbol;
+import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolUtil;
 
 public class FieldAttributes {
 
-	public static void processDecimal(String pic, CobolSymbol sym,
-			boolean isEdited) {
-
-		if (pic.charAt(0) == 'S') {
-			sym.setIsSigned(true);
-			pic = pic.substring(1);
-		} else
-			sym.setIsSigned(false);
-		int i = 0;
-		StringBuilder normPic = new StringBuilder();
-		do {
-			normPic.append(pic.charAt(i));
-			if (i + 1 >= pic.length())
-				break;
-			if (pic.charAt(i + 1) == '(') {
-				int l;
-				for (int k = Integer.parseInt(pic.substring(i + 2, l = pic
-						.indexOf(')', i + 1))); k > 1; --k) {
-					normPic.append(pic.charAt(i));
-				}
-				i = l + 1;
-				if (i >= pic.length())
-					break;
-			} else
-				++i;
-
-		} while (true);
-		pic = normPic.toString();
-		pic = pic.replace('V', '.').replace('*', '9').replace('Z', '9');
-		/*
-		 * int j=pic.indexOf('+'); if(j>=0) {
-		 * pic=pic.substring(0,j)+'+'+pic.substring(j+1).replace('+','9').replace('-',
-		 * '9'); } j=pic.indexOf('-'); if(j>=0) {
-		 * pic=pic.substring(0,j)+'-'+pic.substring(j+1).replace('-', '9'); }
-		 * j=pic.indexOf('$'); if(j>=0) {
-		 * pic=pic.substring(0,j)+'$'+pic.substring(j+1).replace('$', '9'); }
-		 */
-		String s;
-
-		i = pic.indexOf('.');
-		// TODO More than one V,. combination
-		if (i < 0) {
-			i = pic.indexOf('9');
-			sym.setType(Constants.INTEGER);
-			if (i >= 0) {
-				processPartOfDecimal(pic, sym, false, isEdited);
-				if (pic.indexOf('P') >= 0)
-					processPScaling(pic, sym);
-			} else if (pic.indexOf('P') >= 0) {
-				processPScaling(pic, sym);
-			} else {
-				sym.setType(Constants.STRING);
-				processAlpha(pic, sym);
-			}
-			return;
-		}
-		sym.setType(Constants.BIGDECIMAL);
-		s = pic.substring(0, i);
-		processPartOfDecimal(s, sym, false, isEdited);
-		s = pic.substring(i + 1);
-		processPartOfDecimal(s, sym, true, isEdited);
-		return;
-	}
-
-	private static void processPScaling(String pic, CobolSymbol sym) {
-
-		int i = 0, l = 0;
-
-		while (i < pic.length()) {
-			if (pic.charAt(i) == 'P') {
-				if (i + 1 < pic.length() && pic.charAt(i + 1) == '(') {
-					i = i + 2;
-					int k = i + 1;
-					while (pic.charAt(k) != ')' && k < pic.length()) {
-						if (pic.charAt(k) >= '0' && pic.charAt(k) <= '9')
-							;
-						else {
-							SymbolUtil.getInstance().reportError(
-									"Data Name:" + sym.getName()
-											+ " has invalid picture string=>"
-											+ pic);
-							System.exit(-1);
-						}
-						k++;
-					}
-					if (k >= pic.length()) {
-						SymbolUtil
-								.getInstance()
-								.reportError(
-										"Data Name:"
-												+ sym.getName()
-												+ " has invalid picture string=>"
-												+ pic);
-						System.exit(-1);
-					}
-					l += new Integer(pic.substring(i, k)).intValue();
-					i = ++k;
-				} else {
-					++i;
-					l++;
-				}
-			} else
-				i++;
-		}
-
-		if (l <= 0)
-			return;
-
-		if (pic.charAt(0) != 'P') {
-			sym.setMaxScalingLength((short) l);
-		} else {
-			sym.setMaxScalingLength((short) (-l));
-		}
-		return;
-	}
-
-	public static void processPartOfDecimal(String pic, CobolSymbol sym,
-			boolean fraction, boolean isEdited) {
-		byte[] intPart = pic.getBytes();
-		int j = 0;
-		short l = 0;
-		while (j < intPart.length) {
-			if (intPart[j] == '9' || intPart[j] == 'Z' || intPart[j] == '*') {
-				++j;
-				l++;
-			} else if (intPart[j] == 'S') {
-				sym.setIsSigned(true);
-				l++;
-				j++;
-			} else {
-				if (intPart[j] == '$')
-					sym.setIsCurrency(true);
-				if (isEdited)
-					l++;
-				j++;
-			}
-		}
-
-		if (sym.getType() == Constants.BIGDECIMAL)
-			if (fraction) {
-				sym.setMaxFractionLength(l);
-			} else {
-				sym.setMaxIntLength(l);
-			}
-		else {
-			sym.setType(Constants.INTEGER);
-			sym.setMaxIntLength(l);
-		}
-	}
-
-	public static void processAlpha(String pic, CobolSymbol sym) {
-		byte[] partsOfPic = pic.getBytes();
-		int j = 0;
-		int len = 0;
-		while (j < partsOfPic.length) {
-			if (partsOfPic[j] == '(') {
-				int k = j + 1;
-				while (partsOfPic[k] != ')' && k < partsOfPic.length) {
-					if (partsOfPic[k] >= '0' && partsOfPic[k] <= '9')
-						;
-					else {
-						SymbolUtil
-								.getInstance()
-								.reportError(
-										"Data Name:"
-												+ sym.getName()
-												+ " has invalid picture string=>"
-												+ pic);
-						System.exit(-1);
-					}
-					++k;
-				}
-				if (k >= partsOfPic.length) {
-					SymbolUtil.getInstance().reportError(
-							"Data Name:" + sym.getName()
-									+ " has invalid picture string=>" + pic);
-					System.exit(-1);
-				}
-				len += new Integer(pic.substring(j + 1, k)).intValue() - 1;
-				j = ++k;
-			} else if (partsOfPic[j] == '$') {
-				sym.setIsCurrency(true);
-				len++;
-				j++;
-			} else {
-				len++;
-				j++;
-			}
-		}
-
-		sym.setType(Constants.STRING);
-		sym.setMaxStringLength(len);
-	}
-
 	// Update further
-	public static int calculateLength(SymbolProperties props) {
-
+	public static int calculateBytesLength(SymbolProperties props) {
 		int len = 0;
 		boolean isNumber = false;
-		CobolSymbol sym = props.getJavaType();
-		switch (sym.getType()) {
+		CobolDataDescription desc = props.getCobolDesc();
+
+		switch (desc.getTypeInJava()) {
 		case Constants.FLOAT:
 		case Constants.DOUBLE:
 		case Constants.BIGDECIMAL:
-			len = sym.getMaxIntLength() + sym.getMaxFractionLength()
-					+ Math.abs(sym.getMaxScalingLength());
+			len = desc.getMaxIntLength() + desc.getMaxFractionLength();
 			isNumber = true;
 			break;
-		case Constants.LONG:
-		case Constants.INTEGER:
 		case Constants.SHORT:
-			len = sym.getMaxIntLength() + Math.abs(sym.getMaxScalingLength());
+		case Constants.INTEGER:
+		case Constants.LONG:
+			len = desc.getMaxIntLength();
 			isNumber = true;
 			break;
+		case Constants.CHAR:
 		case Constants.STRING:
-			len = sym.getMaxStringLength();
+			len = desc.getMaxStringLength();
 			break;
 		}
 
-		if (props.getDataCategory() == Constants.NUMERIC_EDITED) {
-			sym.setType(Constants.STRING);
-			if (sym.getMaxFractionLength() > 0)
+		/*if (props.getDataCategory() == Constants.NUMERIC_EDITED) {
+			desc.setTypeInJava(Constants.STRING);
+			if (desc.getMaxFractionLength() > 0)
 				len++;
-			sym.setMaxIntLength((short) 0);
-			sym.setMaxFractionLength((short) 0);
-			sym.setMaxStringLength(len);
+			desc.setMaxIntLength((short) 0);
+			desc.setMaxFractionLength((short) 0);
+			desc.setMaxStringLength(len);
 			isNumber = false;
-		}
+		}*/
 
 		if (isNumber) {
-			switch (sym.getUsage()) {
+			switch (desc.getUsage()) {
 			case Constants.BINARY:
 				props.setAdjustedLength(len);
 				if (len >= 1 && len <= 4) {
@@ -266,43 +74,220 @@ public class FieldAttributes {
 					len = 4;
 				} else if (len >= 10) {
 					len = 8;
-					if (sym.getType() == Constants.INTEGER)
-						sym.setType(Constants.LONG);
+					//					if (desc.getTypeInJava() == Constants.INTEGER)
+					//						desc.setTypeInJava(Constants.LONG);
 				} else
 					len = 0;
 				break;
 			case Constants.PACKED_DECIMAL:
 				props.setAdjustedLength(len);
-				int len2 = len;
+				len = (len + 2) / 2;
+				/*int len2 = len;
 				len = len2 / 2;
 				if (len2 % 2 > 0)
 					len++;
 				if (len >= 1 && len <= 4) {
 				} else if (len >= 5 && len <= 10) {
-					if (sym.getType() == Constants.INTEGER)
-						sym.setType(Constants.LONG);
+					if (desc.getTypeInJava() == Constants.INTEGER)
+						desc.setTypeInJava(Constants.LONG);
 				} else
-					len = 0;
+					len = 0;*/
 				break;
 			case Constants.DISPLAY:
 				props.setAdjustedLength(len);
-				if (sym.isIsSigned())
+				if (desc.isSigned() && desc.isSignSeparate())
 					len++;
-				if (sym.isIsCurrency())
-					len++;
-				if (len >= 1 && len <= 4) {
+				//				if (desc.isCurrency())
+				//					len++;
+				/*if (len >= 1 && len <= 4) {
 				} else if (len >= 5 && len <= 9) {
 				} else if (len >= 10) {
-					if (sym.getType() == Constants.INTEGER)
-						sym.setType(Constants.LONG);
+					if (desc.getTypeInJava() == Constants.INTEGER)
+						desc.setTypeInJava(Constants.LONG);
 				} else
-					len = 0;
+					len = 0;*/
 				break;
 			default:
 				props.setAdjustedLength(len);
 			}
-		} else if (sym.getMaxStringLength() == 1)
-			sym.setType(Constants.CHAR);
+		}/* else if (desc.getMaxStringLength() == 1)
+						desc.setTypeInJava(Constants.CHAR);*/
 		return len;
 	}
+
+	public static void processPicture(SymbolProperties props) {
+		CobolDataDescription desc = props.new CobolDataDescription();
+	
+		props.setCobolDesc(desc);
+	
+		String pic = props.getPictureString().toUpperCase();
+		desc.setPic(normalizePicture(pic));
+	
+		if (alphabetic.matcher(pic).matches()) {
+			desc.setDataCategory(Constants.ALPHABETIC);
+			if (pic.length() == 1)
+				desc.setTypeInJava(Constants.CHAR);
+			else
+				desc.setTypeInJava(Constants.STRING);
+			desc.setMaxStringLength(desc.getPic().length());
+		} else if (alphanumeric.matcher(pic).matches()) {
+			desc.setDataCategory(Constants.ALPHANUMERIC);
+			desc.setTypeInJava(Constants.STRING);
+			desc.setMaxStringLength(desc.getPic().length());
+		} else if (numericLeftPScaling.matcher(pic).matches()
+				|| numericRightPScaling.matcher(pic).matches()) {
+			desc.setDataCategory(Constants.NUMERIC);
+			processPScaling(desc);
+		} else if (numericInteger.matcher(pic).matches()) {
+			desc.setDataCategory(Constants.NUMERIC);
+			processNumericInteger(desc);
+		} else if (numericDecimal.matcher(pic).matches()) {
+			desc.setDataCategory(Constants.NUMERIC);
+			desc.setTypeInJava(Constants.BIGDECIMAL);
+			processNumericDecimal(desc);
+		} else if (alphanumericEdited.matcher(pic).matches()) {
+			desc.setDataCategory(Constants.ALPHANUMERIC_EDITED);
+			desc.setTypeInJava(Constants.STRING);
+			desc.setMaxStringLength(desc.getPic().length());
+		} else if (numericEdited.matcher(pic).matches()) {
+			desc.setDataCategory(Constants.NUMERIC_EDITED);
+			desc.setTypeInJava(Constants.STRING);
+			if (desc.getPic().indexOf("V") > 0) {
+				desc.setMaxStringLength(desc.getPic().length() - 1);
+			} else {
+				desc.setMaxStringLength(desc.getPic().length());
+			}
+		} else {
+			SymbolUtil.getInstance().reportError(
+					"Data name:" + props.getDataName()
+							+ " has invalid picture string: " + pic);
+			System.exit(0);
+		}
+	}
+
+	private static Pattern alphabetic = Pattern
+			.compile("(A(\\(0*[1-9][0-9]*\\))?)+");
+
+	private static Pattern alphanumeric = Pattern
+			.compile("([AX9](\\(0*[1-9][0-9]*\\))?)*X(\\(0*[1-9][0-9]*\\))?([AX9](\\([1-9][0-9]*\\))?)*");
+
+	// numeric, pscaling left, decimal value
+	private static Pattern numericLeftPScaling = Pattern
+			.compile("S?V?(P(\\(0*[1-9][0-9]*\\))?)+(9(\\(0*[1-9][0-9]*\\))?)+");
+
+	// numeric, pscaling right, int value
+	private static Pattern numericRightPScaling = Pattern
+			.compile("S?(9(\\(0*[1-9][0-9]*\\))?)+(P(\\(0*[1-9][0-9]*\\))?)+V?");
+
+	private static Pattern numericInteger = Pattern
+			.compile("S?(9(\\(0*[1-9][0-9]*\\))?)+");
+
+	private static Pattern numericDecimal = Pattern
+			.compile("S?((9(\\(0*[1-9][0-9]*\\))?)*V(9(\\(0*[1-9][0-9]*\\))?)+|(9(\\(0*[1-9][0-9]*\\))?)+V(9(\\(0*[1-9][0-9]*\\))?)*)");
+
+	private static Pattern alphanumericEdited = Pattern
+			.compile("(([AX9B0/](\\(0*[1-9][0-9]*\\))?)*[AX](\\(0*[1-9][0-9]*\\))?([AX9B0/](\\(0*[1-9][0-9]*\\))?)*[B0/](\\(0*[1-9][0-9]*\\))?(\\(0*[1-9][0-9]*\\))?([AX9B0/](\\(0*[1-9][0-9]*\\))?)*"
+					+ "|([AX9B0/](\\(0*[1-9][0-9]*\\))?)*[B0/](\\(0*[1-9][0-9]*\\))?(\\(0*[1-9][0-9]*\\))?([AX9B0/](\\(0*[1-9][0-9]*\\))?)*[AX](\\(0*[1-9][0-9]*\\))?([AX9B0/](\\(0*[1-9][0-9]*\\))?)*)");
+
+	private static Pattern numericEdited = Pattern
+			.compile("(S{0,1}([$PZ9B0/\\,\\<\\>\\+\\-\\*](\\([0-9]+\\))?)*([V\\.]"
+					+ "([$PZ9B0/\\,\\<\\>\\+\\-\\*](\\([0-9]+\\))?)*)?((CR)|(DB)){0,1})");
+
+	private static void processNumericDecimal(CobolDataDescription desc) {
+		StringBuilder sb = new StringBuilder(desc.getPic());
+
+		if (sb.charAt(0) == 'S') {
+			desc.setSigned(true);
+			sb.deleteCharAt(0);
+		}
+
+		int i = sb.indexOf("V");
+		desc.setMaxIntLength((short) i);
+		desc.setMaxFractionLength((short) (sb.length() - i - 1));
+	}
+
+	private static void processNumericInteger(CobolDataDescription desc) {
+		StringBuilder sb = new StringBuilder(desc.getPic());
+		if (sb.charAt(0) == 'S') {
+			desc.setSigned(true);
+			sb.deleteCharAt(0);
+		}
+		desc.setMaxIntLength((short) sb.length());
+		processIntegralJavaType(desc);
+	}
+
+	private static String normalizePicture(String picture) {
+		StringBuilder sb = new StringBuilder();
+		int i = 0;
+		while (i < picture.length()) {
+			if (picture.charAt(i) == '(') {
+				char c = picture.charAt(i - 1);
+				int j = i + 1;
+				for (; picture.charAt(j) != ')'; j++)
+					;
+				int size = Integer.parseInt(picture.substring(i + 1, j));
+				i = j;
+				for (int k = 0; k < size - 1; k++)
+					// one char already appended
+					sb.append(c);
+			} else {
+				sb.append(picture.charAt(i));
+			}
+			i++;
+		}
+		return sb.toString();
+	}
+
+	private static void processPScaling(CobolDataDescription desc) {
+		StringBuilder sb = new StringBuilder(desc.getPic());
+
+		if (sb.charAt(0) == 'S') {
+			desc.setSigned(true);
+			sb.deleteCharAt(0);
+		}
+
+		// remove redundant V
+		int i = 0;
+		if ((i = sb.indexOf("V")) > 0) {
+			sb.deleteCharAt(i);
+		}
+
+		if (sb.charAt(0) == 'P') {
+			// Ps on leftmost
+			i = sb.lastIndexOf("P");
+			desc.setMaxScalingLength((short) -(i + 1));
+			desc.setMaxFractionLength((short) (sb.length() - i - 1));
+			desc.setTypeInJava(Constants.BIGDECIMAL);
+		} else {
+			// Ps on rightmost
+			i = sb.indexOf("P");
+			desc.setMaxIntLength((short) i);
+			desc.setMaxScalingLength((short) (sb.length() - i));
+			processIntegralJavaType(desc);
+		}
+	}
+
+	private static void processIntegralJavaType(CobolDataDescription desc) {
+		short size = desc.getMaxIntLength();
+		if (size < 1) {
+			// error
+		} else if (size < 5) {
+			desc.setTypeInJava(Constants.SHORT);
+		} else if (size < 10) {
+			desc.setTypeInJava(Constants.INTEGER);
+		} else if (size < 19) {
+			desc.setTypeInJava(Constants.LONG);
+		}
+	}
+
+	/*public static void main(String[] args) {
+		SymbolProperties sym = new SymbolProperties();
+		sym.setPictureString("999PPP");
+		sym.setDataUsage(Constants.DISPLAY);
+		System.out.println(normalizePicture(sym.getPictureString()));
+		processPicture(sym);
+		CobolDataDescription desc = sym.getCobolDesc();
+		System.out.println(desc.getMaxIntLength()+"."+desc.getMaxFractionLength()+":"+desc.getMaxScalingLength());
+		System.out.println(desc.getMaxStringLength());
+	}*/
 }

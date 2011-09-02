@@ -48,7 +48,7 @@ public class ExpressionString implements Cloneable {
 
 					literal.insert(0, "__scale(")
 							.append(',')
-							.append(scale - sym.getJavaType().getMaxIntLength())
+							.append(scale - sym.getCobolDesc().getMaxIntLength())
 							.append(')');
 				} else if (scale > 0) {
 

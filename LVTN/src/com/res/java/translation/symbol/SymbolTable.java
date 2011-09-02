@@ -207,8 +207,8 @@ public class SymbolTable {
 	}
 
 	private SymbolProperties cloneSymbol(SymbolProperties props) {
-		if (props.getJavaType() != null)
-			props.setIdentifierType(props.getJavaType().getType());
+		if (props.getCobolDesc() != null)
+			props.setIdentifierType(props.getCobolDesc().getTypeInJava());
 		if (isCloneOnLookup()) {
 			props.setIndexesWorkSpace(null);
 			props.setSubstringWorkSpace(null);
@@ -351,6 +351,7 @@ public class SymbolTable {
 					i1 = o1.getDataUsage();
 					System.out.print(" USAGE=" + usage[i1]);
 					System.out.print(" DATACAT= " + dataCat[o1.getDataCategory()]);
+					System.out.print(" JavaType = " + javaType[o1.getCobolDesc().getTypeInJava()]);
 					String p1 = null;
 					if ((p1 = (String) o1.getPictureString()) != null)
 						System.out.print(" PICTURE=" + p1);

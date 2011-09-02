@@ -154,7 +154,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private String value2 = null;
     private String lastTokenString = null;
     private int fillerMark = 0;
-    private int usage = Constants.DISPLAY;
+    private byte usage = Constants.DISPLAY;
     private boolean doLiteral;
     private boolean firstParagraph = true;
     private boolean doQualified = false;
@@ -253,43 +253,43 @@ public class CobolFillTable extends DepthFirstVisitor {
 
         props = createIndexSymbol("DEBUG-LINE", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("9(6)");
-        props.setDataUsage((short) Constants.DISPLAY);
+        props.setDataUsage(Constants.DISPLAY);
         //props.setJavaType(new CobolSymbol());
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
         props = createIndexSymbol("DEBUG-CONTENTS", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(100)");
-        props.setDataUsage((short) Constants.DISPLAY);
-        props.getJavaType().setType(Constants.STRING);
+        props.setDataUsage(Constants.DISPLAY);
+        props.getCobolDesc().setTypeInJava(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
         props = createIndexSymbol("DEBUG-NAME", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(100)");
-        props.setDataUsage((short) Constants.DISPLAY);
-        props.getJavaType().setType(Constants.STRING);
+        props.setDataUsage(Constants.DISPLAY);
+        props.getCobolDesc().setTypeInJava(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
         props = createIndexSymbol("DEBUG-SUB-1", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(10)");
-        props.setDataUsage((short) Constants.DISPLAY);
-        props.getJavaType().setType(Constants.STRING);
+        props.setDataUsage(Constants.DISPLAY);
+        props.getCobolDesc().setTypeInJava(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
         props = createIndexSymbol("DEBUG-SUB-2", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(10)");
-        props.setDataUsage((short) Constants.DISPLAY);
-        props.getJavaType().setType(Constants.STRING);
+        props.setDataUsage(Constants.DISPLAY);
+        props.getCobolDesc().setTypeInJava(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
 
         props = createIndexSymbol("DEBUG-SUB-3", SymbolTable.getInstance().getCurrentProgram(), true);
         props.setPictureString("X(10)");
-        props.setDataUsage((short) Constants.DISPLAY);
-        props.getJavaType().setType(Constants.STRING);
+        props.setDataUsage(Constants.DISPLAY);
+        props.getCobolDesc().setTypeInJava(Constants.STRING);
         props.setFromRESLibrary(true);
         adjustSetJavaName(props);
     }
@@ -840,7 +840,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                     || props.getLevelNumber() == 66 || props.getLevelNumber() == 88)
                     && props.getLevelNumber() > parent.getLevelNumber()) {
                 pictureString = INDEX_PICTURE_STRING;
-                props.setDataUsage((short) Constants.INDEX);
+                props.setDataUsage(Constants.INDEX);
                 props.setIndexRedefines(true);
                 props.setRedefines(parent);
                 parent = SymbolTable.getInstance().getCurrentProgram();
@@ -881,7 +881,7 @@ public class CobolFillTable extends DepthFirstVisitor {
 
         //do the symbol table and level stack
 
-        props.setDataUsage((short) usage);
+        props.setDataUsage(usage);
         if (props.isFloatingPoint()) {
             if (props.getDataUsage() == Constants.COMPUTATIONAL1) {
                 props.setPictureString("-.9(8)E-99");
@@ -928,7 +928,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             props.setRef(false);
             props.setMod(false);
             props.setFromRESLibrary(true);
-            props.getJavaType().setType(Constants.GROUP);
+            props.getCobolDesc().setTypeInJava(Constants.GROUP);
             SymbolProperties tempProps = createDataSymbol("sqlcode", props, "9(8)", Constants.BINARY, 02);
             tempProps.setFromRESLibrary(true);
             tempProps.setIsFormat(false);
@@ -940,7 +940,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.setRef(true);
             tempProps = createDataSymbol("sqlerrmc", props, "X(80)", Constants.DISPLAY, 02);
             tempProps.setFromRESLibrary(true);
-            tempProps.getJavaType().setType(Constants.STRING);
+            tempProps.getCobolDesc().setTypeInJava(Constants.STRING);
             tempProps.setIsFormat(false);
             tempProps.setRef(true);
             tempProps = createDataSymbol("sqlerrd", props, "9(8)", Constants.BINARY, 02);
@@ -1016,7 +1016,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.setDataName(key2);
             tempProps.setParent(props);
             tempProps.setPictureString(pictureString);
-            tempProps.getJavaType().setType(Constants.STRING);
+            tempProps.getCobolDesc().setTypeInJava(Constants.STRING);
             addChild(tempProps, props);
             tempProps.setVaryingArray(true);
             SymbolTable.getInstance().insert(key2, tempProps);
@@ -1259,7 +1259,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.setDataName(lastTokenString);
             tempProps.setType(SymbolConstants.DUMMY);
             //tempProps.setJavaType(new CobolSymbol());
-            tempProps.getJavaType().setType(Constants.OBJECT);
+            tempProps.getCobolDesc().setTypeInJava(Constants.OBJECT);
             SymbolTable.getInstance().insert(tempProps.getDataName(), tempProps);
         }
     }
@@ -1271,7 +1271,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         tempProps.setDataName(lastTokenString);
         tempProps.setType(SymbolConstants.DUMMY);
        // tempProps.setJavaType(new CobolSymbol());
-        tempProps.getJavaType().setType(Constants.OBJECT);
+        tempProps.getCobolDesc().setTypeInJava(Constants.OBJECT);
         SymbolTable.getInstance().insert(tempProps.getDataName(), tempProps);
     }
 
@@ -1495,7 +1495,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     private SymbolProperties createDataSymbol(String dataName, SymbolProperties parent, String picture,
-            int usage, int level) {
+            byte usage, int level) {
         SymbolProperties tempProps;
         if ((tempProps = SymbolTable.getInstance().lookup(dataName, parent.getDataName())) == null) {
             tempProps = new SymbolProperties();
@@ -1504,7 +1504,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.setParent(parent);
             tempProps.setPictureString(picture);
             tempProps.setLevelNumber((short) level);
-            tempProps.setDataUsage((short) usage);
+            tempProps.setDataUsage(usage);
             adjustSetJavaName(tempProps);
             addChild(tempProps, parent);
             if (RESConfig.getInstance().isAllSymbols()) {
@@ -1530,7 +1530,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             tempProps.setParent(parent);
             tempProps.setPictureString(INDEX_PICTURE_STRING);
             tempProps.setLevelNumber(INDEX_LEVEL);
-            tempProps.setDataUsage((short) Constants.BINARY);
+            tempProps.setDataUsage(Constants.BINARY);
             adjustSetJavaName(tempProps);
             addChild(tempProps, parent);
             SymbolTable.getInstance().insert(dataName, tempProps);
@@ -2722,7 +2722,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         if (props == null) {
             reportError(n, "Unknown Symbol: " + lastTokenString);
         } else {
-            props.setDataUsage((short) n.nodeChoice.which);
+            props.setDataUsage((byte) n.nodeChoice.which);
         }
     }
 

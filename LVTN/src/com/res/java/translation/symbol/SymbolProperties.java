@@ -67,26 +67,33 @@ public class SymbolProperties implements Cloneable {
      * 5 = FLOATING POINT, 6 = COMPUTATIONAL5
      * @see: {@link Constants}
      */
-    public short getDataUsage() {
+    public byte getDataUsage() {
         return dataUsage;
     }
 
-    public void setDataUsage(short dataUsage) {
-        getJavaType().setUsage((byte)dataUsage);
+    public void setDataUsage(byte dataUsage) {
+        getCobolDesc().setUsage(dataUsage);
         this.dataUsage = dataUsage;
     }
 
-    public CobolSymbol getJavaType() {
-        if(javaType==null) javaType = new CobolSymbol();
-        return javaType;
+    public CobolDataDescription getCobolDesc() {
+        if (cobolDesc == null)
+			cobolDesc = new CobolDataDescription();
+		return cobolDesc;
     }
 
-    public void setJavaType(CobolSymbol javaType) {
-        if (javaType != null) {
-            javaType.usage = (byte) this.dataUsage;
+    public void setCobolDesc(CobolDataDescription cobolDesc) {
+        if (cobolDesc != null) {
+            cobolDesc.setUsage(dataUsage);
+            cobolDesc.setBlankWhenZero(this.isBlankWhenZero);
+            cobolDesc.setSignLeading(this.isSignLeading);
+            cobolDesc.setSignSeparate(this.isSignSeparate);
+            cobolDesc.setJustifiedRight(this.isJustifiedRight);
+            cobolDesc.setGlobal(this.isGlobal);
+            cobolDesc.setExternal(this.isExternal);
         }
-        this.javaType = javaType;
-        this.identifierType = javaType.type;
+        this.cobolDesc = cobolDesc;
+        this.identifierType = cobolDesc.getTypeInJava();
     }
 
     /**
@@ -538,11 +545,11 @@ public class SymbolProperties implements Cloneable {
     private String pictureString;
     private String javaName1;
     private String javaName2;
-    private CobolSymbol javaType;
+    private CobolDataDescription cobolDesc;
     private SymbolProperties parent;
     private ArrayList<SymbolProperties> children;
     private short levelNumber;
-    private short dataUsage;
+    private byte dataUsage;
     private short dataCategory;
     private short type;
     private int offset;
@@ -567,8 +574,6 @@ public class SymbolProperties implements Cloneable {
     }
     private int paragraphMark;
     private SymbolProperties majorIndex;
-    private String value1;
-    private String value2;
     private ArrayList<String> groupDictionary;
     private ArrayList<SymbolProperties> paragraphList;
     private int minOccurs;
@@ -864,7 +869,164 @@ public class SymbolProperties implements Cloneable {
         }
     }
 
-    public boolean isFloatingPoint() {
+    public class CobolDataDescription {
+	
+	    private String name;
+	    private String pic;
+	    private byte typeInJava;
+	    private byte usage;
+	    private byte dataCategory;
+	    private short maxIntLength;
+	    private short maxFractionLength;
+	    private short maxScalingLength;
+	    private int maxStringLength;
+	    private boolean isBlankWhenZero;
+	    private boolean isCurrency;
+	    private boolean isSigned;
+	    private boolean isSignLeading;
+	    private boolean isSignSeparate;
+	    private boolean isJustifiedRight;
+	    private boolean isExternal;
+	    private boolean isGlobal;
+	
+	    public byte getDataCategory() {
+	        return dataCategory;
+	    }
+	
+	    public void setDataCategory(byte dataCategory) {
+	        this.dataCategory = dataCategory;
+	    }
+	
+	    public boolean isBlankWhenZero() {
+	        return isBlankWhenZero;
+	    }
+	
+	    public void setBlankWhenZero(boolean isBlankWhenZero) {
+	        this.isBlankWhenZero = isBlankWhenZero;
+	    }
+	
+	    public boolean isCurrency() {
+	        return isCurrency;
+	    }
+	
+	    public void setCurrency(boolean isCurrency) {
+	        this.isCurrency = isCurrency;
+	    }
+	
+	    public boolean isExternal() {
+	        return isExternal;
+	    }
+	
+	    public void setExternal(boolean isExternal) {
+	        this.isExternal = isExternal;
+	    }
+	
+	    public boolean isGlobal() {
+	        return isGlobal;
+	    }
+	
+	    public void setGlobal(boolean isGlobal) {
+	        this.isGlobal = isGlobal;
+	    }
+	
+	    public boolean isJustifiedRight() {
+	        return isJustifiedRight;
+	    }
+	
+	    public void setJustifiedRight(boolean isJustifiedRight) {
+	        this.isJustifiedRight = isJustifiedRight;
+	    }
+	
+	    public boolean isSignLeading() {
+	        return isSignLeading;
+	    }
+	
+	    public void setSignLeading(boolean isSignLeading) {
+	        this.isSignLeading = isSignLeading;
+	    }
+	
+	    public boolean isSignSeparate() {
+	        return isSignSeparate;
+	    }
+	
+	    public void setSignSeparate(boolean isSignSeparate) {
+	        this.isSignSeparate = isSignSeparate;
+	    }
+	
+	    public boolean isSigned() {
+	        return isSigned;
+	    }
+	
+	    public void setSigned(boolean isSigned) {
+	        this.isSigned = isSigned;
+	    }
+	
+	    public short getMaxFractionLength() {
+	        return maxFractionLength;
+	    }
+	
+	    public void setMaxFractionLength(short maxFractionLength) {
+	        this.maxFractionLength = maxFractionLength;
+	    }
+	
+	    public short getMaxIntLength() {
+	        return maxIntLength;
+	    }
+	
+	    public void setMaxIntLength(short maxIntLength) {
+	        this.maxIntLength = maxIntLength;
+	    }
+	
+	    public short getMaxScalingLength() {
+	        return maxScalingLength;
+	    }
+	
+	    public void setMaxScalingLength(short maxScalingLength) {
+	        this.maxScalingLength = maxScalingLength;
+	    }
+	
+	    public int getMaxStringLength() {
+	        return maxStringLength;
+	    }
+	
+	    public void setMaxStringLength(int maxStringLength) {
+	        this.maxStringLength = maxStringLength;
+	    }
+	
+	    public String getName() {
+	        return name;
+	    }
+	
+	    public void setName(String name) {
+	        this.name = name;
+	    }
+	
+	    public String getPic() {
+	        return pic;
+	    }
+	
+	    public void setPic(String pic) {
+	        this.pic = pic;
+	    }
+	
+	    public byte getTypeInJava() {
+			return typeInJava;
+		}
+	
+		public void setTypeInJava(byte typeInJava) {
+			this.typeInJava = typeInJava;
+		}
+	
+		public byte getUsage() {
+	        return usage;
+	    }
+	
+	    public void setUsage(byte usage) {
+	        this.usage = usage;
+	    }
+	}
+
+	public boolean isFloatingPoint() {
         return dataUsage == Constants.COMPUTATIONAL1 || dataUsage == Constants.COMPUTATIONAL2;
     }
 
@@ -972,171 +1134,6 @@ public class SymbolProperties implements Cloneable {
      */
     public short getDataCategory() {
         return dataCategory;
-    }
-
-    public class CobolSymbol {
-
-        private String name;
-        private String pic;
-        private int type;
-        private byte usage;
-        private byte dataCategory;
-        private short maxIntLength;
-        private short maxFractionLength;
-        private short maxScalingLength;
-        private int maxStringLength;
-        private boolean isBlankWhenZero;
-        private boolean isCurrency;
-        private boolean isSigned;
-        private boolean isSignLeading;
-        private boolean isSignSeparate;
-        private boolean isJustifiedRight;
-        private boolean isExternal;
-        private boolean isGlobal;
-
-        public byte getDataCategory() {
-            return dataCategory;
-        }
-
-        public void setDataCategory(byte dataCategory) {
-            this.dataCategory = dataCategory;
-        }
-
-        public boolean isIsBlankWhenZero() {
-            return isBlankWhenZero;
-        }
-
-        public void setIsBlankWhenZero(boolean isBlankWhenZero) {
-            this.isBlankWhenZero = isBlankWhenZero;
-        }
-
-        public boolean isIsCurrency() {
-            return isCurrency;
-        }
-
-        public void setIsCurrency(boolean isCurrency) {
-            this.isCurrency = isCurrency;
-        }
-
-        public boolean isIsExternal() {
-            return isExternal;
-        }
-
-        public void setIsExternal(boolean isExternal) {
-            this.isExternal = isExternal;
-        }
-
-        public boolean isIsGlobal() {
-            return isGlobal;
-        }
-
-        public void setIsGlobal(boolean isGlobal) {
-            this.isGlobal = isGlobal;
-        }
-
-        public boolean isIsJustifiedRight() {
-            return isJustifiedRight;
-        }
-
-        public void setIsJustifiedRight(boolean isJustifiedRight) {
-            this.isJustifiedRight = isJustifiedRight;
-        }
-
-        public boolean isIsSignLeading() {
-            return isSignLeading;
-        }
-
-        public void setIsSignLeading(boolean isSignLeading) {
-            this.isSignLeading = isSignLeading;
-        }
-
-        public boolean isIsSignSeparate() {
-            return isSignSeparate;
-        }
-
-        public void setIsSignSeparate(boolean isSignSeparate) {
-            this.isSignSeparate = isSignSeparate;
-        }
-
-        public boolean isIsSigned() {
-            return isSigned;
-        }
-
-        public void setIsSigned(boolean isSigned) {
-            this.isSigned = isSigned;
-        }
-
-        public short getMaxFractionLength() {
-            return maxFractionLength;
-        }
-
-        public void setMaxFractionLength(short maxFractionLength) {
-            this.maxFractionLength = maxFractionLength;
-        }
-
-        public short getMaxIntLength() {
-            return maxIntLength;
-        }
-
-        public void setMaxIntLength(short maxIntLength) {
-            this.maxIntLength = maxIntLength;
-        }
-
-        public short getMaxScalingLength() {
-            return maxScalingLength;
-        }
-
-        public void setMaxScalingLength(short maxScalingLength) {
-            this.maxScalingLength = maxScalingLength;
-        }
-
-        public int getMaxStringLength() {
-            return maxStringLength;
-        }
-
-        public void setMaxStringLength(int maxStringLength) {
-            this.maxStringLength = maxStringLength;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getPic() {
-            return pic;
-        }
-
-        public void setPic(String pic) {
-            this.pic = pic;
-        }
-
-        public byte getType() {
-            return (byte)type;
-        }
-
-        public void setType(int type) {
-            setIdentifierType(type);
-            this.type = type;
-        }
-
-        public byte getUsage() {
-            return usage;
-        }
-
-        public void setUsage(byte usage) {
-            this.usage = usage;
-        }
-
-        public CobolSymbol() {
-        }
-
-        public CobolSymbol(int t) {
-            type = (byte) t;
-        }
     }
 
     private long internalMark;

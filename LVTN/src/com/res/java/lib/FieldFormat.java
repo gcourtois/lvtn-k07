@@ -63,24 +63,6 @@ public class FieldFormat {
 		this.sym.isSigned = isSigned;
 	}
 
-	public boolean isFloating() {
-		return false;
-	}
-
-	public void setFloating(boolean isFloating) {
-		// this.sym.isFloating = isFloating;
-	}
-
-	public boolean isPointer() {
-		return false;
-	}
-
-	public void setPointer(boolean isPointer) {
-		// this.isPointer = isPointer;
-	}
-
-	// private boolean isPointer=false;
-
 	public boolean isBlankWhenZero() {
 		return sym.isBlankWhenZero;
 	}
@@ -361,7 +343,7 @@ public class FieldFormat {
 		}
 	}
 
-	// TODO Need to test and refine and improve performance.
+	// Need to test and refine and improve performance.
 	private String doScaling(String num) {
 		if (!isScaled())
 			return num;
@@ -404,7 +386,7 @@ public class FieldFormat {
 		return num;
 	}
 
-	// TODO Need to test and refine for performance.
+	// Need to test and refine for performance.
 	private String doFloatingInsertion(String num, boolean isNegative) {
 		if (getNumberFormat() == null)
 			return num;
@@ -986,7 +968,6 @@ public class FieldFormat {
 		return;
 	}
 
-	// TODO: Consider this
 
 	private String getCurrencySign() {
 		 return RunConfig.getInstance().getCurrencySign();

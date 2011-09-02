@@ -25,7 +25,6 @@ import java.util.Stack;
 import com.res.cobol.Main;
 import com.res.common.RESConfig;
 import com.res.java.lib.Constants;
-import com.res.java.lib.FieldFormat;
 import com.res.java.lib.RunTimeUtil;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
@@ -73,7 +72,7 @@ public class CalculateSymbolLength implements Visitor {
         }
 
         if (props.getDataUsage() == Constants.INDEX) {
-            props.setDataUsage((short) Constants.BINARY);
+            props.setDataUsage(Constants.BINARY);
             isIndexSetToBinary = true;
         } else {
             isIndexSetToBinary = false;
@@ -165,7 +164,7 @@ public class CalculateSymbolLength implements Visitor {
             alwaysCobolBytes = false;
         }
         if (isIndexSetToBinary && props.getDataUsage() == Constants.BINARY) {
-            props.setDataUsage((short) Constants.INDEX);
+            props.setDataUsage(Constants.INDEX);
         }
     }
     private boolean alwaysCobolBytes = false;
@@ -201,7 +200,7 @@ public class CalculateSymbolLength implements Visitor {
     @Override
     public void visit88Element(SymbolProperties props) {
         //props.setJavaType(new com.res.java.translation.symbol.SymbolProperties.CobolSymbol());
-        props.getJavaType().setType(props.getParent().getJavaType().getType());
+        props.getCobolDesc().setTypeInJava(props.getParent().getCobolDesc().getTypeInJava());
     }
 
     @Override
@@ -230,7 +229,7 @@ public class CalculateSymbolLength implements Visitor {
             return;
         }
 
-        props.getJavaType().setType((byte) Constants.GROUP);
+        props.getCobolDesc().setTypeInJava((byte) Constants.GROUP);
 
         if (props.getLevelNumber() == 66) {
             processRenames(props);
@@ -238,7 +237,7 @@ public class CalculateSymbolLength implements Visitor {
         }
 
 
-        int prevOffset = unAdjustedOffset.peek();
+//        int prevOffset = unAdjustedOffset.peek();
         int prevAdjustedOffset = offset.peek();
         props.setOffset(offset.peek());
         props.setUnAdjustedOffset(unAdjustedOffset.peek());
@@ -329,6 +328,8 @@ public class CalculateSymbolLength implements Visitor {
     }
 
     private void calculateElementLength(SymbolProperties props) {
+    	
+    	FieldAttributes.processPicture(props);
 
         int leng;
         boolean isSuppressed = (Boolean) props.getIsSuppressed() || !(props.getRef() || props.getMod()) || !props.isForceCobolBytes();
@@ -338,38 +339,38 @@ public class CalculateSymbolLength implements Visitor {
         }
 
 
-       // com.res.java.translation.symbol.SymbolProperties.CobolSymbol sym = new com.res.java.translation.symbol.SymbolProperties.CobolSymbol();
-        props.getJavaType().setPic((String) props.getPictureString());
+       /*// com.res.java.translation.symbol.SymbolProperties.CobolSymbol sym = new com.res.java.translation.symbol.SymbolProperties.CobolSymbol();
+        props.getCobolDesc().setPic((String) props.getPictureString());
 
-        String u = props.getJavaType().getPic();
+        String u = props.getCobolDesc().getPic();
        // props.getJavaType().setUsage((byte) props.getDataUsage());
 
         if (FieldFormat.verifyCobolPicture(u) == Constants.BIGDECIMAL) {
-            FieldAttributes.processDecimal(u, props.getJavaType(), props.getDataCategory() == Constants.NUMERIC_EDITED);
-            props.setCurrency(props.getJavaType().isIsCurrency());
-            props.setSigned(props.getJavaType().isIsSigned());
+            FieldAttributes.processDecimal(u, props.getCobolDesc(), props.getDataCategory() == Constants.NUMERIC_EDITED);
+            props.setCurrency(props.getCobolDesc().isCurrency());
+            props.setSigned(props.getCobolDesc().isSigned());
         } else if (FieldFormat.verifyCobolPicture(u) == Constants.INTEGER) {
-            FieldAttributes.processDecimal(u, props.getJavaType(), props.getDataCategory() == Constants.NUMERIC_EDITED);
-            props.setSigned(props.getJavaType().isIsSigned());
-            props.setCurrency(props.getJavaType().isIsCurrency());
+            FieldAttributes.processDecimal(u, props.getCobolDesc(), props.getDataCategory() == Constants.NUMERIC_EDITED);
+            props.setSigned(props.getCobolDesc().isSigned());
+            props.setCurrency(props.getCobolDesc().isCurrency());
         } else {
             if (FieldFormat.verifyCobolPicture(u) == Constants.STRING) {
-                FieldAttributes.processAlpha(u, props.getJavaType());
+                FieldAttributes.processAlpha(u, props.getCobolDesc());
             } else {
                 SymbolUtil.getInstance().reportError("Error In Usage or Picture of: " + props.getDataName()
                         + ((props.getParent() != null) ? " IN " + props.getParent().getDataName() : "")
                         + ((props.getPictureString() != null) ? " PICTURE " + props.getPictureString() : ""));
             }
-        }
-
+        }*/
+        
         if (props.getDataUsage() == Constants.COMPUTATIONAL1) {
-            props.getJavaType().setType(Constants.FLOAT);
+            props.getCobolDesc().setTypeInJava(Constants.FLOAT);
         } else if (props.getDataUsage() == Constants.COMPUTATIONAL2) {
-            props.getJavaType().setType(Constants.DOUBLE);
+            props.getCobolDesc().setTypeInJava(Constants.DOUBLE);
         }
 
-        props.setJavaType(props.getJavaType());
-        leng = FieldAttributes.calculateLength(props);
+//        props.setCobolDesc(props.getCobolDesc());
+        leng = FieldAttributes.calculateBytesLength(props);
         if (props.getLevelNumber() == 78) {
             return;
         }

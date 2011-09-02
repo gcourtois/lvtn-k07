@@ -6,17 +6,16 @@ import java.io.IOException;
 
 import com.res.cobol.syntaxtree.ProgramIdParagraph;
 import com.res.cobol.syntaxtree.ProgramUnit;
-import com.res.cobol.visitor.GJVoidDepthFirst;
+import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
 import com.res.java.util.JavaCodePrinter;
 import com.res.java.util.NameUtil;
 
-public class Cobol2Java extends GJVoidDepthFirst<Object> {
-
+public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	@Override
-	public void visit(ProgramUnit n, Object argu) {
+	public Object visit(ProgramUnit n, Object argu) {
 		try {
 			File f = new File(RESConfig.getInstance().getProgramPackage());
 			if (!f.exists()) {
@@ -26,7 +25,7 @@ public class Cobol2Java extends GJVoidDepthFirst<Object> {
 			if (!f.exists()) {
 				f.mkdir();
 			}
-			
+
 			String programName = n.identificationDivision.programIdParagraph.programName.cobolWord.nodeToken.tokenImage;
 
 			SymbolProperties props = SymbolTable.getInstance().lookup(
@@ -38,7 +37,7 @@ public class Cobol2Java extends GJVoidDepthFirst<Object> {
 
 			// TODO: create printer associated with fileName
 			JavaCodePrinter printer;
-//			printer = new JavaCodePrinter(System.out);
+			//			printer = new JavaCodePrinter(System.out);
 			printer = new JavaCodePrinter(new FileOutputStream(fileName));
 
 			// print package
@@ -60,16 +59,17 @@ public class Cobol2Java extends GJVoidDepthFirst<Object> {
 			printer.println("}");
 
 			printer.close();
-			
+
 			// throw new IOException();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
+		return null;
 	}
 
 	@Override
-	public void visit(ProgramIdParagraph n, Object o) {
+	public Object visit(ProgramIdParagraph n, Object o) {
 		String programName = n.programName.cobolWord.nodeToken.tokenImage;
 		SymbolProperties props = SymbolTable.getInstance().lookup(programName);
 
@@ -77,10 +77,12 @@ public class Cobol2Java extends GJVoidDepthFirst<Object> {
 
 		// print all data field
 		try {
-			new DataPrinter().createDataForProgram(props, printer);
+			new DataPrinter().printDataForProgram(props, printer);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
+
+		return null;
 	}
 }
