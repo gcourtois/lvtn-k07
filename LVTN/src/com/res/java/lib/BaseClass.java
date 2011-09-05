@@ -122,86 +122,67 @@ public class BaseClass {
 
 		return input;
 	}
-
+	private int doPScaling(int input, int pscale) {
+		//What if pscale too big
+		return input*= powerBase10[pscale];
+	}
 	private long doPScaling(long input, int pscale) {
 		return input *= powerBase10[pscale];
 	}
 
-	private BigDecimal doPscaling(BigDecimal input, int scale, int pscale) {
-		return input.scaleByPowerOfTen(-scale - pscale);
+	private BigDecimal doPscaling(BigDecimal input, int scale) {
+		return input.scaleByPowerOfTen(-scale);
 	}
 
-	/*START HERE */
+	/* START HERE */
+	
+	
+	
 	/**
-	 * Convert BCD bytes array to BigDecimal TODO: How about different last 4
-	 * bit (beside 0xc 0xd 0xf)
-	 * 
+	 * Get BCD Value
+	 * Remember to calculate length of element int and long.
+	 * Cast is not right if value > Int.MAX_VALUE 
 	 * @param offset
 	 * @param length
 	 * @param scale
-	 * @param pscale
 	 * @param signed
 	 * @return
 	 */
-	public BigDecimal convertBCDToBigDecimal(int offset, int length, int scale,
-			int pscale, boolean signed) {
-		boolean negate = false;
-		BigDecimal result = new BigDecimal(0);
-		for (int index = offset; index < offset + length; index++) {
-			byte eachByte = data[index];
-			int firstDigit = (eachByte >> 4) & 0x0f;
-			int secondDigit = eachByte & 0x0f;
-			if (index == (offset + length - 1)) {
-				if (signed) {
-					if (secondDigit == 0xd) {
-						negate = true;
-					} else if (secondDigit == 0xc) {
-						negate = false;
-					}
-				}
-				result = result.multiply(new BigDecimal(10)).add(
-						new BigDecimal(firstDigit));
-			} else {
-				result = result.multiply(new BigDecimal(100)).add(
-						new BigDecimal(firstDigit * 10 + secondDigit));
+	protected BigDecimal getBigDecimalBCD(int offset, int length, int scale, boolean signed) {
+		long longValue = convertBCDToLong(offset, length, signed);
+		BigDecimal returnValue = new BigDecimal(longValue);
+		if (scale > 0) {
+			return doPscaling(returnValue, scale);
+		}
+		return returnValue;
+	}
+	
+	protected long getLongBCD(int offset, int length, int pscale, boolean signed) {
+		if (length > 10) {
+			throw new ArithmeticException("Bytes array is too long for Long type");
+		}
+		long tempValue = convertBCDToLong(offset, length, signed);
+		if (pscale > 0) {
+			return doPScaling(tempValue, pscale);
+		}
+		return tempValue;
+	}
+	
+	protected int getIntBCD(int offset, int length, int pscale, boolean signed) {
+		if (length > 6) {
+			throw new ArithmeticException("Bytes array is too long for Integer type");
+		}
+		long tempValue = convertBCDToLong(offset, length, signed);
+		if (pscale > 0) {
+			tempValue = doPScaling(tempValue, pscale);
+			if (tempValue >= powerBase10[10]) {
+				throw new ArithmeticException("Use Long method instead of Integer");
 			}
 		}
-		if (negate && signed) {
-			result = result.negate();
-		}
-
-		if (scale + pscale > 0) {
-			// result = result.scaleByPowerOfTen(-scale);
-			result = doPscaling(result, scale, pscale);
-		}
-		return result;
+		return (int) tempValue;
 	}
 
-	/**
-	 * Convert BCD bytes array to Integer
-	 * 
-	 * @param data
-	 * @param offset
-	 * @param length
-	 * @param signed
-	 * @return
-	 */
-	/*
-	 * public int convertBCDToInt(byte[] input, int offset, int length, boolean
-	 * signed) { boolean negate = false; int result = 0; if (length >= 6) {
-	 * throw new
-	 * ArithmeticException("BCD: Bytes array is too long for Integer Conversion."
-	 * ); } for (int index =offset; index < offset + length; index++) { byte
-	 * eachByte = input[index]; int firstDigit = (eachByte >> 4) & 0x0f; int
-	 * secondDigit = eachByte & 0x0f; if (index == (input.length - 1)) { if
-	 * (signed) { if (secondDigit == 0xd) { negate = true; } else if
-	 * (secondDigit == 0xc){ negate = false; } } result = result*10 +
-	 * firstDigit; } else { result = (firstDigit*10 + secondDigit) + result*100;
-	 * } } if (negate && signed) { return -result; } return result; }
-	 */
-
-	public long convertBCDToLong(int offset, int length, int pscale,
-			boolean signed) {
+	private long convertBCDToLong(int offset, int length, boolean signed) {
 		boolean negate = false;
 		long result = 0;
 		for (int index = offset; index < offset + length; index++) {
@@ -221,10 +202,6 @@ public class BaseClass {
 				result = (firstDigit * 10 + secondDigit) + result * 100;
 			}
 		}
-
-		if (pscale > 0)
-			result = doPScaling(result, pscale);
-
 		if (negate && signed) {
 			result = -result;
 		}
@@ -238,7 +215,23 @@ public class BaseClass {
 		}
 		return ((length / 2) + (length % 2));
 	}
-
+	
+	protected void setBCDInteger(int input,  int offset, int actualSize, boolean signed, int pscale) {
+//		int tempValue = (int) getAlgebraicValue((long) input, actualSize, signed, pscale);
+//		convertIntToBCD(tempValue, offset, signed);
+	}
+	
+	protected void setLongBCD(long input, int offset, int actualSize, boolean signed, int pscale) {
+		long tempValue = adjustIntegralValue(input, actualSize, signed, pscale);
+		convertLongToBCD(tempValue, offset, signed);
+		
+	}
+	
+	protected void setBigDecimalBCD(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+		long longVal = adjustDecimalValue(input, intLength, fractionLength, pscale, signed);
+		convertLongToBCD(longVal, offset, signed);
+	}
+	
 	/**
 	 * Convert int to BCD format
 	 * 
@@ -246,11 +239,11 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertIntToBCD(int input, byte[] dest, int offset,
+	private void convertIntToBCD(int input, int offset,
 			boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
-		buffer = ByteBuffer.wrap(dest);
+		buffer = ByteBuffer.wrap(data);
 		byte signByte = 0x0F;
 		if (signed) {
 			if (input < 0) {
@@ -269,8 +262,6 @@ public class BaseClass {
 			buffer.position(byteLength + offset - index - 1);
 			buffer.put(TranslateConstants.PACKED_DECIMALS[input % 100]);
 		}
-
-		return buffer.array();
 	}
 
 	private int calculateByteLengthBCD(long input) {
@@ -280,7 +271,10 @@ public class BaseClass {
 		}
 		return ((length / 2) + (length % 2));
 	}
+	
+	
 
+	
 	/**
 	 * Convert long to BCD format
 	 * 
@@ -288,11 +282,11 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public void convertLongToBCD(long input, byte[] dest, int offset,
+	private void convertLongToBCD(long input, int offset,
 			boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
-		buffer = ByteBuffer.wrap(dest);
+		buffer = ByteBuffer.wrap(data);
 		byte signByte = 0x0F;
 		if (signed) {
 			if (input < 0) {
@@ -313,28 +307,29 @@ public class BaseClass {
 		}
 
 	}
-
-	/**
-	 * Convert BigDecimal to BCD, remember to normalize BigDecimal before set
-	 * 
-	 * @param input
-	 * @param signed
-	 * @return
-	 */
-	public void convertBigDecimalToBCD(BigDecimal input, byte[] dest,
-			int offset, boolean signed, int definedScale) {
-		if (input.scale() == definedScale) {
-			input = input.scaleByPowerOfTen(input.scale());
-		} else if (input.scale() > definedScale) {
-			input = input.scaleByPowerOfTen(input.scale());
-			input = input.divide(new BigDecimal(Math.pow(10,
-					(input.scale() - definedScale))));
-		} else {
-			input = input.scaleByPowerOfTen(input.scale());
-		}
-
-		long longVal = input.longValue();
-		convertLongToBCD(longVal, dest, offset, signed);
+	
+	protected int getIntBytes(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected long getLongBytes(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected BigDecimal getBigDecimalBytes(int offset, int length, boolean signed, int pscale) {
+		return new BigDecimal(1);
+	}
+	
+	protected void setIntBytes(int input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setLongBytes(long input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setBigDecimalBytes(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+		
 	}
 
 	/**
@@ -367,7 +362,7 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public long convertBytesToLong(int offset, int length, int pscale,
+	private long convertBytesToLong(int offset, int length, int pscale,
 			boolean signed) {
 		ByteBuffer temp = ByteBuffer.wrap(data, offset, length);
 		if (data.length > 8) {
@@ -401,13 +396,12 @@ public class BaseClass {
 	 * @return
 	 */
 
-	public BigDecimal convertBytesToBigDecimal(int offset, int length,
-			int scale, int pscale, boolean signed) {
+	private BigDecimal convertBytesToBigDecimal(int offset, int length,
+			int scale, boolean signed) {
 		long longVal = convertBytesToLong(offset, length, 0, signed);
 		BigDecimal result = new BigDecimal(longVal);
-		if (scale + pscale > 0) {
-			// result.scaleByPowerOfTen(scale);
-			result = doPscaling(result, scale, pscale);
+		if (scale> 0) {
+			result = result.scaleByPowerOfTen(-scale);
 		}
 		return result;
 	}
@@ -422,7 +416,40 @@ public class BaseClass {
 
 		return null;
 	}
-
+	
+	
+	
+	protected int getIntDisplay(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected long getLongDisplay(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected BigDecimal getBigDecimalDisplay(int offset, int length, boolean signed, int pscale) {
+		return new BigDecimal(1);
+	}
+	
+	protected String getStringDisplay(int offset, int length, boolean rightJustified) {
+		return "";
+	}
+	
+	protected void setIntDisplay(int input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setLongDisplay(long input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setBigDecimalDisplay(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setStringDisplay(String input, int offset, boolean rightJustified) {
+		
+	}
 	/**
 	 * Convert Bytes to Int usage Display TODO:Handle EBCDIC
 	 * 
@@ -460,8 +487,8 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public long convertDisplayToLong(int offset, int length, int pscale,
-			boolean signed) {
+	private long convertDisplayToLong(int offset, int length, int scale,
+			boolean signed, boolean signLeading, boolean signSeparate) {
 		long result = 0;
 		if (length > 18) {
 			throw new OverflowException(
@@ -492,33 +519,25 @@ public class BaseClass {
 					"Convert Bytes (Display) to Long failed " + e);
 		}
 
-		if (pscale > 0)
-			result = doPScaling(result, pscale);
+		if (scale > 0) {
+			result = doPScaling(result, scale);
+		}
 
 		if (negate && signed) {
 			result = -result;
 		}
-		// else {
-		// try {
-		// ByteBuffer buffer = ByteBuffer.wrap(data, offset, length);
-		// result = Long.valueOf(new String(buffer.array()));
-		// } catch(Exception e) {
-		// throw new ArithmeticException("Convert Bytes (Display) to Long failed
-		// " + data);
-		// }
-		// }
 		return result;
 	}
 
 	/**
-	 * Convert Bytes to BigDecimal usage Display 
-	 * TODO:Handle EBCDIC 
+	 * Convert Bytes to BigDecimal usage Display TODO:Handle EBCDIC
+	 * 
 	 * @param data
 	 * @param signed
 	 * @return
 	 */
-	public BigDecimal convertDisplayToBigDecimal(int offset, int length,
-			int scale, int pscale, boolean signed) {
+	private BigDecimal convertDisplayToBigDecimal(int offset, int length,
+			int scale, boolean signed, boolean signLeading, boolean signSeparate) {
 		BigDecimal result;
 		if (length > 18) {
 			throw new OverflowException(
@@ -552,24 +571,9 @@ public class BaseClass {
 		if (negate) {
 			result = result.negate();
 		}
-		if (scale + pscale > 0) {
-			// result.scaleByPowerOfTen(scale);
-			doPscaling(result, scale, pscale);
+		if (scale> 0) {
+			result = result.scaleByPowerOfTen(-scale);
 		}
-		// else {
-		// try {
-		// ByteBuffer buffer = ByteBuffer.wrap(data, offset, length);
-		// result = BigDecimal.valueOf(Long.valueOf(new
-		// String(buffer.array())));
-		// } catch(Exception e) {
-		// throw new
-		// ArithmeticException("Convert Bytes (Display) to Long failed " +
-		// data);
-		// }
-		// if (scale > 0) {
-		// result.scaleByPowerOfTen(scale);
-		// }
-		// }
 		return result;
 	}
 
@@ -580,7 +584,7 @@ public class BaseClass {
 	 * @param len
 	 * @return
 	 */
-	public String convertDisplayToString(int offset, int length) {
+	private String convertDisplayToString(int offset, int length) {
 		return new String(data, offset, length);
 	}
 
@@ -591,8 +595,8 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public void convertIntToDisplay(int input, byte[] dest, int offset,
-			boolean signed) {
+	private void convertIntToDisplay(int input, byte[] dest, int offset,
+			boolean signed, boolean signLeading, boolean signSeparate) {
 		String inputStr = String.valueOf(Math.abs(input));
 		int byteLength = inputStr.length();
 		if (byteLength > 9) {
@@ -624,8 +628,8 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public void convertLongToDisplay(long input, byte[] dest, int offset,
-			boolean signed) {
+	private void convertLongToDisplay(long input, byte[] dest, int offset,
+			boolean signed, boolean signLeading, boolean signSeparate) {
 		String inputStr = String.valueOf(Math.abs(input));
 		int byteLength = inputStr.length();
 		if (byteLength > 18) {
@@ -659,14 +663,14 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public void convertBigDecimalToDisplay(BigDecimal input, byte[] dest,
-			int offset, boolean signed) {
+	private void convertBigDecimalToDisplay(BigDecimal input, byte[] dest,
+			int offset, boolean signed, boolean signLeading, boolean signSeparate) {
 		input = input.scaleByPowerOfTen(input.scale());
 		long longVal = input.longValue();
-		convertLongToDisplay(longVal, dest, offset, signed);
+		convertLongToDisplay(longVal, dest, offset, signed, signLeading, signSeparate);
 	}
 
-	public void convertStringToDisplay(String input, byte[] dest, int offset) {
+	private void convertStringToDisplay(String input, byte[] dest, int offset) {
 		Charset ascii = Charset.forName("US-ASCII");
 		byte[] asciiArray = input.getBytes(ascii);
 		ByteBuffer buffer = ByteBuffer.wrap(dest, offset, asciiArray.length);
@@ -693,11 +697,11 @@ public class BaseClass {
 		BaseClass test = new BaseClass(1);
 		long testLong = test.adjustIntegralValue(888000, 3, true, 3);
 		System.out.println(testLong);
-		long i = new BaseClass(1).getAlgebraicValue(123456789, 3, false, 3);
-		// long i = new BaseClass(1).adjustDecimalValue(new
-		// BigDecimal("12345.67891"), 0, 3, 3, false);
-		// BigDecimal i = new BaseClass(1).getAlgebraicValue(new
-		// BigDecimal("12345.6789123456"), 0, 3, 2, false);
+//		long i = new BaseClass(1).getAlgebraicValue(123456789, 3, false, 3);
+		 long i = new BaseClass(1).adjustDecimalValue(new
+		 BigDecimal("12345.67891"), 0, 3, 3, false);
+//		 BigDecimal i = new BaseClass(1).getAlgebraicValue(new
+//		 BigDecimal("12345.6789123456"), 0, 3, 2, false);
 
 		System.out.println(i);
 	}
