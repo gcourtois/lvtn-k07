@@ -42,7 +42,127 @@ public class BaseClass {
 	public byte[] getBytes() {
 		return this.data;
 	}
+	
+	/**
+	 * Get BCD Value
+	 * Remember to calculate length of element int and long.
+	 * Cast is not right if value > Int.MAX_VALUE 
+	 * @param offset
+	 * @param length
+	 * @param scale
+	 * @param signed
+	 * @return
+	 */
+	protected BigDecimal getBigDecimalBCD(int offset, int length, int scale, boolean signed) {
+		long longValue = convertBCDToLong(offset, length, signed);
+		BigDecimal returnValue = new BigDecimal(longValue);
+		if (scale > 0) {
+			return doPscaling(returnValue, scale);
+		}
+		return returnValue;
+	}
+	
+	protected long getLongBCD(int offset, int length, int pscale, boolean signed) {
+		if (length > 10) {
+			throw new ArithmeticException("Bytes array is too long for Long type");
+		}
+		long tempValue = convertBCDToLong(offset, length, signed);
+		if (pscale > 0) {
+			return doPScaling(tempValue, pscale);
+		}
+		return tempValue;
+	}
+	
+	protected int getIntBCD(int offset, int length, int pscale, boolean signed) {
+		if (length > 6) {
+			throw new ArithmeticException("Bytes array is too long for Integer type");
+		}
+		long tempValue = convertBCDToLong(offset, length, signed);
+		if (pscale > 0) {
+			tempValue = doPScaling(tempValue, pscale);
+			if (tempValue >= powerBase10[10]) {
+				throw new ArithmeticException("Use Long method instead of Integer");
+			}
+		}
+		return (int) tempValue;
+	}
+	
+	protected void setBCDInteger(int input,  int offset, int actualSize, boolean signed, int pscale) {
+//		int tempValue = (int) getAlgebraicValue((long) input, actualSize, signed, pscale);
+//		convertIntToBCD(tempValue, offset, signed);
+	}
+	
+	protected void setLongBCD(long input, int offset, int actualSize, boolean signed, int pscale) {
+		long tempValue = adjustIntegralValue(input, actualSize, signed, pscale);
+		convertLongToBCD(tempValue, offset, signed);
+		
+	}
+	
+	protected void setBigDecimalBCD(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+		long longVal = adjustDecimalValue(input, intLength, fractionLength, pscale, signed);
+		convertLongToBCD(longVal, offset, signed);
+	}
+	
 
+	protected int getIntDisplay(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected long getLongDisplay(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected BigDecimal getBigDecimalDisplay(int offset, int length, boolean signed, int pscale) {
+		return new BigDecimal(1);
+	}
+	
+	protected String getStringDisplay(int offset, int length, boolean rightJustified) {
+		return "";
+	}
+	
+	protected void setIntDisplay(int input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setLongDisplay(long input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setBigDecimalDisplay(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setStringDisplay(String input, int offset, boolean rightJustified) {
+		
+	}
+	
+	protected int getIntBytes(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected long getLongBytes(int offset, int length, boolean signed, int pscale) {
+		return 1;
+	}
+	
+	protected BigDecimal getBigDecimalBytes(int offset, int length, boolean signed, int pscale) {
+		return new BigDecimal(1);
+	}
+	
+	protected void setIntBytes(int input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setLongBytes(long input, int offset, int actualSize, boolean signed, int pscale) {
+		
+	}
+	
+	protected void setBigDecimalBytes(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+		
+	}
+	
+	
+	
+	
 	private long[] powerBase10 = new long[] { 1, 10, 100, 1000, 10000, 100000,
 			1000000, 10000000, 100000000, 1000000000, 10000000000L,
 			100000000000L, 1000000000000L, 10000000000000L, 100000000000000L,
@@ -138,49 +258,7 @@ public class BaseClass {
 	
 	
 	
-	/**
-	 * Get BCD Value
-	 * Remember to calculate length of element int and long.
-	 * Cast is not right if value > Int.MAX_VALUE 
-	 * @param offset
-	 * @param length
-	 * @param scale
-	 * @param signed
-	 * @return
-	 */
-	protected BigDecimal getBigDecimalBCD(int offset, int length, int scale, boolean signed) {
-		long longValue = convertBCDToLong(offset, length, signed);
-		BigDecimal returnValue = new BigDecimal(longValue);
-		if (scale > 0) {
-			return doPscaling(returnValue, scale);
-		}
-		return returnValue;
-	}
 	
-	protected long getLongBCD(int offset, int length, int pscale, boolean signed) {
-		if (length > 10) {
-			throw new ArithmeticException("Bytes array is too long for Long type");
-		}
-		long tempValue = convertBCDToLong(offset, length, signed);
-		if (pscale > 0) {
-			return doPScaling(tempValue, pscale);
-		}
-		return tempValue;
-	}
-	
-	protected int getIntBCD(int offset, int length, int pscale, boolean signed) {
-		if (length > 6) {
-			throw new ArithmeticException("Bytes array is too long for Integer type");
-		}
-		long tempValue = convertBCDToLong(offset, length, signed);
-		if (pscale > 0) {
-			tempValue = doPScaling(tempValue, pscale);
-			if (tempValue >= powerBase10[10]) {
-				throw new ArithmeticException("Use Long method instead of Integer");
-			}
-		}
-		return (int) tempValue;
-	}
 
 	private long convertBCDToLong(int offset, int length, boolean signed) {
 		boolean negate = false;
@@ -216,21 +294,7 @@ public class BaseClass {
 		return ((length / 2) + (length % 2));
 	}
 	
-	protected void setBCDInteger(int input,  int offset, int actualSize, boolean signed, int pscale) {
-//		int tempValue = (int) getAlgebraicValue((long) input, actualSize, signed, pscale);
-//		convertIntToBCD(tempValue, offset, signed);
-	}
 	
-	protected void setLongBCD(long input, int offset, int actualSize, boolean signed, int pscale) {
-		long tempValue = adjustIntegralValue(input, actualSize, signed, pscale);
-		convertLongToBCD(tempValue, offset, signed);
-		
-	}
-	
-	protected void setBigDecimalBCD(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
-		long longVal = adjustDecimalValue(input, intLength, fractionLength, pscale, signed);
-		convertLongToBCD(longVal, offset, signed);
-	}
 	
 	/**
 	 * Convert int to BCD format
@@ -308,29 +372,7 @@ public class BaseClass {
 
 	}
 	
-	protected int getIntBytes(int offset, int length, boolean signed, int pscale) {
-		return 1;
-	}
 	
-	protected long getLongBytes(int offset, int length, boolean signed, int pscale) {
-		return 1;
-	}
-	
-	protected BigDecimal getBigDecimalBytes(int offset, int length, boolean signed, int pscale) {
-		return new BigDecimal(1);
-	}
-	
-	protected void setIntBytes(int input, int offset, int actualSize, boolean signed, int pscale) {
-		
-	}
-	
-	protected void setLongBytes(long input, int offset, int actualSize, boolean signed, int pscale) {
-		
-	}
-	
-	protected void setBigDecimalBytes(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
-		
-	}
 
 	/**
 	 * Convert bytes array to Integer TODO: unsigned number :(
@@ -419,37 +461,7 @@ public class BaseClass {
 	
 	
 	
-	protected int getIntDisplay(int offset, int length, boolean signed, int pscale) {
-		return 1;
-	}
-	
-	protected long getLongDisplay(int offset, int length, boolean signed, int pscale) {
-		return 1;
-	}
-	
-	protected BigDecimal getBigDecimalDisplay(int offset, int length, boolean signed, int pscale) {
-		return new BigDecimal(1);
-	}
-	
-	protected String getStringDisplay(int offset, int length, boolean rightJustified) {
-		return "";
-	}
-	
-	protected void setIntDisplay(int input, int offset, int actualSize, boolean signed, int pscale) {
-		
-	}
-	
-	protected void setLongDisplay(long input, int offset, int actualSize, boolean signed, int pscale) {
-		
-	}
-	
-	protected void setBigDecimalDisplay(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
-		
-	}
-	
-	protected void setStringDisplay(String input, int offset, boolean rightJustified) {
-		
-	}
+
 	/**
 	 * Convert Bytes to Int usage Display TODO:Handle EBCDIC
 	 * 
