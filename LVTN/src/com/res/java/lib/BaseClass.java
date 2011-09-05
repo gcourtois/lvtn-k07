@@ -104,15 +104,15 @@ public class BaseClass {
 	}
 	
 
-	protected int getIntDisplay(int offset, int length, boolean signed, int pscale) {
+	protected int getIntDisplay(int offset, int length, boolean signed, boolean signLeading, boolean signSeparate, int pscale) {
 		return 1;
 	}
 	
-	protected long getLongDisplay(int offset, int length, boolean signed, int pscale) {
+	protected long getLongDisplay(int offset, int length, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
 		return 1;
 	}
 	
-	protected BigDecimal getBigDecimalDisplay(int offset, int length, boolean signed, int pscale) {
+	protected BigDecimal getBigDecimalDisplay(int offset, int length, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
 		return new BigDecimal(1);
 	}
 	
@@ -120,15 +120,15 @@ public class BaseClass {
 		return "";
 	}
 	
-	protected void setIntDisplay(int input, int offset, int actualSize, boolean signed, int pscale) {
+	protected void setIntDisplay(int input, int offset, int actualSize, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
 		
 	}
 	
-	protected void setLongDisplay(long input, int offset, int actualSize, boolean signed, int pscale) {
+	protected void setLongDisplay(long input, int offset, int actualSize, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
 		
 	}
 	
-	protected void setBigDecimalDisplay(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+	protected void setBigDecimalDisplay(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
 		
 	}
 	
