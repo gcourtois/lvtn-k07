@@ -180,10 +180,10 @@ public class FieldAttributes {
 			.compile("S?(9(\\(0*[1-9][0-9]*\\))?)+(P(\\(0*[1-9][0-9]*\\))?)+V?");
 
 	private static Pattern numericInteger = Pattern
-			.compile("S?(9(\\(0*[1-9][0-9]*\\))?)+");
+			.compile("S?(9(\\(0*[1-9][0-9]*\\))?)+V?");
 
 	private static Pattern numericDecimal = Pattern
-			.compile("S?((9(\\(0*[1-9][0-9]*\\))?)*V(9(\\(0*[1-9][0-9]*\\))?)+|(9(\\(0*[1-9][0-9]*\\))?)+V(9(\\(0*[1-9][0-9]*\\))?)*)");
+			.compile("S?(9(\\(0*[1-9][0-9]*\\))?)*V(9(\\(0*[1-9][0-9]*\\))?)+");
 
 	private static Pattern alphanumericEdited = Pattern
 			.compile("(([AX9B0/](\\(0*[1-9][0-9]*\\))?)*[AX](\\(0*[1-9][0-9]*\\))?([AX9B0/](\\(0*[1-9][0-9]*\\))?)*[B0/](\\(0*[1-9][0-9]*\\))?(\\(0*[1-9][0-9]*\\))?([AX9B0/](\\(0*[1-9][0-9]*\\))?)*"
@@ -211,6 +211,9 @@ public class FieldAttributes {
 		if (sb.charAt(0) == 'S') {
 			desc.setSigned(true);
 			sb.deleteCharAt(0);
+		}
+		if (sb.charAt(sb.length() - 1) == 'V') {
+			sb.setLength(sb.length() - 1);
 		}
 		desc.setMaxIntLength((short) sb.length());
 		processIntegralJavaType(desc);
@@ -255,7 +258,7 @@ public class FieldAttributes {
 		if (sb.charAt(0) == 'P') {
 			// Ps on leftmost
 			i = sb.lastIndexOf("P");
-			desc.setMaxScalingLength((short) -(i + 1));
+			desc.setMaxScalingLength((short) (i + 1));
 			desc.setMaxFractionLength((short) (sb.length() - i - 1));
 			desc.setTypeInJava(Constants.BIGDECIMAL);
 		} else {
@@ -280,14 +283,15 @@ public class FieldAttributes {
 		}
 	}
 
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 		SymbolProperties sym = new SymbolProperties();
-		sym.setPictureString("999PPP");
+		sym.setPictureString("999V");
 		sym.setDataUsage(Constants.DISPLAY);
 		System.out.println(normalizePicture(sym.getPictureString()));
 		processPicture(sym);
 		CobolDataDescription desc = sym.getCobolDesc();
+		System.out.println(desc.getTypeInJava());
 		System.out.println(desc.getMaxIntLength()+"."+desc.getMaxFractionLength()+":"+desc.getMaxScalingLength());
 		System.out.println(desc.getMaxStringLength());
-	}*/
+	}
 }

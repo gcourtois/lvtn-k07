@@ -25,7 +25,7 @@ public class MyMath {
 	
 	
 	public static void main(String[] args) {
-		BaseClass test = new BaseClass();
+		BaseClass test = new BaseClass(1);
 //		byte[] testInput = {0x01,0x45,0x12,0x3D};
 //		BigDecimal testBig = test.convertBCDToBigDec(testInput, 2);
 //		System.out.println(test.convertBCDToBigDec(testInput, 2).toString());
