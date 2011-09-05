@@ -1,4 +1,5 @@
 package com.res.java.lib;
+
 /**
  * TODO: Handle overflow when putting to bytes array
  * TODO: Alignment of data
@@ -6,7 +7,6 @@ package com.res.java.lib;
  * TODO: Unsigned Integer/Long
  * TODO: Convert EBCDIC --> ASCII or EBCDIC --> number
  */
-
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -16,118 +16,126 @@ import com.res.java.lib.exceptions.OverflowException;
 
 public class BaseClass {
 	private byte[] data;
-	
+
 	private int offset;
-	
+
 	private int length;
-	
+
 	public BaseClass(int size) {
 		data = new byte[size];
 		offset = 0;
 		length = size;
 	}
-	
+
 	public BaseClass(byte[] data) {
 		this.data = data;
 		offset = 0;
 		length = data.length;
 	}
-	
+
 	public BaseClass(byte[] data, int offset, int length) {
 		this.data = data;
 		this.offset = offset;
 		this.length = length;
 	}
-	
+
 	public byte[] getBytes() {
 		return this.data;
 	}
-	
-	private long[] powerBase10 = new long[]{
-			1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
-			10000000000L, 100000000000L, 1000000000000L, 10000000000000L, 100000000000000L,
-			1000000000000000L, 10000000000000000L, 100000000000000000L, 1000000000000000000L
-	};
-	
-	protected long adjustIntegralValue(long input, int size, boolean signed, int pscale) {
+
+	private long[] powerBase10 = new long[] { 1, 10, 100, 1000, 10000, 100000,
+			1000000, 10000000, 100000000, 1000000000, 10000000000L,
+			100000000000L, 1000000000000L, 10000000000000L, 100000000000000L,
+			1000000000000000L, 10000000000000000L, 100000000000000000L,
+			1000000000000000000L };
+
+	protected long adjustIntegralValue(long input, int size, boolean signed,
+			int pscale) {
 		if (size > 18) {
 			throw new ArithmeticException("Size is larger than 18");
 		}
-		
+
 		// pscale must >= 0
 		if (pscale == 0) {
 			input %= powerBase10[size];
 		} else {
 			input %= powerBase10[size + pscale];
-			input = input/powerBase10[pscale];
+			input = input / powerBase10[pscale];
 		}
 		if (input < 0 && !signed)
 			input = Math.abs(input);
 		return input;
 	}
-	
-	protected long adjustDecimalValue(BigDecimal input, int intLength, int fractionLength, int pscale, boolean signed) {
+
+	protected long adjustDecimalValue(BigDecimal input, int intLength,
+			int fractionLength, int pscale, boolean signed) {
 		// fraction length must > 0
-		
+
 		input = input.remainder(BigDecimal.valueOf(powerBase10[intLength]));
-		
+
 		if (pscale > 0) {
 			input = input.movePointRight(pscale).remainder(BigDecimal.ONE);
 		}
-		
+
 		input = input.scaleByPowerOfTen(fractionLength);
-		
+
 		if (input.signum() < 0 && !signed)
 			input = input.abs();
-		
+
 		return input.longValue();
 	}
-	
-	protected long getAlgebraicValue(long input, int size, boolean signed, int pscale) {
+
+	protected long getAlgebraicValue(long input, int size, boolean signed,
+			int pscale) {
 		if (pscale == 0) {
 			input %= powerBase10[size];
 		} else {
 			input %= powerBase10[size + pscale];
-			input = input/powerBase10[pscale]*powerBase10[pscale];
+			input = input / powerBase10[pscale] * powerBase10[pscale];
 		}
 		if (input < 0 && !signed)
 			input = Math.abs(input);
 		return input;
 	}
-	
-	protected BigDecimal getAlgebraicValue(BigDecimal input, int intLength, int fractionLength, int pscale, boolean signed) {
+
+	protected BigDecimal getAlgebraicValue(BigDecimal input, int intLength,
+			int fractionLength, int pscale, boolean signed) {
 		input = input.remainder(BigDecimal.valueOf(powerBase10[intLength]));
-		
+
 		int s = 0;
 		if (pscale > 0) {
-			input = input.movePointRight(pscale).remainder(BigDecimal.ONE).movePointLeft(pscale);
-//			input = input.scaleByPowerOfTen(pscale + fractionLength);
+			input = input.movePointRight(pscale).remainder(BigDecimal.ONE)
+					.movePointLeft(pscale);
+			// input = input.scaleByPowerOfTen(pscale + fractionLength);
 			s = pscale + fractionLength;
 		} else {
-//			input = input.scaleByPowerOfTen(fractionLength);
+			// input = input.scaleByPowerOfTen(fractionLength);
 			s = fractionLength;
 		}
-		
-		input = BigDecimal.valueOf(input.scaleByPowerOfTen(s).longValue()).scaleByPowerOfTen(-s);
-		
+
+		input = BigDecimal.valueOf(input.scaleByPowerOfTen(s).longValue())
+				.scaleByPowerOfTen(-s);
+
 		if (input.signum() < 0 && !signed) {
 			input = input.abs();
 		}
-		
+
 		return input;
 	}
-	
+
 	private long doPScaling(long input, int pscale) {
 		return input *= powerBase10[pscale];
 	}
-	
+
 	private BigDecimal doPscaling(BigDecimal input, int scale, int pscale) {
 		return input.scaleByPowerOfTen(-scale - pscale);
 	}
-	
+
+	/*START HERE */
 	/**
-	 * Convert BCD bytes array to BigDecimal
-	 * TODO: How about different last 4 bit (beside 0xc 0xd 0xf)
+	 * Convert BCD bytes array to BigDecimal TODO: How about different last 4
+	 * bit (beside 0xc 0xd 0xf)
+	 * 
 	 * @param offset
 	 * @param length
 	 * @param scale
@@ -135,10 +143,11 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	public BigDecimal convertBCDToBigDecimal(int offset, int length, int scale, int pscale, boolean signed) {
+	public BigDecimal convertBCDToBigDecimal(int offset, int length, int scale,
+			int pscale, boolean signed) {
 		boolean negate = false;
 		BigDecimal result = new BigDecimal(0);
-		for (int index =offset; index < offset+length; index++) {
+		for (int index = offset; index < offset + length; index++) {
 			byte eachByte = data[index];
 			int firstDigit = (eachByte >> 4) & 0x0f;
 			int secondDigit = eachByte & 0x0f;
@@ -146,67 +155,56 @@ public class BaseClass {
 				if (signed) {
 					if (secondDigit == 0xd) {
 						negate = true;
-					} else if (secondDigit == 0xc){
+					} else if (secondDigit == 0xc) {
 						negate = false;
 					}
 				}
-				result = result.multiply(new BigDecimal(10)).add(new BigDecimal(firstDigit));
+				result = result.multiply(new BigDecimal(10)).add(
+						new BigDecimal(firstDigit));
 			} else {
-				result = result.multiply(new BigDecimal(100)).add(new BigDecimal(firstDigit*10 + secondDigit));
+				result = result.multiply(new BigDecimal(100)).add(
+						new BigDecimal(firstDigit * 10 + secondDigit));
 			}
 		}
 		if (negate && signed) {
-			result =  result.negate();
+			result = result.negate();
 		}
 
 		if (scale + pscale > 0) {
-//			result = result.scaleByPowerOfTen(-scale);
-			doPscaling(result, scale, pscale);
+			// result = result.scaleByPowerOfTen(-scale);
+			result = doPscaling(result, scale, pscale);
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Convert BCD bytes array to Integer
+	 * 
 	 * @param data
 	 * @param offset
 	 * @param length
 	 * @param signed
 	 * @return
 	 */
-	/*public int convertBCDToInt(byte[] input, int offset, int length, boolean signed) {
-		boolean negate = false;
-		int result = 0;
-		if (length >= 6) {
-			throw new ArithmeticException("BCD: Bytes array is too long for Integer Conversion.");
-		}
-		for (int index =offset; index < offset + length; index++) {
-			byte eachByte = input[index];
-			int firstDigit = (eachByte >> 4) & 0x0f;
-			int secondDigit = eachByte & 0x0f;
-			if (index == (input.length - 1)) {
-				if (signed) {
-					if (secondDigit == 0xd) {
-						negate = true;
-					} else if (secondDigit == 0xc){
-						negate = false;
-					}
-				}
-				result = result*10 + firstDigit;
-			} else {
-				result = (firstDigit*10 + secondDigit) + result*100;
-			}
-		}
-		if (negate && signed) {
-			return -result;
-		}
-		return result;
-	}*/
-	
-	public long convertBCDToLong(int offset, int length, int pscale, boolean signed) {
+	/*
+	 * public int convertBCDToInt(byte[] input, int offset, int length, boolean
+	 * signed) { boolean negate = false; int result = 0; if (length >= 6) {
+	 * throw new
+	 * ArithmeticException("BCD: Bytes array is too long for Integer Conversion."
+	 * ); } for (int index =offset; index < offset + length; index++) { byte
+	 * eachByte = input[index]; int firstDigit = (eachByte >> 4) & 0x0f; int
+	 * secondDigit = eachByte & 0x0f; if (index == (input.length - 1)) { if
+	 * (signed) { if (secondDigit == 0xd) { negate = true; } else if
+	 * (secondDigit == 0xc){ negate = false; } } result = result*10 +
+	 * firstDigit; } else { result = (firstDigit*10 + secondDigit) + result*100;
+	 * } } if (negate && signed) { return -result; } return result; }
+	 */
+
+	public long convertBCDToLong(int offset, int length, int pscale,
+			boolean signed) {
 		boolean negate = false;
 		long result = 0;
-		for (int index =offset; index < offset + length; index++) {
+		for (int index = offset; index < offset + length; index++) {
 			byte eachByte = data[index];
 			int firstDigit = (eachByte >> 4) & 0x0f;
 			int secondDigit = eachByte & 0x0f;
@@ -214,25 +212,25 @@ public class BaseClass {
 				if (signed) {
 					if (secondDigit == 0xd) {
 						negate = true;
-					} else if (secondDigit == 0xc || secondDigit == 0xf){
+					} else if (secondDigit == 0xc || secondDigit == 0xf) {
 						negate = false;
 					}
 				}
-				result = result*10 + firstDigit;
+				result = result * 10 + firstDigit;
 			} else {
-				result = (firstDigit*10 + secondDigit) + result*100;
+				result = (firstDigit * 10 + secondDigit) + result * 100;
 			}
 		}
-		
+
 		if (pscale > 0)
-			doPScaling(result, pscale);
-		
+			result = doPScaling(result, pscale);
+
 		if (negate && signed) {
 			result = -result;
 		}
 		return result;
 	}
-	
+
 	private int calculateByteLengthBCD(int input) {
 		int length = String.valueOf(Math.abs(input)).length() + 1;
 		if (length > 10) {
@@ -240,20 +238,22 @@ public class BaseClass {
 		}
 		return ((length / 2) + (length % 2));
 	}
-	
+
 	/**
 	 * Convert int to BCD format
+	 * 
 	 * @param input
 	 * @param signed
 	 * @return
 	 */
-	public byte[] convertIntToBCD(int input, byte[] dest, int offset, boolean signed) {
+	public byte[] convertIntToBCD(int input, byte[] dest, int offset,
+			boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
 		buffer = ByteBuffer.wrap(dest);
 		byte signByte = 0x0F;
 		if (signed) {
-			if  (input < 0) {
+			if (input < 0) {
 				signByte = 0x0D;
 			} else {
 				signByte = 0x0C;
@@ -265,14 +265,14 @@ public class BaseClass {
 		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
 		input = input / 10;
-		for (int index = 1; index < byteLength; index++ , input /= 100) {
+		for (int index = 1; index < byteLength; index++, input /= 100) {
 			buffer.position(byteLength + offset - index - 1);
 			buffer.put(TranslateConstants.PACKED_DECIMALS[input % 100]);
 		}
-		
+
 		return buffer.array();
 	}
-	
+
 	private int calculateByteLengthBCD(long input) {
 		int length = String.valueOf(Math.abs(input)).length() + 1;
 		if (length > 19) {
@@ -280,20 +280,22 @@ public class BaseClass {
 		}
 		return ((length / 2) + (length % 2));
 	}
-	
+
 	/**
 	 * Convert long to BCD format
+	 * 
 	 * @param input
 	 * @param signed
 	 * @return
 	 */
-	public void convertLongToBCD(long input, byte[] dest, int offset, boolean signed) {
+	public void convertLongToBCD(long input, byte[] dest, int offset,
+			boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
 		buffer = ByteBuffer.wrap(dest);
 		byte signByte = 0x0F;
 		if (signed) {
-			if  (input < 0) {
+			if (input < 0) {
 				signByte = 0x0D;
 			} else {
 				signByte = 0x0C;
@@ -305,177 +307,156 @@ public class BaseClass {
 		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
 		input = input / 10;
-		for (int index = 1 ; index < byteLength ; index++ , input /= 100) {
+		for (int index = 1; index < byteLength; index++, input /= 100) {
 			buffer.position(byteLength + offset - index - 1);
 			buffer.put(TranslateConstants.PACKED_DECIMALS[(int) (input % 100)]);
 		}
-		
+
 	}
+
 	/**
 	 * Convert BigDecimal to BCD, remember to normalize BigDecimal before set
+	 * 
 	 * @param input
 	 * @param signed
 	 * @return
 	 */
-	public void convertBigDecimalToBCD(BigDecimal input, byte[] dest, int offset, boolean signed, int definedScale) {
+	public void convertBigDecimalToBCD(BigDecimal input, byte[] dest,
+			int offset, boolean signed, int definedScale) {
 		if (input.scale() == definedScale) {
 			input = input.scaleByPowerOfTen(input.scale());
 		} else if (input.scale() > definedScale) {
 			input = input.scaleByPowerOfTen(input.scale());
-			input = input.divide(new BigDecimal(Math.pow(10, (input.scale() - definedScale))));
+			input = input.divide(new BigDecimal(Math.pow(10,
+					(input.scale() - definedScale))));
 		} else {
 			input = input.scaleByPowerOfTen(input.scale());
 		}
-		
+
 		long longVal = input.longValue();
 		convertLongToBCD(longVal, dest, offset, signed);
 	}
-	
+
 	/**
-	 * Convert bytes array to Integer
-	 * TODO: unsigned number :(
+	 * Convert bytes array to Integer TODO: unsigned number :(
+	 * 
 	 * @param input
 	 * @param offset
 	 * @param length
 	 * @param signed
 	 * @return
 	 */
-	/*public int convertBytesToInt(byte[] input, int offset, int length,  boolean signed) {
-		ByteBuffer temp = ByteBuffer.wrap(input, offset, length);
-		if (input.length > 4) {
-			throw new ArithmeticException("Length for Integer conversion > 4");
-		}
-		if (signed) {
-			int result =  temp.getInt();
-			if (result > 999999999) {
-				throw new OverflowException("Overflow Integer Conversion");
-			} else {
-				return result;
-			}
-		} else {
-			int result = temp.getInt();
-			if (result < 0 || result > 999999999) {
-				throw new OverflowException("UnSigned Integer is not correct");
-			} else {
-				return result;
-			}
-		}
-	}*/
-	
-	
-	
+	/*
+	 * public int convertBytesToInt(byte[] input, int offset, int length,
+	 * boolean signed) { ByteBuffer temp = ByteBuffer.wrap(input, offset,
+	 * length); if (input.length > 4) { throw new
+	 * ArithmeticException("Length for Integer conversion > 4"); } if (signed) {
+	 * int result = temp.getInt(); if (result > 999999999) { throw new
+	 * OverflowException("Overflow Integer Conversion"); } else { return result;
+	 * } } else { int result = temp.getInt(); if (result < 0 || result >
+	 * 999999999) { throw new
+	 * OverflowException("UnSigned Integer is not correct"); } else { return
+	 * result; } } }
+	 */
+
 	/**
-	 * Convert bytes array to Long
-	 * TODO: Unsigned Long
+	 * Convert bytes array to Long TODO: Unsigned Long
+	 * 
 	 * @param offset
 	 * @param length
 	 * @param signed
 	 * @return
 	 */
-	public long convertBytesToLong(int offset, int length, int pscale, boolean signed) {
+	public long convertBytesToLong(int offset, int length, int pscale,
+			boolean signed) {
 		ByteBuffer temp = ByteBuffer.wrap(data, offset, length);
 		if (data.length > 8) {
 			throw new ArithmeticException("Length for Long conversion is wrong");
 		}
-		long result =  temp.getLong();
-		
+		long result = temp.getLong();
+
 		if (pscale > 0)
-			doPScaling(result, pscale);
-		
+			result = doPScaling(result, pscale);
+
 		if (signed) {
 			if (result > powerBase10[18]) {
 				throw new OverflowException("Overflow Long Conversion");
 			}
-//			return result;
+			// return result;
 		} else {
-//			long result = temp.getLong();
+			// long result = temp.getLong();
 			if (result > powerBase10[18] || result < 0) {
 				throw new OverflowException("UnSigned Long is not correct");
 			}
 		}
 		return result;
 	}
+
 	/**
 	 * Convert bytes array to BigDecimal
+	 * 
 	 * @param input
 	 * @param signed
 	 * @param scale
 	 * @return
 	 */
-	
-	public BigDecimal convertBytesToBigDecimal(int offset, int length, int scale, int pscale, boolean signed) {
+
+	public BigDecimal convertBytesToBigDecimal(int offset, int length,
+			int scale, int pscale, boolean signed) {
 		long longVal = convertBytesToLong(offset, length, 0, signed);
 		BigDecimal result = new BigDecimal(longVal);
 		if (scale + pscale > 0) {
-//			result.scaleByPowerOfTen(scale);
-			doPscaling(result, scale, pscale);
+			// result.scaleByPowerOfTen(scale);
+			result = doPscaling(result, scale, pscale);
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Convert EBCDIC to ASCII
+	 * 
 	 * @param input
 	 * @return
 	 */
 	private byte[] convertEBCDICtoAscii(byte[] input, int offset) {
-		
+
 		return null;
 	}
-	
+
 	/**
-	 * Convert Bytes to Int usage Display
-	 * TODO:Handle EBCDIC
+	 * Convert Bytes to Int usage Display TODO:Handle EBCDIC
+	 * 
 	 * @param input
 	 * @param signed
 	 * @return
 	 */
-	/*public int convertDisplayToInt(byte[] input, int offset, int length, boolean signed) {
-		int result = 0;
-		if (length > 9) {
-			throw new OverflowException("Length of bytes array is too Long > 9");
-		}
-		if (signed) {
-			boolean negate = false;
-			int signValue = (input[offset + length - 1] >> 4) & 0x0f;
-			if (signValue == 0xD) {
-				negate = true;
-			} else if (signValue == 0xC) {
-				negate = false;
-			} else if (signValue == 0xF) {
-				negate = false;
-			} 
-			//if Ascii --> change to 3
-			//if EBCDIC --> change to F
-			byte[] standardArray = new byte[length]; 
-			System.arraycopy(input, offset, standardArray, 0, length);
-			byte lastByte = standardArray[standardArray.length - 1];
-			lastByte = (byte) (lastByte & 0x0f);
-			lastByte = (byte) (lastByte + 0x30);
-			standardArray[standardArray.length - 1] = lastByte;
-			try {
-				result = Integer.valueOf(new String(standardArray));
-			} catch(Exception e) {
-				throw new ArithmeticException("Convert Bytes (Display) to Int failed " + input);
-			}
-			if (negate) {
-				result = -result;
-			}
-		} else {
-			try {
-				ByteBuffer buffer = ByteBuffer.wrap(input, offset, length);
-				result = Integer.valueOf(new String(buffer.array()));
-			} catch(Exception e) {
-				throw new ArithmeticException("Convert Bytes (Display) to Int failed " + input);
-			}
-		}
-		return result;
-		
-	}*/
-	
+	/*
+	 * public int convertDisplayToInt(byte[] input, int offset, int length,
+	 * boolean signed) { int result = 0; if (length > 9) { throw new
+	 * OverflowException("Length of bytes array is too Long > 9"); } if (signed)
+	 * { boolean negate = false; int signValue = (input[offset + length - 1] >>
+	 * 4) & 0x0f; if (signValue == 0xD) { negate = true; } else if (signValue ==
+	 * 0xC) { negate = false; } else if (signValue == 0xF) { negate = false; }
+	 * //if Ascii --> change to 3 //if EBCDIC --> change to F byte[]
+	 * standardArray = new byte[length]; System.arraycopy(input, offset,
+	 * standardArray, 0, length); byte lastByte =
+	 * standardArray[standardArray.length - 1]; lastByte = (byte) (lastByte &
+	 * 0x0f); lastByte = (byte) (lastByte + 0x30);
+	 * standardArray[standardArray.length - 1] = lastByte; try { result =
+	 * Integer.valueOf(new String(standardArray)); } catch(Exception e) { throw
+	 * new ArithmeticException("Convert Bytes (Display) to Int failed " +
+	 * input); } if (negate) { result = -result; } } else { try { ByteBuffer
+	 * buffer = ByteBuffer.wrap(input, offset, length); result =
+	 * Integer.valueOf(new String(buffer.array())); } catch(Exception e) { throw
+	 * new ArithmeticException("Convert Bytes (Display) to Int failed " +
+	 * input); } } return result;
+	 * 
+	 * }
+	 */
+
 	/**
-	 * Convert  Bytes to Long usage Display
-	 * TODO:Handle EBCDIC
+	 * Convert Bytes to Long usage Display TODO:Handle EBCDIC
+	 * 
 	 * @param signed
 	 * @return
 	 */
@@ -510,10 +491,10 @@ public class BaseClass {
 			throw new ArithmeticException(
 					"Convert Bytes (Display) to Long failed " + e);
 		}
-		
+
 		if (pscale > 0)
-			doPScaling(result, pscale);
-		
+			result = doPScaling(result, pscale);
+
 		if (negate && signed) {
 			result = -result;
 		}
@@ -528,18 +509,20 @@ public class BaseClass {
 		// }
 		return result;
 	}
-	
+
 	/**
-	 * Convert  Bytes to BigDecimal usage Display
-	 * TODO:Handle EBCDIC
+	 * Convert Bytes to BigDecimal usage Display 
+	 * TODO:Handle EBCDIC 
 	 * @param data
 	 * @param signed
 	 * @return
 	 */
-	public BigDecimal convertDisplayToBigDecimal(int offset, int length, int scale, int pscale,  boolean signed) {
+	public BigDecimal convertDisplayToBigDecimal(int offset, int length,
+			int scale, int pscale, boolean signed) {
 		BigDecimal result;
 		if (length > 18) {
-			throw new OverflowException("Convert Bytes(Display) to BigDecimal failed " + data); 
+			throw new OverflowException(
+					"Convert Bytes(Display) to BigDecimal failed " + data);
 		}
 		boolean negate = false;
 		if (signed) {
@@ -552,42 +535,47 @@ public class BaseClass {
 				negate = false;
 			}
 		}
-			// Ascii --> change to 3
-			byte[] standardArray = new byte[length]; 
-			System.arraycopy(data, offset, standardArray, 0, length);
-			byte lastByte = standardArray[standardArray.length - 1];
-			lastByte = (byte) (lastByte & 0x0f);
-			lastByte = (byte) (lastByte + 0x30);
-			standardArray[standardArray.length - 1] = lastByte;
-			try {
-				result = BigDecimal.valueOf(Long.valueOf(new String(standardArray)));
-			} catch(Exception e) {
-				throw new ArithmeticException("Convert Bytes (Display) to Long failed " + e);
-			}
-			if (negate) {
-				result = result.negate();
-			}
-			if (scale + pscale > 0) {
-//				result.scaleByPowerOfTen(scale);
-				doPscaling(result, scale, pscale);
-			}
-//		 else {
-//			try {
-//				ByteBuffer buffer = ByteBuffer.wrap(data, offset, length);
-//				result = BigDecimal.valueOf(Long.valueOf(new String(buffer.array())));
-//			} catch(Exception e) {
-//				throw new ArithmeticException("Convert Bytes (Display) to Long failed " + data);
-//			}
-//			if (scale > 0) {
-//				result.scaleByPowerOfTen(scale);
-//			}
-//		}
+		// Ascii --> change to 3
+		byte[] standardArray = new byte[length];
+		System.arraycopy(data, offset, standardArray, 0, length);
+		byte lastByte = standardArray[standardArray.length - 1];
+		lastByte = (byte) (lastByte & 0x0f);
+		lastByte = (byte) (lastByte + 0x30);
+		standardArray[standardArray.length - 1] = lastByte;
+		try {
+			result = BigDecimal
+					.valueOf(Long.valueOf(new String(standardArray)));
+		} catch (Exception e) {
+			throw new ArithmeticException(
+					"Convert Bytes (Display) to Long failed " + e);
+		}
+		if (negate) {
+			result = result.negate();
+		}
+		if (scale + pscale > 0) {
+			// result.scaleByPowerOfTen(scale);
+			doPscaling(result, scale, pscale);
+		}
+		// else {
+		// try {
+		// ByteBuffer buffer = ByteBuffer.wrap(data, offset, length);
+		// result = BigDecimal.valueOf(Long.valueOf(new
+		// String(buffer.array())));
+		// } catch(Exception e) {
+		// throw new
+		// ArithmeticException("Convert Bytes (Display) to Long failed " +
+		// data);
+		// }
+		// if (scale > 0) {
+		// result.scaleByPowerOfTen(scale);
+		// }
+		// }
 		return result;
 	}
-	
+
 	/**
-	 * Convert DISPLAY bytes to String. 
-	 * TODO: Handle EBCDIC. Is it so easy ???
+	 * Convert DISPLAY bytes to String. TODO: Handle EBCDIC. Is it so easy ???
+	 * 
 	 * @param offset
 	 * @param len
 	 * @return
@@ -595,25 +583,26 @@ public class BaseClass {
 	public String convertDisplayToString(int offset, int length) {
 		return new String(data, offset, length);
 	}
-	
+
 	/**
-	 * Convert Int to bytes array (usage display)
-	 * TODO: Handle EBCDIC
+	 * Convert Int to bytes array (usage display) TODO: Handle EBCDIC
+	 * 
 	 * @param input
 	 * @param signed
 	 * @return
 	 */
-	public void convertIntToDisplay(int input, byte[] dest, int offset, boolean signed) {
+	public void convertIntToDisplay(int input, byte[] dest, int offset,
+			boolean signed) {
 		String inputStr = String.valueOf(Math.abs(input));
 		int byteLength = inputStr.length();
 		if (byteLength > 9) {
-			throw new ArithmeticException("Length of int value is too long > 9"); 
+			throw new ArithmeticException("Length of int value is too long > 9");
 		}
 		ByteBuffer buffer;
 		buffer = ByteBuffer.wrap(dest);
 		byte signByte = (byte) 0xF0;
 		if (signed) {
-			if  (input < 0) {
+			if (input < 0) {
 				signByte = (byte) 0xD0;
 			} else {
 				signByte = (byte) 0xC0;
@@ -625,27 +614,29 @@ public class BaseClass {
 		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
 		buffer.position(offset);
-		buffer.put(inputStr.substring(0, byteLength-1).getBytes());
+		buffer.put(inputStr.substring(0, byteLength - 1).getBytes());
 	}
-	
+
 	/**
-	 * Convert Long to bytes array (usage display)
-	 * TODO: Handle EBCDIC
+	 * Convert Long to bytes array (usage display) TODO: Handle EBCDIC
+	 * 
 	 * @param input
 	 * @param signed
 	 * @return
 	 */
-	public void convertLongToDisplay(long input, byte[] dest, int offset, boolean signed) {
+	public void convertLongToDisplay(long input, byte[] dest, int offset,
+			boolean signed) {
 		String inputStr = String.valueOf(Math.abs(input));
 		int byteLength = inputStr.length();
 		if (byteLength > 18) {
-			throw new ArithmeticException("Length of long value is too long > 18"); 
+			throw new ArithmeticException(
+					"Length of long value is too long > 18");
 		}
 		ByteBuffer buffer;
 		buffer = ByteBuffer.wrap(dest);
 		byte signByte = (byte) 0xF0;
 		if (signed) {
-			if  (input < 0) {
+			if (input < 0) {
 				signByte = (byte) 0xD0;
 			} else {
 				signByte = (byte) 0xC0;
@@ -657,53 +648,57 @@ public class BaseClass {
 		buffer.position(byteLength + offset - 1);
 		buffer.put(signByte);
 		buffer.position(offset);
-		buffer.put(inputStr.substring(0, byteLength-1).getBytes());
-		
+		buffer.put(inputStr.substring(0, byteLength - 1).getBytes());
+
 	}
+
 	/**
-	 * Convert Long to bytes array (usage display)
-	 * TODO: Handle EBCDIC
+	 * Convert Long to bytes array (usage display) TODO: Handle EBCDIC
+	 * 
 	 * @param input
 	 * @param signed
 	 * @return
 	 */
-	public void convertBigDecimalToDisplay(BigDecimal input, byte[] dest, int offset, boolean signed) {
+	public void convertBigDecimalToDisplay(BigDecimal input, byte[] dest,
+			int offset, boolean signed) {
 		input = input.scaleByPowerOfTen(input.scale());
 		long longVal = input.longValue();
 		convertLongToDisplay(longVal, dest, offset, signed);
 	}
-	
+
 	public void convertStringToDisplay(String input, byte[] dest, int offset) {
 		Charset ascii = Charset.forName("US-ASCII");
 		byte[] asciiArray = input.getBytes(ascii);
 		ByteBuffer buffer = ByteBuffer.wrap(dest, offset, asciiArray.length);
 		if (offset + asciiArray.length >= dest.length) {
-			buffer.put(asciiArray, 0, dest.length - 1- offset);
+			buffer.put(asciiArray, 0, dest.length - 1 - offset);
 		} else {
 			buffer.put(asciiArray);
 		}
-		
+
 		System.out.println(printByteArray(asciiArray));
-		
+
 	}
-	
-	
-	
-	
+
 	private String printByteArray(byte[] input) {
 		String result = "";
 		for (byte b : input) {
-			 result +=
-		          Integer.toString( ( b & 0xff ) + 0x100, 16).substring( 1 );
+			result += Integer.toString((b & 0xff) + 0x100, 16).substring(1);
 
 		}
 		return result;
 	}
-	
+
 	public static void main(String[] args) {
-//		long i = new BaseClass(1).getAlgebraicValue(123456789, 3, false, 3);
-//		long i = new BaseClass(1).adjustDecimalValue(new BigDecimal("12345.67891"), 0, 3, 3, false);
-		BigDecimal i = new BaseClass(1).getAlgebraicValue(new BigDecimal("12345.6789123456"), 0, 3, 2, false);
+		BaseClass test = new BaseClass(1);
+		long testLong = test.adjustIntegralValue(888000, 3, true, 3);
+		System.out.println(testLong);
+		long i = new BaseClass(1).getAlgebraicValue(123456789, 3, false, 3);
+		// long i = new BaseClass(1).adjustDecimalValue(new
+		// BigDecimal("12345.67891"), 0, 3, 3, false);
+		// BigDecimal i = new BaseClass(1).getAlgebraicValue(new
+		// BigDecimal("12345.6789123456"), 0, 3, 2, false);
+
 		System.out.println(i);
 	}
 }
