@@ -3,11 +3,13 @@ package com.res.java.translation.engine;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import com.res.cobol.syntaxtree.ProgramIdParagraph;
 import com.res.cobol.syntaxtree.ProgramUnit;
 import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
+import com.res.java.lib.Program;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
 import com.res.java.util.JavaCodePrinter;
@@ -46,12 +48,14 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 			printer.println();
 
 			// print import
+			printer.printImport(Program.class);
+			printer.printImport(BigDecimal.class);
 			printer.println("import "
 					+ RESConfig.getInstance().getDataPackage() + ".*;");
 			printer.println();
 
 			// print class definition
-			printer.println("public class " + props.getJavaName2() + " {");
+			printer.println("public class " + props.getJavaName2() + " extends Program {");
 
 			super.visit(n, printer);
 

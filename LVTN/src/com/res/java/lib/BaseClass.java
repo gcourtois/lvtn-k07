@@ -92,8 +92,8 @@ public class BaseClass {
 //		convertIntToBCD(tempValue, offset, signed);
 	}
 	
-	protected void setLongBCD(long input, int offset, int length, boolean signed, int intLen, int pscale) {
-		long tempValue = adjustIntegralValue(input, intLen, signed, pscale);
+	protected void setLongBCD(long input, int offset, int length, boolean signed, int intLength, int pscale) {
+		long tempValue = adjustIntegralValue(input, intLength, signed, pscale);
 		convertLongToBCD(tempValue, offset, length, signed);
 		
 	}
