@@ -332,7 +332,7 @@ public class CalculateSymbolLength implements Visitor {
     	FieldAttributes.processPicture(props);
 
         int leng;
-        boolean isSuppressed = (Boolean) props.getIsSuppressed() || !(props.getRef() || props.getMod()) || !props.isForceCobolBytes();
+        boolean isSuppressed = (Boolean) props.getIsSuppressed() || !(props.getRef() || props.getMod()) ;//|| !props.isForceCobolBytes();
 
         if (isSuppressed || props.isFromRESLibrary()) {
             return;
