@@ -92,15 +92,15 @@ public class BaseClass {
 //		convertIntToBCD(tempValue, offset, signed);
 	}
 	
-	protected void setLongBCD(long input, int offset, int actualSize, boolean signed, int pscale) {
-		long tempValue = adjustIntegralValue(input, actualSize, signed, pscale);
-		convertLongToBCD(tempValue, offset, signed);
+	protected void setLongBCD(long input, int offset, int length, boolean signed, int intLen, int pscale) {
+		long tempValue = adjustIntegralValue(input, intLen, signed, pscale);
+		convertLongToBCD(tempValue, offset, length, signed);
 		
 	}
 	
-	protected void setBigDecimalBCD(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
+	protected void setBigDecimalBCD(BigDecimal input, int offset, int length, boolean signed, int intLength, int fractionLength, int pscale) {
 		long longVal = adjustDecimalValue(input, intLength, fractionLength, pscale, signed);
-		convertLongToBCD(longVal, offset, signed);
+		convertLongToBCD(longVal, offset, length, signed);
 	}
 	
 
@@ -108,11 +108,11 @@ public class BaseClass {
 		return 1;
 	}
 	
-	protected long getLongDisplay(int offset, int length, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
+	protected long getLongDisplay(int offset, int length, boolean signed, boolean signLeading, boolean signSeparate, int pscale) {
 		return 1;
 	}
 	
-	protected BigDecimal getBigDecimalDisplay(int offset, int length, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
+	protected BigDecimal getBigDecimalDisplay(int offset, int length, boolean signed, boolean signLeading, boolean signSeparate, int scale) {
 		return new BigDecimal(1);
 	}
 	
@@ -124,12 +124,12 @@ public class BaseClass {
 		
 	}
 	
-	protected void setLongDisplay(long input, int offset, int actualSize, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
-		
+	protected void setLongDisplay(long input, int offset, int length, boolean signed, boolean signLeading, boolean signSeparate, int intLength, int pscale) {
+		adjustIntegralValue(input, intLength, signed, pscale);
 	}
 	
-	protected void setBigDecimalDisplay(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, boolean signLeading, boolean signSeparate,int pscale) {
-		
+	protected void setBigDecimalDisplay(BigDecimal input, int offset, int length, boolean signed, boolean signLeading, boolean signSeparate, int intLength, int fractionLength, int pscale) {
+		adjustDecimalValue(input, intLength, fractionLength, pscale, signed);
 	}
 	
 	protected void setStringDisplay(String input, int offset, int length, boolean rightJustified) {
@@ -144,7 +144,7 @@ public class BaseClass {
 		return 1;
 	}
 	
-	protected BigDecimal getBigDecimalBytes(int offset, int length, boolean signed, int pscale) {
+	protected BigDecimal getBigDecimalBytes(int offset, int length, boolean signed, int scale) {
 		return new BigDecimal(1);
 	}
 	
@@ -152,34 +152,34 @@ public class BaseClass {
 		
 	}
 	
-	protected void setLongBytes(long input, int offset, int actualSize, boolean signed, int pscale) {
-		
+	protected void setLongBytes(long input, int offset, int length, boolean signed, int intLength, int pscale) {
+		adjustIntegralValue(input, intLength, signed, pscale);
 	}
 	
-	protected void setBigDecimalBytes(BigDecimal input, int offset, int intLength, int fractionLength, boolean signed, int pscale) {
-		
+	protected void setBigDecimalBytes(BigDecimal input, int offset, int length, boolean signed, int intLength, int fractionLength, int pscale) {
+		adjustDecimalValue(input, intLength, fractionLength, pscale, signed);
 	}
 	
 	
 	
 	
-	private long[] powerBase10 = new long[] { 1, 10, 100, 1000, 10000, 100000,
+	private static long[] powerBase10 = new long[] { 1, 10, 100, 1000, 10000, 100000,
 			1000000, 10000000, 100000000, 1000000000, 10000000000L,
 			100000000000L, 1000000000000L, 10000000000000L, 100000000000000L,
 			1000000000000000L, 10000000000000000L, 100000000000000000L,
 			1000000000000000000L };
 
-	protected long adjustIntegralValue(long input, int size, boolean signed,
+	protected long adjustIntegralValue(long input, int intLength, boolean signed,
 			int pscale) {
-		if (size > 18) {
+		if (intLength > 18) {
 			throw new ArithmeticException("Size is larger than 18");
 		}
 
 		// pscale must >= 0
 		if (pscale == 0) {
-			input %= powerBase10[size];
+			input %= powerBase10[intLength];
 		} else {
-			input %= powerBase10[size + pscale];
+			input %= powerBase10[intLength + pscale];
 			input = input / powerBase10[pscale];
 		}
 		if (input < 0 && !signed)
@@ -205,12 +205,12 @@ public class BaseClass {
 		return input.longValue();
 	}
 
-	protected long getAlgebraicValue(long input, int size, boolean signed,
+	protected long getAlgebraicValue(long input, int intLength, boolean signed,
 			int pscale) {
 		if (pscale == 0) {
-			input %= powerBase10[size];
+			input %= powerBase10[intLength];
 		} else {
-			input %= powerBase10[size + pscale];
+			input %= powerBase10[intLength + pscale];
 			input = input / powerBase10[pscale] * powerBase10[pscale];
 		}
 		if (input < 0 && !signed)
@@ -244,10 +244,10 @@ public class BaseClass {
 	}
 	private int doPScaling(int input, int pscale) {
 		//What if pscale too big
-		return input*= powerBase10[pscale];
+		return input *= powerBase10[pscale];
 	}
 	private long doPScaling(long input, int pscale) {
-		return input *= powerBase10[pscale];
+		return input * powerBase10[pscale];
 	}
 
 	private BigDecimal doPscaling(BigDecimal input, int scale) {
@@ -346,7 +346,7 @@ public class BaseClass {
 	 * @param signed
 	 * @return
 	 */
-	private void convertLongToBCD(long input, int offset,
+	private void convertLongToBCD(long input, int offset, int length,
 			boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = calculateByteLengthBCD(input);
