@@ -135,10 +135,11 @@ public class BaseClass {
 	protected void setLongDisplay(long input, int offset, int length, boolean signed, boolean signLeading, boolean signSeparate, int intLength, int pscale) {
 		long tempValue = adjustIntegralValue(input, intLength, signed, pscale);
 		convertLongToDisplay(tempValue, offset, length, signed, signLeading, signSeparate);
-		
 	}
 	
 	protected void setBigDecimalDisplay(BigDecimal input, int offset, int length, boolean signed, boolean signLeading, boolean signSeparate, int intLength, int fractionLength, int pscale) {
+		long tempValue = adjustDecimalValue(input, intLength, fractionLength, pscale, signed);
+		convertLongToDisplay(tempValue, offset, length, signed, signLeading, signSeparate);
 		
 	}
 	
