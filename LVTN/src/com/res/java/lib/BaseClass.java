@@ -116,7 +116,7 @@ public class BaseClass {
 		return new BigDecimal(1);
 	}
 	
-	protected String getStringDisplay(int offset, int length, boolean rightJustified) {
+	protected String getStringDisplay(int offset, int length) {
 		return "";
 	}
 	
@@ -132,7 +132,7 @@ public class BaseClass {
 		
 	}
 	
-	protected void setStringDisplay(String input, int offset, boolean rightJustified) {
+	protected void setStringDisplay(String input, int offset, int length, boolean rightJustified) {
 		
 	}
 	

@@ -43,11 +43,11 @@ public class MyMath {
 //		int testIntDisplay = -123;
 //		System.out.println(test.printByteArray(test.convertIntToDisplay(testIntDisplay, false)));
 //		System.out.println(test.printByteArray(test.convertLongToDisplay(test.convertDisplayToLong(testInput2, true),true)));
-		byte[] testString = {0x31, 0x32, (byte) 0x61};
-		String stringCOBOL = test.convertDisplayToString(testString, 0, testString.length);
-		System.out.println(stringCOBOL);
-		byte[] newString = new byte[1000];
-		test.convertStringToDisplay("á", newString, 0);
+//		byte[] testString = {0x31, 0x32, (byte) 0x61};
+//		String stringCOBOL = test.convertDisplayToString(testString, 0, testString.length);
+//		System.out.println(stringCOBOL);
+//		byte[] newString = new byte[1000];
+//		test.convertStringToDisplay("á", newString, 0);
 	}
 	
 };
