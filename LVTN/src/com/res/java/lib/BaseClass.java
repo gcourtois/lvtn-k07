@@ -525,22 +525,24 @@ public class BaseClass {
 		if (signed) {
 			if (signLeading) {
 				if (signSeparate) {
-					if (tempArray[0] == 0x2D) {
+					if (tempArray[0] == TranslateConstants.asciiNegative) {
 						negate = true;
-					} else if (tempArray[0] == 0x2B) {
+					} else if (tempArray[0] == TranslateConstants.asciiPositive) {
 						negate = false;
 					} else {
 						// TODO: Don't know what to do.
+						throw new ArithmeticException("Sign Separate character is not right");
 					}
 					displayString = new String(tempArray, 1, length - 1);
 				} else {
+					// TODO: just ASCII for sign.
 					int signValue = (tempArray[0] >> 4) & 0x0f;
-					if (signValue == 0xD) {
+					if (signValue == 0x7) {
 						negate = true;
-					} else if (signValue == 0xC) {
+					} else if (signValue == 0x3) {
 						negate = false;
-					} else if (signValue == 0xF) {
-						negate = false;
+					} else {
+						throw new ArithmeticException("Sign byte character is not right");
 					}
 					byte lastByte = tempArray[0];
 					lastByte = (byte) (lastByte & 0x0f);
@@ -551,23 +553,24 @@ public class BaseClass {
 
 			} else {
 				if (signSeparate) {
-					if (tempArray[length - 1] == 0x2D) {
+					if (tempArray[length - 1] == TranslateConstants.asciiNegative) {
 						negate = true;
-					} else if (tempArray[length - 1] == 0x2B) {
+					} else if (tempArray[length - 1] == TranslateConstants.asciiPositive) {
 						negate = false;
 					} else {
 						// TODO: Don't know what to do.
+						throw new ArithmeticException("Sign Separate character is not right");
 					}
 					tempArray[length - 1] = 0x00;
 					displayString = new String(tempArray, 0, length - 1);
 				} else {
 					int signValue = (tempArray[length - 1] >> 4) & 0x0f;
-					if (signValue == 0xD) {
+					if (signValue == 0x7) {
 						negate = true;
-					} else if (signValue == 0xC) {
+					} else if (signValue == 0x3) {
 						negate = false;
-					} else if (signValue == 0xF) {
-						negate = false;
+					} else {
+						throw new ArithmeticException("Sign byte character is not right");
 					}
 					byte lastByte = tempArray[length - 1];
 					lastByte = (byte) (lastByte & 0x0f);
@@ -580,10 +583,9 @@ public class BaseClass {
 		} else {
 			displayString = new String(tempArray);
 		}
-		// Ascii --> change to 3
 
 		try {
-			System.out.println(this.printByteArray(tempArray));
+			System.out.println("After " + this.printByteArray(tempArray));
 			result = Long.valueOf(displayString.trim());
 		} catch (Exception e) {
 			throw new ArithmeticException(
@@ -607,51 +609,6 @@ public class BaseClass {
 	}
 
 	/**
-	 * Convert Int to bytes array (usage display) TODO: Handle EBCDIC
-	 * 
-	 * @param input
-	 * @param signed
-	 * @return
-	 */
-	private void convertIntToDisplay(int input, byte[] dest, int offset,
-			boolean signed, boolean signLeading, boolean signSeparate) {
-		String inputStr = String.valueOf(Math.abs(input));
-		int byteLength = inputStr.length();
-		if (byteLength > 9) {
-			throw new ArithmeticException("Length of int value is too long > 9");
-		}
-		ByteBuffer buffer;
-		buffer = ByteBuffer.wrap(dest);
-		byte signByte = (byte) 0xF0;
-		if (signed) {
-			if (signLeading) {
-				if (signSeparate) {
-					signByte = (byte) 0x2D;
-					buffer.put(signByte);
-
-				} else {
-				}
-
-			} else {
-				if (signSeparate) {
-					signByte = (byte) 0x2B;
-				} else {
-
-				}
-
-			}
-		} else {
-		}
-		input = Math.abs(input);
-		int lastDigit = input % 10;
-		signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
-		buffer.position(byteLength + offset - 1);
-		buffer.put(signByte);
-		buffer.position(offset);
-		buffer.put(inputStr.substring(0, byteLength - 1).getBytes());
-	}
-
-	/**
 	 * Convert Long to bytes array (usage display) TODO: Handle EBCDIC
 	 * 
 	 * @param input
@@ -667,51 +624,61 @@ public class BaseClass {
 			throw new ArithmeticException(
 					"Length of long value is too long > 18");
 		}
-		ByteBuffer buffer;
-		buffer = ByteBuffer.wrap(data);
-		// TODO: if EBCDIC
-		byte signByte = (byte) 0x30;
-		if (signed) {
-			if (signSeparate) {
-				if (input < 0) {
-					signByte = (byte) 0x2D;
+		fillWithZero(data, offset, length);
+		if (input == 0) {
+			//TODO: ZeroWhenBlank
+		} else {
+			ByteBuffer buffer;
+			buffer = ByteBuffer.wrap(data);
+			// TODO: if EBCDIC
+			byte signByte = (byte) 0x30;
+			if (signed) {
+				if (signSeparate) {
+					if (input < 0) {
+						signByte = TranslateConstants.asciiNegative;
+					} else {
+						signByte = TranslateConstants.asciiPositive;
+					}
+					if (signLeading) {
+						buffer.position(offset);
+						buffer.put(signByte);
+						buffer.position(offset + length - byteLength);
+					} else {
+						buffer.position(offset + length - 1);
+						buffer.put(signByte);
+						buffer.position(offset + length - 1 - byteLength);
+					}
+					buffer.put(inputStr.getBytes());
 				} else {
-					signByte = (byte) 0x2B;
-				}
-				if (signLeading) {
-					buffer.position(offset);
-					buffer.put(signByte);
-					buffer.position(offset + length - byteLength);
-				} else {
-					buffer.position(offset);
-					buffer.put(signByte);
-					buffer.position(offset + length - 1 - byteLength);
-				}
-				buffer.put(inputStr.getBytes());
-			} else {
-				if (input < 0) {
-					signByte = (byte) 0xD0;
-				} else {
-					signByte = (byte) 0x30;
-				}
-				input = Math.abs(input);
-				if (signLeading) {
-					int firstDigit = (int) (input / powerBase10[byteLength -1]);
-					signByte = (byte) ((signByte | (firstDigit)) & 0xFF);
-					buffer.position(offset + length - byteLength);
-					buffer.put(signByte);
-					buffer.position(offset + length - byteLength + 1);
-					buffer.put(inputStr.substring(1, byteLength).getBytes());
-				} else {
-					int lastDigit = (int) (input % 10);
-					signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
-					buffer.position(offset + length - 1);
-					buffer.put(signByte);
-					buffer.position(offset + length - byteLength);
-					buffer.put(inputStr.substring(0, byteLength - 1).getBytes());
+					if (input < 0) {
+						signByte = (byte) 0x70;
+					} else {
+						signByte = (byte) 0x30;
+					}
+					input = Math.abs(input);
+					if (signLeading) {
+						buffer.position(offset + length - byteLength);
+						buffer.put(inputStr.getBytes());
+						int firstDigit = 0;
+						if (byteLength == length) {
+							firstDigit = (int) (input / powerBase10[byteLength - 1]);
+						}
+						signByte = (byte) ((signByte | (firstDigit)) & 0xFF);
+						buffer.position(offset);
+						buffer.put(signByte);
+						
+					} else {
+						int lastDigit = (int) (input % 10);
+						signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
+						buffer.position(offset + length - 1);
+						buffer.put(signByte);
+						buffer.position(offset + length - byteLength);
+						buffer.put(inputStr.substring(0, byteLength - 1).getBytes());
+					}
 				}
 			}
 		}
+		
 		
 
 	}
@@ -745,12 +712,37 @@ public class BaseClass {
 		System.out.println(printByteArray(asciiArray));
 
 	}
-
+	/**
+	 * TODO: EBCDIC
+	 * @param input
+	 * @param offset
+	 * @param length
+	 */
+	private void fillWithZero(byte[] input, int offset, int length) {
+		ByteBuffer buffer = ByteBuffer.wrap(input, offset, length);
+		for (int i = 0; i < length; i++) {
+			buffer.put(TranslateConstants.asciiZero);
+		}
+	}
+	
+	/**
+	 * TODO: EBCDIC ??
+	 * @param input
+	 * @param offset
+	 * @param length
+	 */
+	private void fillWithSpace(byte[] input, int offset, int length) {
+		ByteBuffer buffer = ByteBuffer.wrap(input, offset, length);
+		for (int i = 0; i < length; i++) {
+			buffer.put(TranslateConstants.asciiSpace);
+		}
+	}
+	
+	
 	protected String printByteArray(byte[] input) {
 		String result = "";
 		for (byte b : input) {
 			result += Integer.toString((b & 0xff) + 0x100, 16).substring(1);
-
 		}
 		return result;
 	}

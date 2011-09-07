@@ -21,4 +21,9 @@ public class TranslateConstants {
         (byte) 0x87, (byte) 0x88, (byte) 0x89, (byte) 0x90, (byte) 0x91,
         (byte) 0x92, (byte) 0x93, (byte) 0x94, (byte) 0x95, (byte) 0x96,
         (byte) 0x97, (byte) 0x98, (byte) 0x99 };
+	public static final byte asciiNegative = (byte) 0x2D;
+	public static final byte asciiPositive = (byte) 0x2D;
+	public static final byte asciiSpace = (byte) 0x20;
+	public static final byte asciiZero = (byte) 0x30;
+	
 }
