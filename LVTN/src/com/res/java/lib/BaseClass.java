@@ -590,7 +590,13 @@ public class BaseClass {
 
 		try {
 			System.out.println("After " + this.printByteArray(tempArray));
-			result = Long.valueOf(displayString.trim());
+			displayString = displayString.trim();
+			if (displayString.length() == 0) {
+				result = 0;
+			} else {
+				result = Long.valueOf(displayString);
+			}
+			
 		} catch (Exception e) {
 			throw new ArithmeticException(
 					"Convert Bytes (Display) to Long failed " + e);
@@ -632,6 +638,10 @@ public class BaseClass {
 		ByteBuffer buffer;
 		buffer = ByteBuffer.wrap(data);
 		// TODO: if EBCDIC
+		if (input == 0) {
+			//TODO: if blank when zero --> fill with space
+			fillWithSpace(data, offset, length);
+		}
 		byte signByte = (byte) 0x30;
 		if (signed) {
 			if (signSeparate) {
