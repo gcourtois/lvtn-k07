@@ -531,7 +531,8 @@ public class BaseClass {
 						negate = false;
 					} else {
 						// TODO: Don't know what to do.
-						throw new ArithmeticException("Sign Separate character is not right");
+						throw new ArithmeticException(
+								"Sign Separate character is not right");
 					}
 					displayString = new String(tempArray, 1, length - 1);
 				} else {
@@ -542,7 +543,8 @@ public class BaseClass {
 					} else if (signValue == 0x3) {
 						negate = false;
 					} else {
-						throw new ArithmeticException("Sign byte character is not right");
+						throw new ArithmeticException(
+								"Sign byte character is not right");
 					}
 					byte lastByte = tempArray[0];
 					lastByte = (byte) (lastByte & 0x0f);
@@ -559,7 +561,8 @@ public class BaseClass {
 						negate = false;
 					} else {
 						// TODO: Don't know what to do.
-						throw new ArithmeticException("Sign Separate character is not right");
+						throw new ArithmeticException(
+								"Sign Separate character is not right");
 					}
 					tempArray[length - 1] = 0x00;
 					displayString = new String(tempArray, 0, length - 1);
@@ -570,7 +573,8 @@ public class BaseClass {
 					} else if (signValue == 0x3) {
 						negate = false;
 					} else {
-						throw new ArithmeticException("Sign byte character is not right");
+						throw new ArithmeticException(
+								"Sign byte character is not right");
 					}
 					byte lastByte = tempArray[length - 1];
 					lastByte = (byte) (lastByte & 0x0f);
@@ -625,61 +629,62 @@ public class BaseClass {
 					"Length of long value is too long > 18");
 		}
 		fillWithZero(data, offset, length);
-		if (input == 0) {
-			//TODO: ZeroWhenBlank
-		} else {
-			ByteBuffer buffer;
-			buffer = ByteBuffer.wrap(data);
-			// TODO: if EBCDIC
-			byte signByte = (byte) 0x30;
-			if (signed) {
-				if (signSeparate) {
-					if (input < 0) {
-						signByte = TranslateConstants.asciiNegative;
-					} else {
-						signByte = TranslateConstants.asciiPositive;
-					}
-					if (signLeading) {
-						buffer.position(offset);
-						buffer.put(signByte);
-						buffer.position(offset + length - byteLength);
-					} else {
-						buffer.position(offset + length - 1);
-						buffer.put(signByte);
-						buffer.position(offset + length - 1 - byteLength);
-					}
-					buffer.put(inputStr.getBytes());
+		ByteBuffer buffer;
+		buffer = ByteBuffer.wrap(data);
+		// TODO: if EBCDIC
+		byte signByte = (byte) 0x30;
+		if (signed) {
+			if (signSeparate) {
+				if (input < 0) {
+					signByte = TranslateConstants.asciiNegative;
 				} else {
-					if (input < 0) {
-						signByte = (byte) 0x70;
-					} else {
-						signByte = (byte) 0x30;
-					}
-					input = Math.abs(input);
-					if (signLeading) {
-						buffer.position(offset + length - byteLength);
+					signByte = TranslateConstants.asciiPositive;
+				}
+				if (signLeading) {
+					buffer.position(offset);
+					buffer.put(signByte);
+					buffer.position(offset + length - byteLength);
+				} else {
+					buffer.position(offset + length - 1);
+					buffer.put(signByte);
+					buffer.position(offset + length - 1 - byteLength);
+				}
+				if (input != 0) {
+					buffer.put(inputStr.getBytes());
+				}
+			} else {
+				if (input < 0) {
+					signByte = (byte) 0x70;
+				} else {
+					signByte = (byte) 0x30;
+				}
+				input = Math.abs(input);
+				if (signLeading) {
+					buffer.position(offset + length - byteLength);
+					if (input != 0) {
 						buffer.put(inputStr.getBytes());
-						int firstDigit = 0;
-						if (byteLength == length) {
-							firstDigit = (int) (input / powerBase10[byteLength - 1]);
-						}
-						signByte = (byte) ((signByte | (firstDigit)) & 0xFF);
-						buffer.position(offset);
-						buffer.put(signByte);
-						
-					} else {
-						int lastDigit = (int) (input % 10);
-						signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
-						buffer.position(offset + length - 1);
-						buffer.put(signByte);
-						buffer.position(offset + length - byteLength);
+					}
+					int firstDigit = 0;
+					if (byteLength == length) {
+						firstDigit = (int) (input / powerBase10[byteLength - 1]);
+					}
+					signByte = (byte) ((signByte | (firstDigit)) & 0xFF);
+					buffer.position(offset);
+					buffer.put(signByte);
+
+				} else {
+					int lastDigit = (int) (input % 10);
+					signByte = (byte) ((signByte | (lastDigit)) & 0xFF);
+					buffer.position(offset + length - 1);
+					buffer.put(signByte);
+					buffer.position(offset + length - byteLength);
+					if (input != 0) {
 						buffer.put(inputStr.substring(0, byteLength - 1).getBytes());
 					}
+					
 				}
 			}
 		}
-		
-		
 
 	}
 
@@ -712,8 +717,10 @@ public class BaseClass {
 		System.out.println(printByteArray(asciiArray));
 
 	}
+
 	/**
 	 * TODO: EBCDIC
+	 * 
 	 * @param input
 	 * @param offset
 	 * @param length
@@ -724,9 +731,10 @@ public class BaseClass {
 			buffer.put(TranslateConstants.asciiZero);
 		}
 	}
-	
+
 	/**
 	 * TODO: EBCDIC ??
+	 * 
 	 * @param input
 	 * @param offset
 	 * @param length
@@ -737,8 +745,7 @@ public class BaseClass {
 			buffer.put(TranslateConstants.asciiSpace);
 		}
 	}
-	
-	
+
 	protected String printByteArray(byte[] input) {
 		String result = "";
 		for (byte b : input) {
