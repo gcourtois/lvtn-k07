@@ -15,7 +15,7 @@ import java.nio.charset.Charset;
 import com.res.java.lib.exceptions.OverflowException;
 
 public class BaseClass {
-	private byte[] data;
+	public byte[] data;
 
 	private int offset;
 
@@ -54,25 +54,22 @@ public class BaseClass {
 	 * @return
 	 */
 	protected BigDecimal getBigDecimalBCD(int offset, int length,
-			boolean signed, int intLength, int fractionLength, int scale) {
+			boolean signed, int intLength, int fractionLength, int pscale) {
 		long longValue = convertBCDToLong(offset, length, signed);
+		System.out.println(longValue);
+		longValue = adjustIntegralValue(longValue, intLength + fractionLength, signed, pscale);
 		BigDecimal returnValue = new BigDecimal(longValue);
-		if (scale > 0) {
-			return doPscaling(returnValue, scale);
-		}
-		return returnValue;
+		return doPscaling(returnValue, fractionLength + pscale);
 	}
 
 	protected long getLongBCD(int offset, int length, boolean signed,
-			int intLen, int pscale) {
+			int intLength, int pscale) {
 		if (length > 10) {
 			throw new ArithmeticException(
 					"Bytes array is too long for Long type");
 		}
 		long tempValue = convertBCDToLong(offset, length, signed);
-		if (pscale > 0) {
-			return doPscaling(tempValue, pscale);
-		}
+		tempValue = adjustIntegralValue(tempValue, intLength, signed, pscale);
 		return tempValue;
 	}
 
@@ -140,7 +137,7 @@ public class BaseClass {
 	}
 
 	protected String getStringDisplay(int offset, int length) {
-		return "";
+		return convertDisplayToString(offset, length);
 	}
 
 	protected void setIntDisplay(int input, int offset, int actualSize,
@@ -168,10 +165,14 @@ public class BaseClass {
 				signSeparate);
 
 	}
-
+	
+	protected String getDisplayString(int offset, int length) {
+		return convertDisplayToString(offset, length); 
+	}
+	
 	protected void setStringDisplay(String input, int offset, int length,
 			boolean rightJustified) {
-
+		
 	}
 
 	protected int getIntBytes(int offset, int length, boolean signed,
@@ -324,9 +325,9 @@ public class BaseClass {
 		return input.scaleByPowerOfTen(-scale);
 	}
 
-	/* START HERE */
 
 	private long convertBCDToLong(int offset, int length, boolean signed) {
+		System.out.println("PREV " + this.printByteArray(data));
 		boolean negate = false;
 		long result = 0;
 		for (int index = offset; index < offset + length; index++) {
@@ -337,8 +338,10 @@ public class BaseClass {
 				if (signed) {
 					if (secondDigit == 0xd) {
 						negate = true;
-					} else if (secondDigit == 0xc || secondDigit == 0xf) {
+					} else if (secondDigit == 0xf) {
 						negate = false;
+					} else {
+						//TODO: Don't Know
 					}
 				}
 				result = result * 10 + firstDigit;
@@ -373,16 +376,17 @@ public class BaseClass {
 			boolean signed) {
 		ByteBuffer buffer;
 		int byteLength = length;
+		fillWithZero(data, offset, length, false);
 		buffer = ByteBuffer.wrap(data);
+		
 		byte signByte = 0x0F;
 		if (signed) {
 			if (input < 0) {
 				signByte = 0x0D;
 			} else {
-				signByte = 0x0C;
+				signByte = 0x0F;
 			}
-		} else {
-		}
+		} 
 		input = Math.abs(input);
 		long lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
@@ -634,7 +638,7 @@ public class BaseClass {
 			throw new ArithmeticException(
 					"Length of long value is too long > 18");
 		}
-		fillWithZero(data, offset, length);
+		fillWithZero(data, offset, length, true);
 		ByteBuffer buffer;
 		buffer = ByteBuffer.wrap(data);
 		// TODO: if EBCDIC
@@ -735,10 +739,14 @@ public class BaseClass {
 	 * @param offset
 	 * @param length
 	 */
-	private void fillWithZero(byte[] input, int offset, int length) {
+	private void fillWithZero(byte[] input, int offset, int length, boolean display) {
 		ByteBuffer buffer = ByteBuffer.wrap(input, offset, length);
 		for (int i = 0; i < length; i++) {
-			buffer.put(TranslateConstants.asciiZero);
+			if (display) {
+				buffer.put(TranslateConstants.asciiZero);
+			} else {
+				buffer.put((byte) 0);
+			}
 		}
 	}
 
@@ -762,6 +770,10 @@ public class BaseClass {
 			result += Integer.toString((b & 0xff) + 0x100, 16).substring(1);
 		}
 		return result;
+	}
+	
+	public String toString() {
+		return this.convertDisplayToString(this.offset, this.length);
 	}
 
 	public static void main(String[] args) {
