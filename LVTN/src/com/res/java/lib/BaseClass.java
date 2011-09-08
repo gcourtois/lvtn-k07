@@ -1,11 +1,9 @@
 package com.res.java.lib;
 
 /**
- * TODO: Handle overflow when putting to bytes array
- * TODO: Alignment of data
- * TODO: Sign Trailing/ Sign Leading
  * TODO: Unsigned Integer/Long
  * TODO: Convert EBCDIC --> ASCII or EBCDIC --> number
+ * -odir "/home/jupiter/workspaceLVTN/MyRES/src/"  -dp "com.res.generated" -pp "com.res.generated" -dp1 -opt0 "/home/jupiter/workspaceLVTN/MyRES/src/com/res/betatest/Test1.cbl"
  */
 
 import java.math.BigDecimal;
@@ -353,28 +351,6 @@ public class BaseClass {
 		}
 		
 	}
-
-	/**
-	 * Convert bytes array to Integer TODO: unsigned number :(
-	 * 
-	 * @param input
-	 * @param offset
-	 * @param length
-	 * @param signed
-	 * @return
-	 */
-	/*
-	 * public int convertBytesToInt(byte[] input, int offset, int length,
-	 * boolean signed) { ByteBuffer temp = ByteBuffer.wrap(input, offset,
-	 * length); if (input.length > 4) { throw new
-	 * ArithmeticException("Length for Integer conversion > 4"); } if (signed) {
-	 * int result = temp.getInt(); if (result > 999999999) { throw new
-	 * OverflowException("Overflow Integer Conversion"); } else { return result;
-	 * } } else { int result = temp.getInt(); if (result < 0 || result >
-	 * 999999999) { throw new
-	 * OverflowException("UnSigned Integer is not correct"); } else { return
-	 * result; } } }
-	 */
 
 	/**
 	 * Convert bytes array to Long TODO: Unsigned Long
