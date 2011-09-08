@@ -89,13 +89,6 @@ public class BaseClass {
 		return (int) tempValue;
 	}
 
-	protected void setBCDInteger(int input, int offset, int actualSize,
-			boolean signed, int pscale) {
-		// int tempValue = (int) getAlgebraicValue((long) input, actualSize,
-		// signed, pscale);
-		// convertIntToBCD(tempValue, offset, signed);
-	}
-
 	protected void setLongBCD(long input, int offset, int length,
 			boolean signed, int intLength, int pscale) {
 		long tempValue = adjustIntegralValue(input, intLength, signed, pscale);
@@ -108,11 +101,6 @@ public class BaseClass {
 		long longVal = adjustDecimalValue(input, intLength, fractionLength,
 				pscale, signed);
 		convertLongToBCD(longVal, offset, length, signed);
-	}
-
-	protected int getIntDisplay(int offset, int length, boolean signed,
-			boolean signLeading, boolean signSeparate, int pscale) {
-		return 1;
 	}
 
 	protected long getLongDisplay(int offset, int length, boolean signed,
@@ -140,18 +128,10 @@ public class BaseClass {
 		return convertDisplayToString(offset, length);
 	}
 
-	protected void setIntDisplay(int input, int offset, int actualSize,
-			boolean signed, boolean signLeading, boolean signSeparate,
-			int pscale) {
-	}
-
 	protected void setLongDisplay(long input, int offset, int length,
 			boolean signed, boolean signLeading, boolean signSeparate,
 			int intLength, int pscale) {
 		long tempValue = adjustIntegralValue(input, intLength, signed, pscale);
-		if (pscale > 0) {
-			offset = offset + (length - intLength);
-		}
 		convertLongToDisplay(tempValue, offset, length, signed, signLeading,
 				signSeparate);
 	}
@@ -175,15 +155,6 @@ public class BaseClass {
 		
 	}
 
-	protected int getIntBytes(int offset, int length, boolean signed,
-			int intLength, int pscale) {
-		if (length > 4) {
-			throw new ArithmeticException(
-					"Bytes array is too long for int value");
-		}
-		return 1;
-	}
-
 	protected long getLongBytes(int offset, int length, boolean signed,
 			int intLength, int pscale) {
 		if (length > 8) {
@@ -191,6 +162,7 @@ public class BaseClass {
 					"Bytes array is too long for Long type");
 		}
 		long tempValue = convertBytesToLong(offset, length, signed);
+		tempValue = adjustIntegralValue(tempValue, intLength, signed, pscale);
 		if (pscale > 0) {
 			return doPscaling(tempValue, pscale);
 		}
@@ -198,26 +170,15 @@ public class BaseClass {
 	}
 
 	protected BigDecimal getBigDecimalBytes(int offset, int length,
-			boolean signed, int intLength, int fractionLength, int scale) {
+			boolean signed, int intLength, int fractionLength, int pscale) {
 		if (length > 8) {
 			throw new ArithmeticException(
 					"Bytes array is too long for BigDec type");
 		}
-		long tempValue = convertBytesToLong(offset, length, signed);
-		BigDecimal returnValue = new BigDecimal(tempValue);
-		if (scale > 0) {
-			return doPscaling(returnValue, scale);
-		}
-		return returnValue;
-	}
-
-	protected void setIntBytes(int input, int offset, int length,
-			boolean signed, int intLength, int pscale) {
-		if (length > 4) {
-			throw new ArithmeticException("Too big for a integer");
-		}
-		long tempValue = adjustIntegralValue(input, intLength, signed, pscale);
-		convertLongToBytes(tempValue, offset, length, signed);
+		long longValue = convertBytesToLong(offset, length, signed);
+		longValue = adjustIntegralValue(longValue, intLength + fractionLength, signed, pscale);
+		BigDecimal returnValue = new BigDecimal(longValue);
+		return doPscaling(returnValue, fractionLength + pscale);
 	}
 
 	protected void setLongBytes(long input, int offset, int length,
@@ -356,16 +317,6 @@ public class BaseClass {
 	}
 
 	/**
-	 * Convert int to BCD format
-	 * 
-	 * @param input
-	 * @param signed
-	 * @return
-	 */
-	private void convertIntToBCD(int input, int offset, boolean signed) {
-	}
-
-	/**
 	 * Convert long to BCD format
 	 * 
 	 * @param input
@@ -400,20 +351,23 @@ public class BaseClass {
 
 	}
 
-	private void clearBytes(int offset, int length) {
-		ByteBuffer buffer = ByteBuffer.wrap(data, offset, length);
-	}
-
 	private void convertLongToBytes(long input, int offset, int length,
 			boolean signed) {
 		fillWithZero(data, offset, length, false);
 		ByteBuffer buffer = ByteBuffer.wrap(data);
-		
+
 		if (!signed && input < 0) {
 			input = Math.abs(input);
 		}
 		buffer.position(offset);
-		buffer.putLong(0, input);
+		if (length <=2 ) {
+			buffer.putShort(0, (short) input);
+		} else if (length >= 4) {
+			buffer.putLong(0, input);
+		} else {
+			buffer.putInt(0, (int) input);
+		}
+		
 		System.out.println(this.printByteArray(buffer.array()));
 	}
 
@@ -450,11 +404,9 @@ public class BaseClass {
 	private long convertBytesToLong(int offset, int length, boolean signed) {
 		ByteBuffer temp = ByteBuffer.wrap(data, offset, length);
 		if (length > 8) {
-			throw new ArithmeticException("Length for Long conversion is wrong");
+			throw new ArithmeticException("Length for Long conversion is too large (>8 bytes)");
 		}
 		System.out.println("Bytes " + this.printByteArray(temp.array()));
-		
-		
 		long result = 0;
 		if (length <=2 ) {
 			result = temp.getShort();
@@ -644,7 +596,7 @@ public class BaseClass {
 	private void convertLongToDisplay(long input, int offset, int length,
 			boolean signed, boolean signLeading, boolean signSeparate) {
 		String inputStr = String.valueOf(Math.abs(input));
-		System.out.println("INPUT " + inputStr);
+		System.out.println("INPUT " + input);
 		int byteLength = inputStr.length();
 		if (byteLength > 18) {
 			throw new ArithmeticException(
@@ -717,21 +669,6 @@ public class BaseClass {
 
 	}
 
-	/**
-	 * Convert Long to bytes array (usage display) TODO: Handle EBCDIC
-	 * 
-	 * @param input
-	 * @param signed
-	 * @return
-	 */
-	private void convertBigDecimalToDisplay(BigDecimal input, int length,
-			int offset, boolean signed, boolean signLeading,
-			boolean signSeparate) {
-		input = input.scaleByPowerOfTen(input.scale());
-		long longVal = input.longValue();
-		convertLongToDisplay(longVal, offset, length, signed, signLeading,
-				signSeparate);
-	}
 
 	private void convertStringToDisplay(String input, byte[] dest, int offset) {
 		Charset ascii = Charset.forName("US-ASCII");
