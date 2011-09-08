@@ -15,7 +15,6 @@ import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.util.JavaCodePrinter;
 import com.res.java.util.NameUtil;
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 public class DataPrinter {
 	private Queue<SymbolProperties> group01ToCreate = new LinkedList<SymbolProperties>();
@@ -34,7 +33,6 @@ public class DataPrinter {
 		printer.increaseIndent();
 		
 		if (props.getLength() > 0) {
-//			printer.println("// byte size: " + props.getLength());
 			printer.println("public " + props.getJavaName2() + "() {");
 			printer.increaseIndent();
 			printer.println(String.format("super(%d);", props.getLength()));
@@ -81,9 +79,9 @@ public class DataPrinter {
 		overrideConstructor(props.getJavaName2(), printer);
 		
 		// if use bytes
-		if (props.getLength() > 0) {
+		/*if (props.getLength() > 0) {
 			printer.println("//byte size: " + props.getLength());
-		}
+		}*/
 
 		// print all children of this group
 		printDataChildren(props, printer);
@@ -112,9 +110,9 @@ public class DataPrinter {
 		overrideConstructor(props.getJavaName2(), printer);
 		
 		// if use bytes
-		if (props.getLength() > 0) {
+		/*if (props.getLength() > 0) {
 			printer.println("//byte size: " + props.getLength());
-		}
+		}*/
 
 		// print all children of this group
 		printDataChildren(props, printer);
@@ -134,7 +132,6 @@ public class DataPrinter {
 			if (p.getType() != SymbolConstants.DATA || p.isFromRESLibrary()) {
 				continue;
 			}
-//			printEachChild(p, printer);
 			short lvNumber = p.getLevelNumber();
 			if (lvNumber == 66) {
 				printLv66Data(p, printer);
@@ -155,10 +152,36 @@ public class DataPrinter {
 
 	private void printLv66Data(SymbolProperties props, JavaCodePrinter printer) {
 		// renames field
-		printer.println("//Create getter, setter for renames field "
+		/*printer.println("//Create getter, setter for renames field "
 				+ props.getDataName());
 		printer.println(String.format("//Offset = %d, length = %d", props
 				.getUnAdjustedOffset(), props.getLength()));
+		printer.println();*/
+		
+		// renames field always use byte array
+		byte typeInJava = props.getCobolDesc().getTypeInJava();
+		String typeStr = null;
+		if (typeInJava == Constants.GROUP) {
+			typeStr = "String";
+		} else {
+			typeStr = javaType[typeInJava];
+		}
+
+		//getter
+		printer.println(String.format("public %s get%s() {", typeStr, props.getJavaName2()));
+		printer.increaseIndent();
+		printer.println("return " + getValueMethodName(props) + ";");
+		printer.decreaseIndent();
+		printer.println("}");
+		printer.println();
+
+		//setter
+		String argName = "input";
+		printer.println(String.format("public void set%s(%s %s) {", props.getJavaName2(), typeStr, argName));
+		printer.increaseIndent();
+		printer.println(setValueMethodName(props, argName) + ";");
+		printer.decreaseIndent();
+		printer.println("}");
 		printer.println();
 	}
 	
@@ -239,15 +262,6 @@ public class DataPrinter {
 				
 				// create setter
 				String argName = "input";
-				/*printer.println(String.format(
-						"public void set%1$s(%1$s %2$s){", props
-						.getJavaName2(), props.getJavaName1()));
-				printer.increaseIndent();
-				printer.println(String.format("this.%1$s = %1$s;", props
-						.getJavaName1()));
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();*/
 				printer.println(String.format(
 						"public void set%s(String %s) {", props.getJavaName2(), argName));
 				printer.increaseIndent();

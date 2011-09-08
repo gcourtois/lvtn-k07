@@ -229,13 +229,19 @@ public class CalculateSymbolLength implements Visitor {
             return;
         }
 
-        props.getCobolDesc().setTypeInJava((byte) Constants.GROUP);
 
         if (props.getLevelNumber() == 66) {
+        	if (props.getRedefinedBy().size() == 1) {
+        		byte type = props.getRedefinedBy().get(0).getCobolDesc().getTypeInJava();
+        		props.getCobolDesc().setTypeInJava(type);
+        	} else {
+        		props.getCobolDesc().setTypeInJava(Constants.GROUP);
+        	}
             processRenames(props);
             return;
         }
 
+        props.getCobolDesc().setTypeInJava(Constants.GROUP);
 
 //        int prevOffset = unAdjustedOffset.peek();
         int prevAdjustedOffset = offset.peek();
