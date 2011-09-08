@@ -512,7 +512,15 @@ public class BaseClass {
 	 * @return
 	 */
 	private String convertDisplayToString(int offset, int length) {
-		return new String(data, offset, length);
+		Charset ascii = Charset.forName("US-ASCII");
+		byte[] tempArray = new byte[length]; 
+		System.arraycopy(data, offset, tempArray, 0, length);
+		for (int i = offset; i < length; i++) {
+			if (tempArray[i] == 0x00) {
+				tempArray[i] = 0x20;
+			} 
+		}
+		return new String(tempArray, offset, length, ascii);
 	}
 
 	/**
@@ -656,7 +664,7 @@ public class BaseClass {
 		}
 	}
 
-	protected String printByteArray(byte[] input) {
+	public String printByteArray(byte[] input) {
 		String result = "";
 		for (byte b : input) {
 			result += Integer.toString((b & 0xff) + 0x100, 16).substring(1);
