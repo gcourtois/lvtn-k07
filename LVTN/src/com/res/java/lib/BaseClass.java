@@ -73,22 +73,6 @@ public class BaseClass {
 		return tempValue;
 	}
 
-	protected int getIntBCD(int offset, int length, int pscale, boolean signed) {
-		if (length > 6) {
-			throw new ArithmeticException(
-					"Bytes array is too long for Integer type");
-		}
-		long tempValue = convertBCDToLong(offset, length, signed);
-		if (pscale > 0) {
-			tempValue = doPscaling(tempValue, pscale);
-			if (tempValue >= powerBase10[10]) {
-				throw new ArithmeticException(
-						"Use Long method instead of Integer");
-			}
-		}
-		return (int) tempValue;
-	}
-
 	protected void setLongBCD(long input, int offset, int length,
 			boolean signed, int intLength, int pscale) {
 		long tempValue = adjustIntegralValue(input, intLength, signed, pscale);
@@ -152,7 +136,7 @@ public class BaseClass {
 	
 	protected void setStringDisplay(String input, int offset, int length,
 			boolean rightJustified) {
-		
+		convertStringToDisplay(input, offset, length, rightJustified);
 	}
 
 	protected long getLongBytes(int offset, int length, boolean signed,
@@ -368,7 +352,6 @@ public class BaseClass {
 			buffer.putInt(0, (int) input);
 		}
 		
-		System.out.println(this.printByteArray(buffer.array()));
 	}
 
 	/**
@@ -439,36 +422,6 @@ public class BaseClass {
 		return null;
 	}
 
-	/**
-	 * Convert Bytes to Int usage Display TODO:Handle EBCDIC
-	 * 
-	 * @param input
-	 * @param signed
-	 * @return
-	 */
-	/*
-	 * public int convertDisplayToInt(byte[] input, int offset, int length,
-	 * boolean signed) { int result = 0; if (length > 9) { throw new
-	 * OverflowException("Length of bytes array is too Long > 9"); } if (signed)
-	 * { boolean negate = false; int signValue = (input[offset + length - 1] >>
-	 * 4) & 0x0f; if (signValue == 0xD) { negate = true; } else if (signValue ==
-	 * 0xC) { negate = false; } else if (signValue == 0xF) { negate = false; }
-	 * //if Ascii --> change to 3 //if EBCDIC --> change to F byte[]
-	 * standardArray = new byte[length]; System.arraycopy(input, offset,
-	 * standardArray, 0, length); byte lastByte =
-	 * standardArray[standardArray.length - 1]; lastByte = (byte) (lastByte &
-	 * 0x0f); lastByte = (byte) (lastByte + 0x30);
-	 * standardArray[standardArray.length - 1] = lastByte; try { result =
-	 * Integer.valueOf(new String(standardArray)); } catch(Exception e) { throw
-	 * new ArithmeticException("Convert Bytes (Display) to Int failed " +
-	 * input); } if (negate) { result = -result; } } else { try { ByteBuffer
-	 * buffer = ByteBuffer.wrap(input, offset, length); result =
-	 * Integer.valueOf(new String(buffer.array())); } catch(Exception e) { throw
-	 * new ArithmeticException("Convert Bytes (Display) to Int failed " +
-	 * input); } } return result;
-	 * 
-	 * }
-	 */
 
 	/**
 	 * Convert Bytes to Long usage Display TODO:Handle EBCDIC
@@ -670,18 +623,29 @@ public class BaseClass {
 	}
 
 
-	private void convertStringToDisplay(String input, byte[] dest, int offset) {
+	private void convertStringToDisplay(String input, int offset, int length, boolean rightJustified) {
 		Charset ascii = Charset.forName("US-ASCII");
-		byte[] asciiArray = input.getBytes(ascii);
-		ByteBuffer buffer = ByteBuffer.wrap(dest, offset, asciiArray.length);
-		if (offset + asciiArray.length >= dest.length) {
-			buffer.put(asciiArray, 0, dest.length - 1 - offset);
+		int inputLength = input.length();
+		fillWithSpace(data, offset, length);
+		ByteBuffer buffer = ByteBuffer.wrap(data, offset, length);
+		if (rightJustified) {
+			if (inputLength > length) {
+				byte[] asciiArray = input.substring(inputLength - length).getBytes(ascii);
+				buffer.put(asciiArray);
+			} else {
+				buffer.position(offset + length - inputLength);
+				byte[] asciiArray = input.getBytes(ascii);
+				buffer.put(asciiArray);
+			}
 		} else {
-			buffer.put(asciiArray);
+			if (inputLength > length) {
+				byte[] asciiArray = input.substring(0, length - 1).getBytes(ascii);
+				buffer.put(asciiArray);
+			} else {
+				byte[] asciiArray = input.getBytes(ascii);
+				buffer.put(asciiArray);
+			}
 		}
-
-		System.out.println(printByteArray(asciiArray));
-
 	}
 
 	/**
@@ -728,16 +692,4 @@ public class BaseClass {
 		return this.convertDisplayToString(this.offset, this.length);
 	}
 
-	public static void main(String[] args) {
-		BaseClass test = new BaseClass(new byte[] { 0x2D, (byte) 0x31, 0x32,
-				0x33, 0x34 });
-		System.out.println(test.convertDisplayToLong(0, 5, true, true, true));
-		// long i = new BaseClass(1).getAlgebraicValue(123456789, 3, false, 3);
-		long i = new BaseClass(1).adjustDecimalValue(new BigDecimal(
-				"12345.67891"), 0, 3, 3, false);
-		// BigDecimal i = new BaseClass(1).getAlgebraicValue(new
-		// BigDecimal("12345.6789123456"), 0, 3, 2, false);
-
-		System.out.println(i);
-	}
 }
