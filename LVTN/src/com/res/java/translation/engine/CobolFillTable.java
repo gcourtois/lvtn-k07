@@ -133,7 +133,6 @@ import com.res.java.lib.RunTimeUtil;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
-import com.res.java.util.Files;
 import com.res.java.util.NameUtil;
 
 public class CobolFillTable extends DepthFirstVisitor {
@@ -893,9 +892,20 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         adjustSetJavaName(props);
         
-        if (parent != null && parent.getQualifiedName().contains(props.getDataName())) {
-        	System.err.println("Duplicate name exist in parent group: " + props.getDataName());
-        	System.exit(0);
+        if (parent != null) {
+        	boolean exist = false;
+        	String name = props.getDataName();
+        	for (String s : parent.getQualifiedName().split(".")) {
+        		if (s.equalsIgnoreCase(name)) {
+        			exist = true;
+        			break;
+        		}
+        		continue;
+        	}
+        	if (exist) {
+        		System.err.println("Duplicate name exist in parent group: " + props.getDataName());
+        		System.exit(0);
+        	}
         }
         
         SymbolProperties tmp = SymbolTable.getInstance().lookup(
@@ -1306,7 +1316,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                     formatLiteral(literal);
                     javaType1 = expressionType;
                     dataUsage1 = Constants.BINARY;
-                    //isSourceANumber=(expressionType<=Constants.BIGDECIMAL);
+                    isSourceANumber = (expressionType <= Constants.BIGDECIMAL);
                 }
                 if (nodeseq.elementAt(2) instanceof NodeList) {
                     for (Enumeration<Node> e = ((NodeList) nodeseq.elementAt(2)).elements();
@@ -2751,7 +2761,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
 //        boolean childExists = checkChildExists(p, findValidParent(p));
         String saveDataName = p.getDataName().replace('.', '-');
-        boolean isData = !(p.getType() == SymbolConstants.PROGRAM);
+//        boolean isData = !(p.getType() == SymbolConstants.PROGRAM);
         String javaName = NameUtil.convertCobolNameToJava(p.getDataName(), false);
         char ch = javaName.charAt(0);
         /*if (childExists) {
@@ -2781,7 +2791,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         p.setJavaName2(javaName);
         p.setDataName(saveDataName);
 
-        if (p.getType() == SymbolConstants.PROGRAM || (p.getLevelNumber() == 1 && p.getPictureString() == null)) {
+        /*if (p.getType() == SymbolConstants.PROGRAM || (p.getLevelNumber() == 1 && p.getPictureString() == null)) {
             p.setDoWriteClassFile(true);
             if (!RESConfig.getInstance().isOverwriteJavaFiles()) {
                 if (Files.exists(p, isData)) {
@@ -2793,7 +2803,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                     System.out.println("Name " + p.getDataName() + " exists. Not overwritten.");
                 }
             }
-        }
+        }*/
     }
     //Singleton COnstructors
     private static CobolFillTable thiz = null;

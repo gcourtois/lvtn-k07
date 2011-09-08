@@ -355,6 +355,7 @@ public class SymbolTable {
 					String p1 = null;
 					if ((p1 = (String) o1.getPictureString()) != null)
 						System.out.print(" PICTURE=" + p1);
+					System.out.print(" IN OCCURS=" + o1.isAParentInOccurs());
 					boolean b1 = o1.getRef();
 					System.out.print(" Ref=" + b1);
 					b1 = o1.getMod();

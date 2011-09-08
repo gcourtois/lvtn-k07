@@ -86,15 +86,16 @@ public class DataPrinter {
 		// print all children of this group
 		printDataChildren(props, printer);
 
+		// print other inner groups
+		while (innerGroupToCreate.size() > 0) {
+			createInnerGroupClass(innerGroupToCreate.poll(), printer);
+		}
+
 		printer.decreaseIndent();
 
 		// end class
 		printer.println("}");
 
-		// print other inner groups
-		while (innerGroupToCreate.size() > 0) {
-			createInnerGroupClass(innerGroupToCreate.poll(), printer);
-		}
 
 		printer.close();
 	}
@@ -102,7 +103,7 @@ public class DataPrinter {
 	private void createInnerGroupClass(SymbolProperties props,
 			JavaCodePrinter printer) {
 		// print class definition
-		printer.println("class " + props.getJavaName2() + " extends "
+		printer.println("public class " + props.getJavaName2() + " extends "
 				+ BaseClass.class.getSimpleName() + " {");
 
 		printer.increaseIndent();
@@ -170,7 +171,7 @@ public class DataPrinter {
 		//getter
 		printer.println(String.format("public %s get%s() {", typeStr, props.getJavaName2()));
 		printer.increaseIndent();
-		printer.println("return " + getValueMethodName(props) + ";");
+		printer.println("return " + getValueMethodName(props, false, null) + ";");
 		printer.decreaseIndent();
 		printer.println("}");
 		printer.println();
@@ -179,7 +180,7 @@ public class DataPrinter {
 		String argName = "input";
 		printer.println(String.format("public void set%s(%s %s) {", props.getJavaName2(), typeStr, argName));
 		printer.increaseIndent();
-		printer.println(setValueMethodName(props, argName) + ";");
+		printer.println(setValueMethodName(props, argName, false, null) + ";");
 		printer.decreaseIndent();
 		printer.println("}");
 		printer.println();
@@ -197,7 +198,9 @@ public class DataPrinter {
 		} else {
 			innerGroupToCreate.add(props);
 		}
-
+		
+		String argName = "input";
+		
 		if (props.isOccurs()) {
 			// create array field
 			printer.println(String.format(
@@ -211,15 +214,42 @@ public class DataPrinter {
 				// loop to initialize each group
 				printer.println(String.format("for (int i = 0; i < %d; i++) {", props.getMaxOccursInt()));
 				printer.increaseIndent();
-				printer.println(String.format("%1$s[i] = new %2$s(this.getBytes(), %3$d + i*%4$d, %4$d);",
+				String offset = "";
+				if (props.getUnAdjustedOffset() == props.getOffset()) {
+					offset = String.format("%s + i * %s", props.getOffset(), props.getLength());
+				} else if (props.getUnAdjustedOffset() == 0) {
+					offset = String.format("this.offset + i * %s", props.getLength());
+				} else {
+					offset = String.format("this.offset + %s + i * %s", props.getUnAdjustedOffset(), props.getLength());
+				}
+				printer.println(String.format("%1$s[i] = new %2$s(this.getBytes(), %4$s, %3$d);",
 									props.getJavaName1(),
 									props.getJavaName2(),
-									props.getOffset(),
-									props.getLength()));
+									props.getLength(),
+									offset));
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.decreaseIndent();
 				printer.println("}");
+				printer.println();
+				
+				String indexName = "i";
+				
+				// getter
+				printer.println(String.format("public %1$s get%1$s(int %2$s) {", props.getJavaName2(), indexName));
+				printer.increaseIndent();
+				printer.println(String.format("return this.%s[%s];", props.getJavaName1(), indexName));
+				printer.decreaseIndent();
+				printer.println("}");
+				printer.println();
+				
+				// setter
+				printer.println(String.format("public void set%s(int %s, String %s) {", props.getJavaName2(), indexName, argName));
+				printer.increaseIndent();
+				printer.println(setValueMethodName(props, argName, true, indexName) + ";");
+				printer.decreaseIndent();
+				printer.println("}");
+				printer.println();
 				
 			} else { // use java types
 				printer.println("{");
@@ -243,7 +273,7 @@ public class DataPrinter {
 				printer.println("//Offset = "
 						+ props.getOffset() + " length = "
 						+ props.getLength());*/
-				printer.println(String.format("private final %1$s %2$s = new %1$s(this.getBytes(), %3$d, %4$d);",
+				printer.println(String.format("private %1$s %2$s = new %1$s(this.getBytes(), %3$d, %4$d);",
 										props.getJavaName2(),
 										props.getJavaName1(),
 										props.getOffset(),
@@ -261,11 +291,10 @@ public class DataPrinter {
 				printer.println();
 				
 				// create setter
-				String argName = "input";
 				printer.println(String.format(
 						"public void set%s(String %s) {", props.getJavaName2(), argName));
 				printer.increaseIndent();
-				printer.println(setValueMethodName(props, argName) + ";");
+				printer.println(setValueMethodName(props, argName, false, null) + ";");
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
@@ -280,15 +309,36 @@ public class DataPrinter {
 
 	private void printElementData(SymbolProperties props,
 			JavaCodePrinter printer) {
+		
 		String type = javaType[props.getCobolDesc().getTypeInJava()];
+		String argName = "input";
+		
 		if (props.isOccurs()) {
 			if (props.getLength() > 0) {
 				// create getter setter with index
-				printer
+				/*printer
 						.println("//Create getter, setter with index for "
 								+ props.getDataName());
 				printer.println("//Each element length: "
-						+ props.getLength());
+						+ props.getLength());*/
+				
+				String indexName = "i";
+				
+				//getter
+				printer.println(String.format("public %s get%s(int %s) {", type, props.getJavaName2(), indexName));
+				printer.increaseIndent();
+				printer.println("return " + getValueMethodName(props, true, indexName) + ";");
+				printer.decreaseIndent();
+				printer.println("}");
+				printer.println();
+				
+				//setter
+				printer.println(String.format("public void set%s(int %s, %s %s) {", props.getJavaName2(), indexName, type, argName));
+				printer.increaseIndent();
+				printer.println(setValueMethodName(props, argName, true, indexName) + ";");
+				printer.decreaseIndent();
+				printer.println("}");
+				printer.println();
 			} else {
 				// use java type, so create new array field
 				printer.println(String.format(
@@ -303,25 +353,24 @@ public class DataPrinter {
 
 			if (props.getLength() > 0) {// use byte
 				// create getter setter for elements
-				printer.println("//Create getter, setter for "
+				/*printer.println("//Create getter, setter for "
 						+ props.getDataName() + " pic = " + props.getPictureString());
 				printer.println("//Offset = "
 						+ props.getOffset() + " length = "
-						+ props.getLength());
+						+ props.getLength());*/
 				
 				//getter
 				printer.println(String.format("public %s get%s() {", type, props.getJavaName2()));
 				printer.increaseIndent();
-				printer.println("return " + getValueMethodName(props) + ";");
+				printer.println("return " + getValueMethodName(props, false, null) + ";");
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
 				
 				//setter
-				String argName = "input";
 				printer.println(String.format("public void set%s(%s %s) {", props.getJavaName2(), type, argName));
 				printer.increaseIndent();
-				printer.println(setValueMethodName(props, argName) + ";");
+				printer.println(setValueMethodName(props, argName, false, null) + ";");
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
@@ -335,8 +384,6 @@ public class DataPrinter {
 				printer.println("//Use Java type");
 			}
 		}
-
-		printer.println();
 	}
 	
 	private void overrideConstructor(String className, JavaCodePrinter printer) {
@@ -369,34 +416,57 @@ public class DataPrinter {
 		printer.println();
 	}
 	
-	private String getValueMethodName(SymbolProperties props) {
+	private String getValueMethodName(SymbolProperties props, boolean useIndex, String indexArg) {
 		CobolDataDescription desc = props.getCobolDesc();
 		byte type = desc.getTypeInJava();
 		byte usage = desc.getUsage();
 		
+		String offsetWithIndex = "";
+		if (props.getUnAdjustedOffset() == props.getOffset()) {
+			if (props.getOffset() == 0) {
+				offsetWithIndex = String.format("%s * %s", indexArg, props.getLength());
+			} else
+				offsetWithIndex = String.format("%s + %s * %s", props.getOffset(), indexArg, props.getLength());
+		} else if (props.getUnAdjustedOffset() == 0) {
+			offsetWithIndex = String.format("this.offset + %s * %s", indexArg, props.getLength());
+		} else {
+			offsetWithIndex = String.format("this.offset + %s + %s * %s", props.getUnAdjustedOffset(), indexArg, props.getLength());
+		}
+		
+		String offsetWithoutIndex = "";
+		if (props.isAParentInOccurs()) {
+			if (props.getUnAdjustedOffset() == 0) {
+				offsetWithoutIndex = "this.offset";
+			} else {
+				offsetWithoutIndex = "this.offset + " + props.getUnAdjustedOffset();
+			}
+		} else {
+			offsetWithoutIndex = "" + props.getOffset();
+		}
+								
 		if (type == Constants.SHORT || type == Constants.INTEGER) {
 			String typeStr = javaType[type];
 			if (usage == Constants.DISPLAY) {
-				return String.format("(%s) getLongDisplay(%d, %d, %b, %b, %b, %d)",
+				return String.format("(%s) getLongDisplay(%s, %s, %s, %s, %s, %s)",
 										typeStr,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.isSignLeading(),
 										desc.isSignSeparate(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.BINARY) {
-				return String.format("(%s) getLongBytes(%d, %d, %b, %d, %d)",
+				return String.format("(%s) getLongBytes(%s, %s, %s, %s, %s)",
 										typeStr,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("(%s) getLongBCD(%d, %d, %b, %d, %d)",
+				return String.format("(%s) getLongBCD(%s, %s, %s, %s, %s)",
 										typeStr,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
@@ -404,52 +474,52 @@ public class DataPrinter {
 			}
 		} else if (type == Constants.LONG) {
 			if (usage == Constants.DISPLAY) {
-				return String.format("getLongDisplay(%d, %d, %b, %b, %b, %d)",
-										props.getOffset(),
+				return String.format("getLongDisplay(%s, %s, %s, %s, %s, %s)",
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.isSignLeading(),
 										desc.isSignSeparate(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.BINARY) {
-				return String.format("getLongBytes(%d, %d, %b, %d, %d)",
-										props.getOffset(),
+				return String.format("getLongBytes(%s, %s, %s, %s, %s)",
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("getLongBCD(%d, %d, %b, %d, %d)",
-										props.getOffset(),
+				return String.format("getLongBCD(%s, %s, %s, %s, %s)",
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
 										desc.getMaxScalingLength());
 			}
 		}else if (type == Constants.STRING || type == Constants.GROUP) {
-			return String.format("getStringDisplay(%d, %d)",
-									props.getOffset(),
+			return String.format("getStringDisplay(%s, %s)",
+									useIndex ? offsetWithIndex : offsetWithoutIndex,
 									props.getLength());
 		} else if (type == Constants.BIGDECIMAL) {
 			if (usage == Constants.DISPLAY) {
-				return String.format("getBigDecimalDisplay(%d, %d, %b, %b, %b, %d)",
-										props.getOffset(),
+				return String.format("getBigDecimalDisplay(%s, %s, %s, %s, %s, %s)",
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.isSignLeading(),
 										desc.isSignSeparate(),
 										desc.getMaxFractionLength() + desc.getMaxScalingLength());
 			} else if (usage == Constants.BINARY) {
-				return String.format("getBigDecimalBytes(%d, %d, %b, %d, %d, %d)",
-										props.getOffset(),
+				return String.format("getBigDecimalBytes(%s, %s, %s, %s, %s, %s)",
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
 										desc.getMaxFractionLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("getBigDecimalBCD(%d, %d, %b, %d, %d, %d)",
-										props.getOffset(),
+				return String.format("getBigDecimalBCD(%s, %s, %s, %s, %s, %s)",
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
@@ -460,16 +530,39 @@ public class DataPrinter {
 		return "";
 	}
 	
-	private String setValueMethodName(SymbolProperties props, String argName) {
+	private String setValueMethodName(SymbolProperties props, String argName, boolean useIndex, String indexArg) {
 		CobolDataDescription desc = props.getCobolDesc();
 		byte type = desc.getTypeInJava();
 		byte usage = desc.getUsage();
 		
+		String offsetWithIndex = "";
+		if (props.getUnAdjustedOffset() == props.getOffset()) {
+			if (props.getOffset() == 0) {
+				offsetWithIndex = String.format("%s * %s", indexArg, props.getLength());
+			} else
+				offsetWithIndex = String.format("%s + %s * %s", props.getOffset(), indexArg, props.getLength());
+		} else if (props.getUnAdjustedOffset() == 0) {
+			offsetWithIndex = String.format("this.offset + %s * %s", indexArg, props.getLength());
+		} else {
+			offsetWithIndex = String.format("this.offset + %s + %s * %s", props.getUnAdjustedOffset(), indexArg, props.getLength());
+		}
+		
+		String offsetWithoutIndex = "";
+		if (props.isAParentInOccurs()) {
+			if (props.getUnAdjustedOffset() == 0) {
+				offsetWithoutIndex = "this.offset";
+			} else {
+				offsetWithoutIndex = "this.offset + " + props.getUnAdjustedOffset();
+			}
+		} else {
+			offsetWithoutIndex = "" + props.getOffset();
+		}
+		
 		if (type == Constants.SHORT || type == Constants.INTEGER || type == Constants.LONG) {
 			if (usage == Constants.DISPLAY) {
-				return String.format("setLongDisplay(%s, %d, %d, %b, %b, %b, %d, %d)",
+				return String.format("setLongDisplay(%s, %s, %s, %s, %s, %s, %s, %s)",
 										argName,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.isSignLeading(),
@@ -477,33 +570,33 @@ public class DataPrinter {
 										desc.getMaxIntLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.BINARY) {
-				return String.format("setLongBytes(%s, %d, %d, %b, %d, %d)",
+				return String.format("setLongBytes(%s, %s, %s, %s, %s, %s)",
 										argName,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("setLongBCD(%s, %d, %d, %b, %d, %d)",
+				return String.format("setLongBCD(%s, %s, %s, %s, %s, %s)",
 										argName,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
 										desc.getMaxScalingLength());
 			}
 		} else if (type == Constants.STRING || type == Constants.GROUP) {
-			return String.format("setStringDisplay(%s, %d, %d, %b)",
+			return String.format("setStringDisplay(%s, %s, %s, %s)",
 									argName,
-									props.getOffset(),
+									useIndex ? offsetWithIndex : offsetWithoutIndex,
 									props.getLength(),
 									desc.isJustifiedRight());
 		} else if (type == Constants.BIGDECIMAL) {
 			if (usage == Constants.DISPLAY) {
-				return String.format("setBigDecimalDisplay(%s, %d, %d, %b, %b, %b, %d, %d, %d)",
+				return String.format("setBigDecimalDisplay(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
 										argName,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.isSignLeading(),
@@ -512,18 +605,18 @@ public class DataPrinter {
 										desc.getMaxFractionLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.BINARY) {
-				return String.format("setBigDecimalBytes(%s, %d, %d, %b, %d, %d, %d)", 
+				return String.format("setBigDecimalBytes(%s, %s, %s, %s, %s, %s, %s)", 
 										argName,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),
 										desc.getMaxFractionLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("setBigDecimalBCD(%s, %d, %d, %b, %d, %d, %d)",
+				return String.format("setBigDecimalBCD(%s, %s, %s, %s, %s, %s, %s)",
 										argName,
-										props.getOffset(),
+										useIndex ? offsetWithIndex : offsetWithoutIndex,
 										props.getLength(),
 										desc.isSigned(),
 										desc.getMaxIntLength(),

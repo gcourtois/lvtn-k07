@@ -15,9 +15,9 @@ import com.res.java.lib.exceptions.OverflowException;
 public class BaseClass {
 	public byte[] data;
 
-	private int offset;
+	protected int offset;
 
-	private int length;
+	protected int length;
 
 	public BaseClass(int size) {
 		data = new byte[size];
@@ -255,9 +255,31 @@ public class BaseClass {
 		return input;
 	}
 
-	private int doPScaling(int input, int pscale) {
-		// What if pscale too big
-		return input *= powerBase10[pscale];
+	protected String getStringValue(String input, int length, boolean rightJustified) {
+		if (input.length() == length) {
+			return input;
+		} else if (input.length() > length) {
+			if (rightJustified) {
+				return input.substring(input.length() - length, input.length());
+			} else {
+				return input.substring(0, length);
+			}
+		} else {
+			StringBuilder sb = new StringBuilder();
+			if (rightJustified) {
+				int spaces = length - input.length();
+				while(sb.length() < spaces) {
+					sb.append(' ');
+				}
+				sb.append(input);
+			} else {
+				sb.append(input);
+				while (sb.length() < length) {
+					sb.append(' ');
+				}
+			}
+			return sb.toString();
+		}
 	}
 
 	private long doPscaling(long input, int pscale) {
