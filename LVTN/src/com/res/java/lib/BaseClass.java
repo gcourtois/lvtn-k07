@@ -406,7 +406,9 @@ public class BaseClass {
 
 	private void convertLongToBytes(long input, int offset, int length,
 			boolean signed) {
+		fillWithZero(data, offset, length, false);
 		ByteBuffer buffer = ByteBuffer.wrap(data);
+		
 		if (!signed && input < 0) {
 			input = Math.abs(input);
 		}
@@ -450,7 +452,17 @@ public class BaseClass {
 		if (length > 8) {
 			throw new ArithmeticException("Length for Long conversion is wrong");
 		}
-		long result = temp.getLong();
+		System.out.println("Bytes " + this.printByteArray(temp.array()));
+		
+		
+		long result = 0;
+		if (length <=2 ) {
+			result = temp.getShort();
+		} else if (length >= 4) {
+			result = temp.getLong();
+		} else {
+			result = temp.getInt();
+		}
 
 		if (signed) {
 			if (result >= powerBase10[18]) {
@@ -644,7 +656,7 @@ public class BaseClass {
 		// TODO: if EBCDIC
 		if (input == 0) {
 			//TODO: if blank when zero --> fill with space
-			fillWithSpace(data, offset, length);
+			//fillWithSpace(data, offset, length);
 		}
 		byte signByte = (byte) 0x30;
 		if (signed) {
@@ -698,6 +710,9 @@ public class BaseClass {
 					
 				}
 			}
+		} else {
+			buffer.position(offset + length - byteLength);
+			buffer.put(inputStr.getBytes());
 		}
 
 	}
