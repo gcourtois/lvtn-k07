@@ -37,7 +37,6 @@ import com.res.java.translation.engine.Cobol2Java;
 import com.res.java.translation.engine.CobolFillTable;
 import com.res.java.translation.engine.CobolRecode;
 import com.res.java.translation.symbol.SymbolTable;
-import com.res.java.util.ClassFile;
 
 public class Main {
 
@@ -254,7 +253,7 @@ public class Main {
 
 			unit.accept(new Cobol2Java(), null);
 
-			ClassFile.endProgramScope();
+//			ClassFile.endProgramScope();
 			// SymbolTable.getInstance().endProgram();
 
 		} catch (Exception ex) {
