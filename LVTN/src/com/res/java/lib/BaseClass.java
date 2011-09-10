@@ -19,16 +19,13 @@ public class BaseClass {
 
 	protected int length;
 
+	public BaseClass() {
+	}
+	
 	public BaseClass(int size) {
 		data = new byte[size];
 		offset = 0;
 		length = size;
-	}
-
-	public BaseClass(byte[] data) {
-		this.data = data;
-		offset = 0;
-		length = data.length;
 	}
 
 	public BaseClass(byte[] data, int offset, int length) {

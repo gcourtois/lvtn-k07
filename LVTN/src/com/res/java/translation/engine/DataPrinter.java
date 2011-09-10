@@ -20,9 +20,8 @@ public class DataPrinter {
 	private Queue<SymbolProperties> group01ToCreate = new LinkedList<SymbolProperties>();
 	private Queue<SymbolProperties> innerGroupToCreate = new LinkedList<SymbolProperties>();
 
-	private String[] javaType = new String[]{
-			"byte", "char", "short", "int", "long", "float", "double", "BigDecimal", "String"
-	};
+	private String[] javaType = new String[] { "byte", "char", "short", "int",
+            "long", "float", "double", "BigDecimal", "String" };
 	
 	public void printDataForProgram(SymbolProperties props,
 			JavaCodePrinter printer) throws IOException {
@@ -51,79 +50,71 @@ public class DataPrinter {
 	}
 
 	private void createGroup01File(SymbolProperties props) throws IOException {
-		// create new file
-		String fileName = RESConfig.getInstance().getDataPackage()
-				+ File.separatorChar + NameUtil.getFileName(props);
-		System.out.println("Create file " + fileName);
+        // create new file
+        String fileName = RESConfig.getInstance().getDataPackage()
+                + File.separatorChar + NameUtil.getFileName(props);
+        System.out.println("Create file " + fileName);
 
-//		JavaCodePrinter printer = new JavaCodePrinter(System.out);
-		JavaCodePrinter printer = new JavaCodePrinter(new FileOutputStream(
-				fileName));
+        JavaCodePrinter printer = new JavaCodePrinter(new FileOutputStream(
+                fileName));
 
-		// print package
-		printer.println("package " + RESConfig.getInstance().getDataPackage()
-				+ ";");
-		printer.println();
+        // print package
+        printer.println("package " + RESConfig.getInstance().getDataPackage()
+                + ";");
+        printer.println();
 
-		// print import
-		printer.printImport(BaseClass.class);
-		printer.printImport(BigDecimal.class);
-		printer.println();
+        // print import
+        printer.printImport(BaseClass.class);
+        printer.printImport(BigDecimal.class);
+        printer.println();
 
-		// print class definition
-		printer.println("public class " + props.getJavaName2() + " extends "
-				+ BaseClass.class.getSimpleName() + " {");
+        // print class definition
+        printer.println("public class " + props.getJavaName2() + " extends "
+                + BaseClass.class.getSimpleName() + " {");
 
-		printer.increaseIndent();
+        printer.increaseIndent();
 
-		overrideConstructor(props.getJavaName2(), printer);
-		
-		// if use bytes
-		/*if (props.getLength() > 0) {
-			printer.println("//byte size: " + props.getLength());
-		}*/
+        if (props.getLength() > 0) {
+            overrideConstructor(props.getJavaName2(), printer);
+        }
 
-		// print all children of this group
-		printDataChildren(props, printer);
+        // print all children of this group
+        printDataChildren(props, printer);
 
-		// print other inner groups
-		while (innerGroupToCreate.size() > 0) {
-			createInnerGroupClass(innerGroupToCreate.poll(), printer);
-		}
+        // print other inner groups
+        while (innerGroupToCreate.size() > 0) {
+            createInnerGroupClass(innerGroupToCreate.poll(), printer);
+        }
 
-		printer.decreaseIndent();
+        printer.decreaseIndent();
 
-		// end class
-		printer.println("}");
+        // end class
+        printer.println("}");
 
-
-		printer.close();
-	}
+        printer.close();
+    }
 
 	private void createInnerGroupClass(SymbolProperties props,
-			JavaCodePrinter printer) {
-		// print class definition
-		printer.println("public class " + props.getJavaName2() + " extends "
-				+ BaseClass.class.getSimpleName() + " {");
+            JavaCodePrinter printer) {
+        // print class definition
+        printer.println("public class " + props.getJavaName2() + " extends "
+                + BaseClass.class.getSimpleName() + " {");
 
-		printer.increaseIndent();
+        printer.increaseIndent();
 
-		overrideConstructor(props.getJavaName2(), printer);
-		
-		// if use bytes
-		/*if (props.getLength() > 0) {
-			printer.println("//byte size: " + props.getLength());
-		}*/
+        if (props.getLength() > 0) {
+            overrideConstructor(props.getJavaName2(), printer);
+        }
 
-		// print all children of this group
-		printDataChildren(props, printer);
+        // print all children of this group
+        printDataChildren(props, printer);
 
-		printer.decreaseIndent();
+        printer.decreaseIndent();
 
-		// end class
-		printer.println("}");
-		printer.println();
-	}
+        // end class
+        printer.println("}");
+        printer.println();
+    }
 
 	private void printDataChildren(SymbolProperties props,
 			JavaCodePrinter printer) {
@@ -187,13 +178,13 @@ public class DataPrinter {
 	}
 	
 	private void printLv88Data(SymbolProperties props, JavaCodePrinter printer) {
-		printer.println("//Create getter, setter for condition-name" + props.getDataName());
-		printer.println();
-	}
+        printer.println("//Create getter, setter for condition-name"
+                + props.getDataName());
+        printer.println();
+    }
 
 	private void printGroupData(SymbolProperties props, JavaCodePrinter printer) {
 		if (props.getLevelNumber() == 1) {
-			// create new file for 01 groups
 			group01ToCreate.add(props);
 		} else {
 			innerGroupToCreate.add(props);
@@ -207,6 +198,7 @@ public class DataPrinter {
 					"private %1$s %2$s[] = new %1$s[%3$d];", props
 							.getJavaName2(), props.getJavaName1(),
 					props.getMaxOccursInt()));
+			
 			if (props.getLength() > 0) { // use byte
 				printer.println("{");
 				printer.increaseIndent();
@@ -214,6 +206,7 @@ public class DataPrinter {
 				// loop to initialize each group
 				printer.println(String.format("for (int i = 0; i < %d; i++) {", props.getMaxOccursInt()));
 				printer.increaseIndent();
+				
 				String offset = "";
 				if (props.getUnAdjustedOffset() == props.getOffset()) {
 					offset = String.format("%s + i * %s", props.getOffset(), props.getLength());
@@ -222,19 +215,22 @@ public class DataPrinter {
 				} else {
 					offset = String.format("this.offset + %s + i * %s", props.getUnAdjustedOffset(), props.getLength());
 				}
+				
 				printer.println(String.format("%1$s[i] = new %2$s(this.getBytes(), %4$s, %3$d);",
 									props.getJavaName1(),
 									props.getJavaName2(),
 									props.getLength(),
 									offset));
+				
 				printer.decreaseIndent();
 				printer.println("}");
+				
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
+				// end loop
 				
-				String indexName = "i";
-				
+				String indexName = "i";				
 				// getter
 				printer.println(String.format("public %1$s get%1$s(int %2$s) {", props.getJavaName2(), indexName));
 				printer.increaseIndent();
@@ -252,6 +248,8 @@ public class DataPrinter {
 				printer.println();
 				
 			} else { // use java types
+			    
+			    // loop to initialize each group
 				printer.println("{");
 				printer.increaseIndent();
 				printer.println(String.format("for (%1$s e_ : %2$s) {",
@@ -261,11 +259,14 @@ public class DataPrinter {
 						.getJavaName2()));
 				printer.decreaseIndent();
 				printer.println("}");
+				
 				printer.decreaseIndent();
 				printer.println("}");
+				printer.println();
+				// end loop
+				// create getter, setter with index
 			}
 			
-			// create getter, setter with index
 		} else {
 			if (props.getLength() > 0) { // use byte
 				/*printer.println("//create field for group "
@@ -273,6 +274,8 @@ public class DataPrinter {
 				printer.println("//Offset = "
 						+ props.getOffset() + " length = "
 						+ props.getLength());*/
+			    
+			    // create field
 				printer.println(String.format("private %1$s %2$s = new %1$s(this.getBytes(), %3$d, %4$d);",
 										props.getJavaName2(),
 										props.getJavaName1(),
@@ -280,6 +283,7 @@ public class DataPrinter {
 										props.getLength()));
 				
 				printer.println();
+				
 				// create getter
 				printer.println(String.format("public %1$s get%1$s() {",
 						props.getJavaName2()));
@@ -303,6 +307,8 @@ public class DataPrinter {
 				printer.println(String.format(
 						"private %1$s %2$s = new %1$s();", props
 								.getJavaName2(), props.getJavaName1()));
+				
+				// create getter, setter
 			}
 		}
 	}
@@ -339,6 +345,7 @@ public class DataPrinter {
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
+				
 			} else {
 				// use java type, so create new array field
 				printer.println(String.format(
@@ -352,7 +359,6 @@ public class DataPrinter {
 		} else {
 
 			if (props.getLength() > 0) {// use byte
-				// create getter setter for elements
 				/*printer.println("//Create getter, setter for "
 						+ props.getDataName() + " pic = " + props.getPictureString());
 				printer.println("//Offset = "
@@ -374,10 +380,13 @@ public class DataPrinter {
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
+				
 			} else {// use java types
+			    
 				// create field first
 				printer.println("//Create field for "
 						+ props.getDataName());
+				
 				// create getter, setter
 				printer.println("//Create getter, setter for"
 						+ props.getDataName());
@@ -387,34 +396,23 @@ public class DataPrinter {
 	}
 	
 	private void overrideConstructor(String className, JavaCodePrinter printer) {
-		printer.println("public " + className + "() {");
-		printer.increaseIndent();
-		printer.println("super(0);");
-		printer.decreaseIndent();
-		printer.println("}");
-		printer.println();
-		
-		/*printer.println("public " + className + "(int size) {");
-		printer.increaseIndent();
-		printer.println("super(size);");
-		printer.decreaseIndent();
-		printer.println("}");
-		printer.println();
-		
-		printer.println("public " + className + "(byte[] data) {");
-		printer.increaseIndent();
-		printer.println("super(data);");
-		printer.decreaseIndent();
-		printer.println("}");
-		printer.println();*/
-		
-		printer.println("public " + className + "(byte[] data, int offset, int length) {");
-		printer.increaseIndent();
-		printer.println("super(data, offset, length);");
-		printer.decreaseIndent();
-		printer.println("}");
-		printer.println();
-	}
+
+        // printer.println("public " + className + "() {");
+        // printer.increaseIndent(); printer.println("super(0);");
+        // printer.decreaseIndent(); printer.println("}"); printer.println();
+        //          
+        // printer.println("public " + className + "(int size) {");
+        // printer.increaseIndent(); printer.println("super(size);");
+        // printer.decreaseIndent(); printer.println("}"); printer.println();
+
+        printer.println("public " + className
+                + "(byte[] data, int offset, int length) {");
+        printer.increaseIndent();
+        printer.println("super(data, offset, length);");
+        printer.decreaseIndent();
+        printer.println("}");
+        printer.println();
+    }
 	
 	private String getValueMethodName(SymbolProperties props, boolean useIndex, String indexArg) {
 		CobolDataDescription desc = props.getCobolDesc();
