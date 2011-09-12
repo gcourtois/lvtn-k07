@@ -132,6 +132,7 @@ public class EditedVar {
 					afterDecimal = normalizedString.substring(vPosition + 1,
 							normalizedString.length());
 					vAppearance = true;
+					normalizedString.deleteCharAt(vPosition);
 				} else {
 					beforeDecimal = normalizedString.toString();
 					afterDecimal = "";
@@ -233,6 +234,8 @@ public class EditedVar {
 					if ((curChar < '0' && curChar > '9')) {
 						inputBuilder.setCharAt(i, '0');
 					}
+					break;
+				case 'P':
 					break;
 				}
 			}
@@ -386,6 +389,11 @@ public class EditedVar {
 					}
 					break;
 				case 'B':
+					if (i >= fractionString.length()) {
+					} else {
+						fractionString.deleteCharAt(i);
+					}
+					break;
 				case '+':
 				case '-':
 				case 'C':
@@ -434,10 +442,10 @@ public class EditedVar {
 	public static void main(String[] args) {
 		EditedVar a;
 		try {
-			a = new EditedVar("+$$$.99CR", Constants.NUMERIC_EDITED,
+			a = new EditedVar("+$$$.B99CR", Constants.NUMERIC_EDITED,
 					false);
 			BigDecimal test = new BigDecimal("12345.2");
-			System.out.println(a.doEdit(test) + "|");
+			System.out.println("|" + a.doEdit(test) + "|");
 		} catch (InvalidCobolFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
