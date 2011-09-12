@@ -968,13 +968,12 @@ public class FieldFormat {
 		return;
 	}
 
-
 	private String getCurrencySign() {
-		 return RunConfig.getInstance().getCurrencySign();
+		return RunConfig.getInstance().getCurrencySign();
 	}
 
 	private boolean isDecimalPointComma() {
-		 return RunConfig.getInstance().isDecimalPointAsComma();
+		return RunConfig.getInstance().isDecimalPointAsComma();
 	}
 
 	private class TextField {
@@ -1096,7 +1095,7 @@ public class FieldFormat {
 		verifyCobolPicture(pic);
 		return dataCategoryTemp;
 	}
-
+	
 	public static byte verifyCobolPicture(String pic) {
 		if (pic == null) {
 			dataCategoryTemp = Constants.ALPHANUMERIC;

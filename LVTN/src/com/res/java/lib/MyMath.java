@@ -48,6 +48,7 @@ public class MyMath {
 //		System.out.println(stringCOBOL);
 //		byte[] newString = new byte[1000];
 //		test.convertStringToDisplay("á", newString, 0);
+		Long a = Long.valueOf("-1234");
 	}
 	
 };
