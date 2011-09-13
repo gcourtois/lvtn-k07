@@ -29,7 +29,7 @@ public class DataPrinter {
 			return;
 
 
-		printer.increaseIndent();
+//		printer.increaseIndent();
 		
 		if (props.getLength() > 0) {
 			printer.println("public " + props.getJavaName2() + "() {");
@@ -42,7 +42,7 @@ public class DataPrinter {
 		
 		printDataChildren(props, printer);
 
-		printer.decreaseIndent();
+//		printer.decreaseIndent();
 
 		while (group01ToCreate.size() > 0) {
 			createGroup01File(group01ToCreate.poll());
@@ -121,7 +121,7 @@ public class DataPrinter {
 		if (props.getChildren() == null || props.getChildren().size() == 0)
 			return;
 		for (SymbolProperties p : props.getChildren()) {
-			if (p.getType() != SymbolConstants.DATA || p.isFromRESLibrary()) {
+			if (p.getType() != SymbolConstants.DATA || p.isFromRESLibrary() || !(p.getMod() || p.getRef())) {
 				continue;
 			}
 			short lvNumber = p.getLevelNumber();

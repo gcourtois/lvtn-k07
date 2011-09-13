@@ -180,7 +180,7 @@ public class SymbolTable {
 		int loc = hash(key);
 		binding.setInternalMark(symbolInternalMark++);
 		SymbolProperties parent = binding.getParent();
-		if (parent == null) {
+		if (parent == null || parent.isProgram()) {
 			binding.setQualifiedName(binding.getJavaName2());
 		} else {
 			binding.setQualifiedName(parent.getQualifiedName() + "." + binding.getJavaName2());
@@ -266,7 +266,6 @@ public class SymbolTable {
 		return null; // if not found
 	}
 
-	/* lookup for an item and parent in the symbol table */
 	public SymbolProperties lookup(String key, int type) {
 		if ((getCurrentProgram() != null && (ret = lookup(key,
 				getCurrentProgram().getDataName())) != null))
@@ -322,6 +321,10 @@ public class SymbolTable {
 				"BigDecimal", "String", "Group", "Object", "Max types"	
 		};
 		
+		String[] symbolType = new String[]{
+		        "PROGRAM", "DATA", "PARAGRAPH", "SECTION", "FILE", "DUMMY"
+		};
+		
 		SymbolCell[] s = new SymbolCell[symbol_table_size];
 		for (int i = 0; i < symbol_table_size; i++)
 			s[i] = symbol_table[i];
@@ -340,6 +343,8 @@ public class SymbolTable {
 					System.out.print("DATA=" + c.name);
 					if (o2 != null)
 						System.out.print(" Parent=" + o2.getDataName());
+					System.out.print(" QName= " + o1.getQualifiedName());
+					System.out.print(" TYPE=" + symbolType[o1.getType()]);
 					int i1;
 					i1 = o1.getLevelNumber();
 					System.out.print(" LEVEL=" + i1);
@@ -399,11 +404,11 @@ public class SymbolTable {
 	}
 
 	public static void visit(SymbolProperties props, Visitor visitor) {
-		if (props.isProgram()
+		/*if (props.isProgram()
 				&& !SymbolTable.getInstance().isCurrentProgram(props)
 				|| props.getType() == SymbolConstants.PARAGRAPH
 				|| props.getType() == SymbolConstants.SECTION)
-			return;
+			return;*/
 		// Preprocess
 		visitor.visitPreprocess(props);
 
@@ -412,7 +417,11 @@ public class SymbolTable {
 			visitor.visitProgram(props);
 		} else if (props.isFile())
 			visitor.visitFile(props);
-		else if (props.getLevelNumber() == 1
+		else if (props.getType() == SymbolConstants.SECTION) {
+		    visitor.visitSection(props);
+		} else if (props.getType() == SymbolConstants.PARAGRAPH) {
+		    visitor.visitParagraph(props);
+		} else if (props.getLevelNumber() == 1
 				&& props.getPictureString() == null)
 			visitor.visit01Group(props);
 		else if (props.getLevelNumber() == 1

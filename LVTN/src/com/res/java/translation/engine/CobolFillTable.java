@@ -327,7 +327,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         n.sectionHeader.accept(this);
 
         if ((props = createSection()) == null) {
-            reportError(n, "Duplcate Section: " + sectionName);
+            reportError(n, "Duplicate Section: " + sectionName);
         }
 
         n.paragraphs.accept(this);
@@ -433,7 +433,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         parent.getParagraphList().add(props);
         if (SymbolTable.getInstance().lookup(paragraphName, parent.getDataName()) != null) {
-            reportError(n, "Duplcate Paragraph: " + paragraphName);
+            reportError(n, "Duplicate Paragraph: " + paragraphName);
             return;
         } else {
             SymbolTable.getInstance().insert(paragraphName, props);
