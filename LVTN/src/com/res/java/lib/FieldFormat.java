@@ -1080,7 +1080,7 @@ public class FieldFormat {
 	private static Pattern numericDecimal = Pattern
 			.compile("(S{0,1}([9P](\\([0-9]+\\))?)*[V]([9P](\\([0-9]+\\))?)*)");
 	private static Pattern numericEdited = Pattern
-			.compile("(((CR)|(DB)){0,1}S{0,1}([$PZ9B0/\\,\\<\\>\\+\\-\\*](\\([0-9]+\\))?)*([V\\.]"
+			.compile("((S{0,1}([$PZ9B0/\\,\\<\\>\\+\\-\\*](\\([0-9]+\\))?)*([V\\.]"
 					+ "([$PZ9B0/\\,\\<\\>\\+\\-\\*](\\([0-9]+\\))?)*)?((CR)|(DB)){0,1})");
 	private static Pattern alphaNumericEdited = Pattern
 			.compile("([AX9B0/\\.\\,](\\([0-9]+\\))?)*");

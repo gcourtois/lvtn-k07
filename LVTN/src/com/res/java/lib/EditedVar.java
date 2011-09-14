@@ -57,28 +57,15 @@ public class EditedVar {
 			try {
 				// TODO: COMMA SWAP PERIOD
 				BigDecimal value = new BigDecimal(input.trim());
+				return doNumericEdit(value);
 			} catch (Exception e) {
 				e.printStackTrace();
+				return "";
 			}
-			return "";
+			
 		}
 	}
 
-	public String doEdit(long input) {
-		if (picType == Constants.ALPHANUMERIC_EDITED) {
-			return simpleInsert(String.valueOf(input));
-		} else {
-			return "";
-		}
-	}
-
-	public String doEdit(BigDecimal input) throws InvalidCobolFormatException {
-		if (picType == Constants.ALPHANUMERIC_EDITED) {
-			return simpleInsert(input.toPlainString());
-		} else {
-			return simpleInsert(doNumericEdit(input));
-		}
-	}
 
 	private String normalizePicString(String picString)
 			throws InvalidCobolFormatException {
@@ -201,8 +188,8 @@ public class EditedVar {
 
 		StringBuilder inputBuilder = new StringBuilder(input);
 		char[] charArray = this.normalizedPic.toCharArray();
-
-		for (int i = 0; i < charArray.length; i++) {
+		StringBuilder picBuilder = new StringBuilder(normalizedPic);
+		for (int i = 0; i < picBuilder.length(); i++) {
 			char currentChar = charArray[i];
 			if (this.picType == Constants.ALPHANUMERIC_EDITED) {
 				switch (currentChar) {
@@ -241,6 +228,7 @@ public class EditedVar {
 				}
 			}
 		}
+		normalizedPic = picBuilder.toString();
 		return inputBuilder.toString();
 	}
 
@@ -291,10 +279,6 @@ public class EditedVar {
 			if (intPart != 0) {
 				intString = new StringBuilder(String.valueOf(intPart));
 				intString = intString.reverse();
-				if (intString.length() > intArray.length) {
-					intString = intString.delete(intArray.length - 1,
-							intString.length() - 1);
-				}
 			} else {
 				intString = new StringBuilder("");
 			}
@@ -317,7 +301,7 @@ public class EditedVar {
 			if (currentPos != 0) {
 				prevChar = intArray[prevPos];
 			}
-			System.out.println(i + "%" + prevChar + " |" + intString + "|");
+			System.out.println(i + "%" + currentChar + " |" + intString + "|");
 			if (currentChar == 'Z' || currentChar == '*') {
 				if (currentPos == 0) {
 					if (currentEditingSymbol == ' ' || (currentEditingSymbol != ' ' && currentEditingSymbol == currentChar)) {
@@ -418,7 +402,21 @@ public class EditedVar {
 					} else if (currentEditingSymbol != currentChar){
 						//Z is editing symbol now.
 						throw new InvalidCobolFormatException("Wrong Format " + normalizedPic);
-					} 
+					} else {
+						int symbolIndex = beforeDecimal.indexOf(currentEditingSymbol);
+						if (symbolIndex == -1) {
+							throw new InvalidCobolFormatException("Wrong Format " + normalizedPic);
+						} else {
+							if (symbolIndex >= currentPos) {
+								if (!doneFloatingInsert) {
+									intString.setCharAt(i, currentChar);
+									doneFloatingInsert = true;
+									continue;
+								}
+								
+							}
+						}
+					}
 					char addChar = currentChar;
 					if (doneFloatingInsert) {
 						addChar = ' ';
@@ -446,9 +444,13 @@ public class EditedVar {
 				} else if (currentChar == 'B' || currentChar == '0' || currentChar == '/' || currentChar == commaChar) {
 					if (currentPos == 0) {
 						//End of String --> do nothing
+						if (i >= intString.length()) {
+							intString.append(currentChar);
+						} else {
+							intString.insert(i, currentChar);
+						}
 					} else {
 						if (currentEditingSymbol != ' ') {
-							boolean isBelong = false;
 							if (prevChar == currentEditingSymbol) {
 								//Immediate right of editingSymbol
 								char addChar = currentEditingSymbol;
@@ -459,29 +461,63 @@ public class EditedVar {
 									intString.append(addChar);
 									if (!doneFloatingInsert) {
 										doneFloatingInsert = true;
-										picBuilder.deleteCharAt(i);
 									}
-									
 								} else {
 									intString.insert(i, "#");
 								}
 							} else {
-								int symbolIndex = beforeDecimal.indexOf(currentEditingSymbol);
-								if (symbolIndex == -1) {
-									
-								} else {
-									//Inside 2 currentEditingSymbol
-									if (symbolIndex < currentPos) {
-										
+								if (currentPos == 0) {
+									//Do Nothing
+									//B0/, is the first
+									if (i >= intString.length()) {
+										intString.append(currentChar);
 									} else {
-										//Not inside 2 currentEditting Symbol
-										
-										//Do nothing
+										intString.insert(i, currentChar);
+									}
+								} else {
+									int symbolIndex = beforeDecimal.indexOf(currentEditingSymbol);
+									if (symbolIndex == -1) {
+										//Do Nothing, consider to be simple insert
+										if (i >= intString.length()) {
+											intString.append(currentChar);
+										} else {
+											intString.insert(i, currentChar);
+										}
+									} else {
+										//Inside 2 currentEditingSymbol
+										if (symbolIndex < currentPos) {
+											char addChar = currentEditingSymbol;
+											if (doneFloatingInsert) {
+												addChar = ' ';
+											}
+											if (i >= intString.length()) {
+												//intString.append(addChar);
+												if (!doneFloatingInsert) {
+													doneFloatingInsert = true;
+												}
+											} else {
+												intString.insert(i, "#");
+											}
+										} else {
+											//Not inside 2 currentEditting Symbol
+											//Do nothing
+											if (i >= intString.length()) {
+												intString.append(currentChar);
+											} else {
+												intString.insert(i, currentChar);
+											}
+										}
 									}
 								}
 							}
 						} else {
-							//find EditingSymbol???
+							//which is EditingSymbol???
+							if (currentPos == 1) {
+								//+-Z$ --> floating Symbol
+							} else {
+								//find 2 Z,+,-,*$...
+								
+							}
 						}
 					}
 					
@@ -489,6 +525,10 @@ public class EditedVar {
 			}
 			
 			
+		}
+		if (intString.length() > intArray.length) {
+			intString = intString.delete(intArray.length,
+					intString.length());
 		}
 		System.out.println("AFTER EDIT INT STRING " + intString.toString()
 				+ "|");
@@ -566,17 +606,19 @@ public class EditedVar {
 				System.out.println("ERROR NUMER FORMAT");
 			}
 		}
+		normalizedPic = picBuilder.toString();
 		System.out.println("END: " + retVal + "|");
-		retVal = retVal.replaceAll("[Z]", " ").replaceAll("#", "");
+		System.out.println("NORMALIZED PIC " + normalizedPic);
+		retVal = retVal.replaceAll("[Z]", " ").replaceAll("#", "#");
 		return fixedInsert(retVal, isNegative);
 	}
 
 	public static void main(String[] args) {
 		EditedVar a;
 		try {
-			a = new EditedVar("+$$$$$$$.99", Constants.NUMERIC_EDITED, false);
-			BigDecimal test = new BigDecimal("12345.11");
-			System.out.println("|" + a.doEdit(test) + "|");
+			a = new EditedVar("+$$$,$$$,$$$.99", Constants.NUMERIC_EDITED, false);
+			BigDecimal test = new BigDecimal("123.11");
+			System.out.println("|" + a.doEdit("123.11") + "|");
 		} catch (InvalidCobolFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
