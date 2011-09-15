@@ -4,7 +4,6 @@
 
 package com.res.cobol.visitor;
 import com.res.cobol.syntaxtree.*;
-import java.util.*;
 
 /**
  * All void visitors must implement this interface.
@@ -16,11 +15,11 @@ public interface Visitor {
    // void Auto class visitors
    //
 
-   public void visit(NodeList n);
-   public void visit(NodeListOptional n);
-   public void visit(NodeOptional n);
-   public void visit(NodeSequence n);
-   public void visit(NodeToken n);
+   public void visit(NodeList n) throws Exception;
+   public void visit(NodeListOptional n) throws Exception;
+   public void visit(NodeOptional n) throws Exception;
+   public void visit(NodeSequence n) throws Exception;
+   public void visit(NodeToken n) throws Exception;
 
    //
    // User-generated visitor methods below
@@ -31,7 +30,7 @@ public interface Visitor {
     * nodeToken -> &lt;COBOL_WORD&gt;
     * </PRE>
     */
-   public void visit(CobolWord n);
+   public void visit(CobolWord n) throws Exception;
 
    /**
     * <PRE>
@@ -44,7 +43,7 @@ public interface Visitor {
     *       | &lt;COMMA_INTEGER&gt;
     * </PRE>
     */
-   public void visit(IntegerConstant n);
+   public void visit(IntegerConstant n) throws Exception;
 
    /**
     * <PRE>
@@ -52,14 +51,14 @@ public interface Visitor {
     * nodeChoice -> ( IntegerConstant() &lt;DOTCHAR&gt; [ IntegerConstant() ] | &lt;DOTCHAR&gt; IntegerConstant() | IntegerConstant() )
     * </PRE>
     */
-   public void visit(NumericConstant n);
+   public void visit(NumericConstant n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;LEVEL_NUMBER&gt;
     * </PRE>
     */
-   public void visit(LevelNumber n);
+   public void visit(LevelNumber n) throws Exception;
 
    /**
     * <PRE>
@@ -78,14 +77,14 @@ public interface Visitor {
     *       | &lt;NULLS&gt;
     * </PRE>
     */
-   public void visit(FigurativeConstant n);
+   public void visit(FigurativeConstant n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;QUOTEDSTRING&gt; | &lt;HEXNUMBER&gt; )
     * </PRE>
     */
-   public void visit(NonNumericConstant n);
+   public void visit(NonNumericConstant n) throws Exception;
 
    /**
     * <PRE>
@@ -93,7 +92,7 @@ public interface Visitor {
     * nodeChoice -> ( NonNumericConstant() | NumericConstant() | FigurativeConstant() | IntrinsicFunction() | SpecialRegister() | &lt;LINAGE_COUNTER&gt; [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public void visit(Literal n);
+   public void visit(Literal n) throws Exception;
 
    /**
     * <PRE>
@@ -101,7 +100,7 @@ public interface Visitor {
     * nodeListOptional -> ( ( &lt;AND&gt; | &lt;OR&gt; ) ( CombinableCondition() | AbbreviationRest() ) )*
     * </PRE>
     */
-   public void visit(Condition n);
+   public void visit(Condition n) throws Exception;
 
    /**
     * <PRE>
@@ -109,14 +108,14 @@ public interface Visitor {
     * simpleCondition -> SimpleCondition()
     * </PRE>
     */
-   public void visit(CombinableCondition n);
+   public void visit(CombinableCondition n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( ClassCondition() | RelationCondition() | ConditionNameCondition() | &lt;LPARENCHAR&gt; Condition() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public void visit(SimpleCondition n);
+   public void visit(SimpleCondition n) throws Exception;
 
    /**
     * <PRE>
@@ -126,14 +125,14 @@ public interface Visitor {
     * nodeChoice -> ( &lt;NUMERIC&gt; | &lt;ALPHABETIC&gt; | &lt;ALPHABETIC_LOWER&gt; | &lt;ALPHABETIC_UPPER&gt; | ClassName() | &lt;DBCS&gt; | &lt;KANJI&gt; )
     * </PRE>
     */
-   public void visit(ClassCondition n);
+   public void visit(ClassCondition n) throws Exception;
 
    /**
     * <PRE>
     * conditionNameReference -> ConditionNameReference()
     * </PRE>
     */
-   public void visit(ConditionNameCondition n);
+   public void visit(ConditionNameCondition n) throws Exception;
 
    /**
     * <PRE>
@@ -141,7 +140,7 @@ public interface Visitor {
     * nodeChoice -> ( RelationalOperator() ArithmeticExpression() | SignCondition() )
     * </PRE>
     */
-   public void visit(RelationCondition n);
+   public void visit(RelationCondition n) throws Exception;
 
    /**
     * <PRE>
@@ -150,7 +149,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;POSITIVE&gt; | &lt;NEGATIVE&gt; | ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; ) )
     * </PRE>
     */
-   public void visit(SignCondition n);
+   public void visit(SignCondition n) throws Exception;
 
    /**
     * <PRE>
@@ -159,49 +158,49 @@ public interface Visitor {
     * nodeChoice -> ( &lt;GREATER&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;MORETHANOREQUAL&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;LESSTHANOREQUAL&gt; | &lt;GREATER&gt; [ &lt;THAN&gt; ] | &lt;MORETHANCHAR&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] | &lt;LESSTHANCHAR&gt; | ( &lt;EQUAL&gt; | &lt;EQUALS&gt; ) [ &lt;TO&gt; ] | &lt;EQUALCHAR&gt; [ &lt;TO&gt; ] | &lt;NOTEQUALCHAR&gt; )
     * </PRE>
     */
-   public void visit(RelationalOperator n);
+   public void visit(RelationalOperator n) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( [ &lt;NOT&gt; ] [ RelationalOperator() ] AbbreviationLeaf() )+
     * </PRE>
     */
-   public void visit(AbbreviationRest n);
+   public void visit(AbbreviationRest n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( ArithmeticExpression() | &lt;LPARENCHAR&gt; ArithmeticExpression() AbbreviationRest() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public void visit(AbbreviationLeaf n);
+   public void visit(AbbreviationLeaf n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( ParagraphName() [ ( &lt;IN&gt; | &lt;OF&gt; ) SectionName() ] | SectionName() )
     * </PRE>
     */
-   public void visit(ProcedureName n);
+   public void visit(ProcedureName n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( QualifiedDataName() ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* [ &lt;LPARENCHAR&gt; LeftmostCharacterPosition() &lt;COLONCHAR&gt; [ Length() ] &lt;RPARENCHAR&gt; ] | &lt;RETURN_CODE&gt; )
     * </PRE>
     */
-   public void visit(Identifier n);
+   public void visit(Identifier n) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( DataName() ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public void visit(QualifiedDataName n);
+   public void visit(QualifiedDataName n) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( &lt;FUNCTION&gt; ( &lt;F_ACOS&gt; | &lt;F_ANNUITY&gt; | &lt;F_ASIN&gt; | &lt;F_ATAN&gt; | &lt;F_CHAR&gt; | &lt;F_COS&gt; | &lt;F_CURRENT_DATE&gt; | &lt;F_DATE_OF_INTEGER&gt; | &lt;F_DATE_TO_YYYYMMDD&gt; | &lt;F_DATEVAL&gt; | &lt;F_DAY_OF_INTEGER&gt; | &lt;F_DAY_TO_YYYYDDD&gt; | &lt;F_DISPLAY_OF&gt; | &lt;F_FACTORIAL&gt; | &lt;F_INTEGER&gt; | &lt;F_INTEGER_OF_DATE&gt; | &lt;F_INTEGER_OF_DAY&gt; | &lt;F_INTEGER_PART&gt; | &lt;F_LENGTH&gt; | &lt;F_LOG&gt; | &lt;F_LOG10&gt; | &lt;F_LOWER_CASE&gt; | &lt;F_MAX&gt; | &lt;F_MEAN&gt; | &lt;F_MEDIAN&gt; | &lt;F_MIDRANGE&gt; | &lt;F_MIN&gt; | &lt;F_MOD&gt; | &lt;F_NATIONAL_OF&gt; | &lt;F_NUMVAL&gt; | &lt;F_NUMVAL_C&gt; | &lt;F_ORD&gt; | &lt;F_ORD_MAX&gt; | &lt;F_ORD_MIN&gt; | &lt;F_PRESENT_VALUE&gt; | &lt;F_RANDOM&gt; | &lt;F_RANGE&gt; | &lt;F_REM&gt; | &lt;F_REVERSE&gt; | &lt;F_SIN&gt; | &lt;F_SQRT&gt; | &lt;F_STANDARD_DEVIATION&gt; | &lt;F_SUM&gt; | &lt;F_TAN&gt; | &lt;F_UNDATE&gt; | &lt;F_UPPER_CASE&gt; | &lt;F_VARIANCE&gt; | &lt;F_WHEN_COMPILED&gt; | &lt;F_YEAR_TO_YYYY&gt; | &lt;F_YEARWINDOW&gt; ) [ &lt;LPARENCHAR&gt; [ QualifiedDataName() &lt;LPARENCHAR&gt; ( &lt;ALL&gt; [ &lt;COMMACHAR&gt; ] )+ &lt;RPARENCHAR&gt; | FunctionArgument() ( [ &lt;COMMACHAR&gt; ] FunctionArgument() )* ] &lt;RPARENCHAR&gt; ] )
     * </PRE>
     */
-   public void visit(IntrinsicFunction n);
+   public void visit(IntrinsicFunction n) throws Exception;
 
    /**
     * <PRE>
@@ -210,21 +209,21 @@ public interface Visitor {
     *       | ArithmeticExpression()
     * </PRE>
     */
-   public void visit(FunctionArgument n);
+   public void visit(FunctionArgument n) throws Exception;
 
    /**
     * <PRE>
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public void visit(Length n);
+   public void visit(Length n) throws Exception;
 
    /**
     * <PRE>
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public void visit(LeftmostCharacterPosition n);
+   public void visit(LeftmostCharacterPosition n) throws Exception;
 
    /**
     * <PRE>
@@ -232,112 +231,112 @@ public interface Visitor {
     * nodeChoice -> ( ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* | ( ( &lt;IN&gt; | &lt;OF&gt; ) MnemonicName() )* )
     * </PRE>
     */
-   public void visit(ConditionNameReference n);
+   public void visit(ConditionNameReference n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ] IntegerConstant() | QualifiedDataName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] | IndexName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] )
     * </PRE>
     */
-   public void visit(Subscript n);
+   public void visit(Subscript n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(Mode n);
+   public void visit(Mode n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(AlphabetName n);
+   public void visit(AlphabetName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(ClassName n);
+   public void visit(ClassName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(ConditionName n);
+   public void visit(ConditionName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(DataName n);
+   public void visit(DataName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(FileName n);
+   public void visit(FileName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(IndexName n);
+   public void visit(IndexName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(MnemonicName n);
+   public void visit(MnemonicName n) throws Exception;
 
    /**
     * <PRE>
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public void visit(RecordName n);
+   public void visit(RecordName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(RoutineName n);
+   public void visit(RoutineName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(SymbolicCharacter n);
+   public void visit(SymbolicCharacter n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(LibraryName n);
+   public void visit(LibraryName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(ProgramName n);
+   public void visit(ProgramName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(CdName n);
+   public void visit(CdName n) throws Exception;
 
    /**
     * <PRE>
@@ -350,7 +349,7 @@ public interface Visitor {
     *       | CobolWord()
     * </PRE>
     */
-   public void visit(SectionName n);
+   public void visit(SectionName n) throws Exception;
 
    /**
     * <PRE>
@@ -363,56 +362,56 @@ public interface Visitor {
     *       | CobolWord()
     * </PRE>
     */
-   public void visit(ParagraphName n);
+   public void visit(ParagraphName n) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(SystemName n);
+   public void visit(SystemName n) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(ComputerName n);
+   public void visit(ComputerName n) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(LanguageName n);
+   public void visit(LanguageName n) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(EnvironmentName n);
+   public void visit(EnvironmentName n) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(AssignmentName n);
+   public void visit(AssignmentName n) throws Exception;
 
    /**
     * <PRE>
     * programName -> ProgramName()
     * </PRE>
     */
-   public void visit(BasisName n);
+   public void visit(BasisName n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;ADDRESS&gt; &lt;OF&gt; DataName() | &lt;LENGTH&gt; &lt;OF&gt; Identifier() | &lt;DEBUG_LINE&gt; | &lt;DEBUG_NAME&gt; | &lt;DEBUG_CONTENTS&gt; | &lt;DEBUG_ITEM&gt; | &lt;DEBUG_SUB_1&gt; | &lt;DEBUG_SUB_2&gt; | &lt;DEBUG_SUB_3&gt; | &lt;RETURN_CODE&gt; | &lt;SHIFT_OUT&gt; | &lt;SHIFT_IN&gt; | &lt;SORT_CONTROL&gt; | &lt;SORT_CORE_SIZE&gt; | &lt;SORT_FILE_SIZE&gt; | &lt;SORT_MESSAGE&gt; | &lt;SORT_MODE_SIZE&gt; | &lt;SORT_RETURN&gt; | &lt;TALLY&gt; | &lt;WHEN_COMPILED&gt; )
     * </PRE>
     */
-   public void visit(SpecialRegister n);
+   public void visit(SpecialRegister n) throws Exception;
 
    /**
     * <PRE>
@@ -420,7 +419,7 @@ public interface Visitor {
     * nodeListOptional -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ) TimesDiv() )*
     * </PRE>
     */
-   public void visit(ArithmeticExpression n);
+   public void visit(ArithmeticExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -428,7 +427,7 @@ public interface Visitor {
     * nodeListOptional -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) Power() )*
     * </PRE>
     */
-   public void visit(TimesDiv n);
+   public void visit(TimesDiv n) throws Exception;
 
    /**
     * <PRE>
@@ -437,21 +436,21 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;POW&gt; Basis() )*
     * </PRE>
     */
-   public void visit(Power n);
+   public void visit(Power n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( Identifier() | Literal() | &lt;LPARENCHAR&gt; ArithmeticExpression() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public void visit(Basis n);
+   public void visit(Basis n) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( &lt;COMMENT2&gt; [ &lt;DOT2&gt; ] )+
     * </PRE>
     */
-   public void visit(CommentLine n);
+   public void visit(CommentLine n) throws Exception;
 
    /**
     * <PRE>
@@ -459,7 +458,7 @@ public interface Visitor {
     * nodeToken -> &lt;EOF&gt;
     * </PRE>
     */
-   public void visit(CompilationUnit n);
+   public void visit(CompilationUnit n) throws Exception;
 
    /**
     * <PRE>
@@ -469,7 +468,7 @@ public interface Visitor {
     * nodeOptional2 -> [ ProcedureDivision() ]
     * </PRE>
     */
-   public void visit(ProgramUnit n);
+   public void visit(ProgramUnit n) throws Exception;
 
    /**
     * <PRE>
@@ -481,7 +480,7 @@ public interface Visitor {
     * endProgramStatement -> EndProgramStatement()
     * </PRE>
     */
-   public void visit(NestedProgramUnit n);
+   public void visit(NestedProgramUnit n) throws Exception;
 
    /**
     * <PRE>
@@ -491,7 +490,7 @@ public interface Visitor {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(EndProgramStatement n);
+   public void visit(EndProgramStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -502,7 +501,7 @@ public interface Visitor {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public void visit(IdentificationDivision n);
+   public void visit(IdentificationDivision n) throws Exception;
 
    /**
     * <PRE>
@@ -513,7 +512,7 @@ public interface Visitor {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public void visit(NestedIdentificationDivision n);
+   public void visit(NestedIdentificationDivision n) throws Exception;
 
    /**
     * <PRE>
@@ -524,7 +523,7 @@ public interface Visitor {
     *       | SecurityParagraph()
     * </PRE>
     */
-   public void visit(IdentificationDivisionParagraph n);
+   public void visit(IdentificationDivisionParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -535,7 +534,7 @@ public interface Visitor {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(ProgramIdParagraph n);
+   public void visit(ProgramIdParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -546,14 +545,14 @@ public interface Visitor {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(NestedProgramIdParagraph n);
+   public void visit(NestedProgramIdParagraph n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;INITIAL&gt; [ &lt;COMMON&gt; ] | &lt;COMMON&gt; [ &lt;INITIAL&gt; ] )
     * </PRE>
     */
-   public void visit(InitialOrCommon n);
+   public void visit(InitialOrCommon n) throws Exception;
 
    /**
     * <PRE>
@@ -562,7 +561,7 @@ public interface Visitor {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(AuthorParagraph n);
+   public void visit(AuthorParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -571,7 +570,7 @@ public interface Visitor {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(InstallationParagraph n);
+   public void visit(InstallationParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -580,7 +579,7 @@ public interface Visitor {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(DateWrittenParagraph n);
+   public void visit(DateWrittenParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -589,7 +588,7 @@ public interface Visitor {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(DateCompiledParagraph n);
+   public void visit(DateCompiledParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -598,7 +597,7 @@ public interface Visitor {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(SecurityParagraph n);
+   public void visit(SecurityParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -606,7 +605,7 @@ public interface Visitor {
     * nodeListOptional -> ( EnvironmentSection() )*
     * </PRE>
     */
-   public void visit(EnvironmentDivision n);
+   public void visit(EnvironmentDivision n) throws Exception;
 
    /**
     * <PRE>
@@ -614,7 +613,7 @@ public interface Visitor {
     *       | InputOutputSection()
     * </PRE>
     */
-   public void visit(EnvironmentSection n);
+   public void visit(EnvironmentSection n) throws Exception;
 
    /**
     * <PRE>
@@ -624,7 +623,7 @@ public interface Visitor {
     * nodeListOptional -> ( ConfigurationSectionParagraph() )*
     * </PRE>
     */
-   public void visit(ConfigurationSection n);
+   public void visit(ConfigurationSection n) throws Exception;
 
    /**
     * <PRE>
@@ -633,7 +632,7 @@ public interface Visitor {
     *       | SpecialNamesParagraph()
     * </PRE>
     */
-   public void visit(ConfigurationSectionParagraph n);
+   public void visit(ConfigurationSectionParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -644,7 +643,7 @@ public interface Visitor {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(SourceComputerParagraph n);
+   public void visit(SourceComputerParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -655,7 +654,7 @@ public interface Visitor {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(ObjectComputerParagraph n);
+   public void visit(ObjectComputerParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -665,7 +664,7 @@ public interface Visitor {
     *       | CharacterSetClause()
     * </PRE>
     */
-   public void visit(ObjectComputerClause n);
+   public void visit(ObjectComputerClause n) throws Exception;
 
    /**
     * <PRE>
@@ -675,7 +674,7 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;WORDS&gt; | &lt;CHARACTERS&gt; | &lt;MODULES&gt; ]
     * </PRE>
     */
-   public void visit(MemorySizeClause n);
+   public void visit(MemorySizeClause n) throws Exception;
 
    /**
     * <PRE>
@@ -686,7 +685,7 @@ public interface Visitor {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public void visit(CollatingSequenceClause n);
+   public void visit(CollatingSequenceClause n) throws Exception;
 
    /**
     * <PRE>
@@ -695,7 +694,7 @@ public interface Visitor {
     * integerConstant -> IntegerConstant()
     * </PRE>
     */
-   public void visit(SegmentLimitClause n);
+   public void visit(SegmentLimitClause n) throws Exception;
 
    /**
     * <PRE>
@@ -703,7 +702,7 @@ public interface Visitor {
     * nodeToken1 -> &lt;SET&gt;
     * </PRE>
     */
-   public void visit(CharacterSetClause n);
+   public void visit(CharacterSetClause n) throws Exception;
 
    /**
     * <PRE>
@@ -712,7 +711,7 @@ public interface Visitor {
     * nodeOptional -> [ SpecialNameClause() ( [ &lt;COMMACHAR&gt; ] SpecialNameClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public void visit(SpecialNamesParagraph n);
+   public void visit(SpecialNamesParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -724,7 +723,7 @@ public interface Visitor {
     *       | EnvironmentNameIsMnemonicNameClause()
     * </PRE>
     */
-   public void visit(SpecialNameClause n);
+   public void visit(SpecialNameClause n) throws Exception;
 
    /**
     * <PRE>
@@ -734,7 +733,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;STANDARD_2&gt; | &lt;NATIVE&gt; | CobolWord() | ( Literal() [ ( ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() | ( &lt;ALSO&gt; Literal() [ &lt;COMMACHAR&gt; ] )+ ) ] [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public void visit(AlphabetClause n);
+   public void visit(AlphabetClause n) throws Exception;
 
    /**
     * <PRE>
@@ -744,7 +743,7 @@ public interface Visitor {
     * nodeList -> ( Literal() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() ] )+
     * </PRE>
     */
-   public void visit(ClassClause n);
+   public void visit(ClassClause n) throws Exception;
 
    /**
     * <PRE>
@@ -754,7 +753,7 @@ public interface Visitor {
     * literal -> Literal()
     * </PRE>
     */
-   public void visit(CurrencySignClause n);
+   public void visit(CurrencySignClause n) throws Exception;
 
    /**
     * <PRE>
@@ -763,7 +762,7 @@ public interface Visitor {
     * nodeToken1 -> &lt;COMMA&gt;
     * </PRE>
     */
-   public void visit(DecimalPointClause n);
+   public void visit(DecimalPointClause n) throws Exception;
 
    /**
     * <PRE>
@@ -773,21 +772,21 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;IN&gt; AlphabetName() ]
     * </PRE>
     */
-   public void visit(SymbolicCharactersClause n);
+   public void visit(SymbolicCharactersClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( EnvironmentName() [ &lt;IS&gt; ] MnemonicName() [ SpecialNamesParagraphStatusPhrase() ] | SpecialNamesParagraphStatusPhrase() )
     * </PRE>
     */
-   public void visit(EnvironmentNameIsMnemonicNameClause n);
+   public void visit(EnvironmentNameIsMnemonicNameClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] | &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] )
     * </PRE>
     */
-   public void visit(SpecialNamesParagraphStatusPhrase n);
+   public void visit(SpecialNamesParagraphStatusPhrase n) throws Exception;
 
    /**
     * <PRE>
@@ -795,7 +794,7 @@ public interface Visitor {
     * nodeList -> ( InputOutputSectionParagraph() )+
     * </PRE>
     */
-   public void visit(InputOutputSection n);
+   public void visit(InputOutputSection n) throws Exception;
 
    /**
     * <PRE>
@@ -803,7 +802,7 @@ public interface Visitor {
     *       | IOControlParagraph()
     * </PRE>
     */
-   public void visit(InputOutputSectionParagraph n);
+   public void visit(InputOutputSectionParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -811,7 +810,7 @@ public interface Visitor {
     * nodeListOptional -> ( FileControlEntry() &lt;DOT&gt; )*
     * </PRE>
     */
-   public void visit(FileControlParagraph n);
+   public void visit(FileControlParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -819,7 +818,7 @@ public interface Visitor {
     * nodeListOptional -> ( FileControlClause() )*
     * </PRE>
     */
-   public void visit(FileControlEntry n);
+   public void visit(FileControlEntry n) throws Exception;
 
    /**
     * <PRE>
@@ -835,7 +834,7 @@ public interface Visitor {
     *       | PasswordClause()
     * </PRE>
     */
-   public void visit(FileControlClause n);
+   public void visit(FileControlClause n) throws Exception;
 
    /**
     * <PRE>
@@ -844,7 +843,7 @@ public interface Visitor {
     * fileName -> FileName()
     * </PRE>
     */
-   public void visit(SelectClause n);
+   public void visit(SelectClause n) throws Exception;
 
    /**
     * <PRE>
@@ -854,7 +853,7 @@ public interface Visitor {
     * nodeChoice -> ( AssignmentName() | Literal() )
     * </PRE>
     */
-   public void visit(AssignClause n);
+   public void visit(AssignClause n) throws Exception;
 
    /**
     * <PRE>
@@ -863,7 +862,7 @@ public interface Visitor {
     * nodeOptional -> ( &lt;AREA&gt; | &lt;AREAS&gt; )?
     * </PRE>
     */
-   public void visit(ReserveClause n);
+   public void visit(ReserveClause n) throws Exception;
 
    /**
     * <PRE>
@@ -872,14 +871,14 @@ public interface Visitor {
     * nodeChoice -> ( SequentialOrganizationClause() | IndexedOrganizationClause() | RelativeOrganizationClause() | LineSequentialOrganizationClause() )
     * </PRE>
     */
-   public void visit(OrganizationClause n);
+   public void visit(OrganizationClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public void visit(SequentialOrganizationClause n);
+   public void visit(SequentialOrganizationClause n) throws Exception;
 
    /**
     * <PRE>
@@ -887,21 +886,21 @@ public interface Visitor {
     * nodeToken1 -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public void visit(LineSequentialOrganizationClause n);
+   public void visit(LineSequentialOrganizationClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;RELATIVE&gt;
     * </PRE>
     */
-   public void visit(RelativeOrganizationClause n);
+   public void visit(RelativeOrganizationClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;INDEXED&gt;
     * </PRE>
     */
-   public void visit(IndexedOrganizationClause n);
+   public void visit(IndexedOrganizationClause n) throws Exception;
 
    /**
     * <PRE>
@@ -911,7 +910,7 @@ public interface Visitor {
     * nodeChoice -> ( QualifiedDataName() | Literal() )
     * </PRE>
     */
-   public void visit(PaddingCharacterClause n);
+   public void visit(PaddingCharacterClause n) throws Exception;
 
    /**
     * <PRE>
@@ -921,7 +920,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;IMPLICIT&gt; | AssignmentName() )
     * </PRE>
     */
-   public void visit(RecordDelimiterClause n);
+   public void visit(RecordDelimiterClause n) throws Exception;
 
    /**
     * <PRE>
@@ -931,28 +930,28 @@ public interface Visitor {
     * nodeChoice -> ( SequentialAccessMode() | RandomAccessMode() | DynamicAccessMode() )
     * </PRE>
     */
-   public void visit(AccessModeClause n);
+   public void visit(AccessModeClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public void visit(SequentialAccessMode n);
+   public void visit(SequentialAccessMode n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;RANDOM&gt;
     * </PRE>
     */
-   public void visit(RandomAccessMode n);
+   public void visit(RandomAccessMode n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;DYNAMIC&gt;
     * </PRE>
     */
-   public void visit(DynamicAccessMode n);
+   public void visit(DynamicAccessMode n) throws Exception;
 
    /**
     * <PRE>
@@ -962,7 +961,7 @@ public interface Visitor {
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public void visit(KeyClause n);
+   public void visit(KeyClause n) throws Exception;
 
    /**
     * <PRE>
@@ -975,7 +974,7 @@ public interface Visitor {
     * nodeOptional3 -> [ [ &lt;WITH&gt; ] &lt;DUPLICATES&gt; ]
     * </PRE>
     */
-   public void visit(AlternateRecordKeyClause n);
+   public void visit(AlternateRecordKeyClause n) throws Exception;
 
    /**
     * <PRE>
@@ -984,7 +983,7 @@ public interface Visitor {
     * dataName -> DataName()
     * </PRE>
     */
-   public void visit(PasswordClause n);
+   public void visit(PasswordClause n) throws Exception;
 
    /**
     * <PRE>
@@ -995,7 +994,7 @@ public interface Visitor {
     * nodeOptional2 -> [ QualifiedDataName() ]
     * </PRE>
     */
-   public void visit(FileStatusClause n);
+   public void visit(FileStatusClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1004,7 +1003,7 @@ public interface Visitor {
     * nodeOptional -> [ IOControlClause() ( [ &lt;DOT&gt; ] IOControlClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public void visit(IOControlParagraph n);
+   public void visit(IOControlParagraph n) throws Exception;
 
    /**
     * <PRE>
@@ -1013,7 +1012,7 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public void visit(IOControlClause n);
+   public void visit(IOControlClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1023,7 +1022,7 @@ public interface Visitor {
     * nodeChoice -> ( Rerun2() | IntegerConstant() [ &lt;CLOCK_UNITS&gt; ] )
     * </PRE>
     */
-   public void visit(RerunClause n);
+   public void visit(RerunClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1031,7 +1030,7 @@ public interface Visitor {
     *       | [ &lt;END&gt; ] [ &lt;OF&gt; ] ( &lt;REEL&gt; | &lt;UNIT&gt; ) &lt;OF&gt; FileName()
     * </PRE>
     */
-   public void visit(Rerun2 n);
+   public void visit(Rerun2 n) throws Exception;
 
    /**
     * <PRE>
@@ -1042,7 +1041,7 @@ public interface Visitor {
     * nodeList -> ( FileName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(SameAreaClause n);
+   public void visit(SameAreaClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1053,7 +1052,7 @@ public interface Visitor {
     * nodeList -> ( FileName() [ &lt;POSITION&gt; ] [ IntegerConstant() ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(MultipleFileClause n);
+   public void visit(MultipleFileClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1061,7 +1060,7 @@ public interface Visitor {
     * nodeListOptional -> ( DataDivisionSection() )*
     * </PRE>
     */
-   public void visit(DataDivision n);
+   public void visit(DataDivision n) throws Exception;
 
    /**
     * <PRE>
@@ -1071,7 +1070,7 @@ public interface Visitor {
     *       | CommunicationSection()
     * </PRE>
     */
-   public void visit(DataDivisionSection n);
+   public void visit(DataDivisionSection n) throws Exception;
 
    /**
     * <PRE>
@@ -1081,7 +1080,7 @@ public interface Visitor {
     * nodeListOptional -> ( CommunicationDescriptionEntry() ( DataDescriptionEntry() )* )*
     * </PRE>
     */
-   public void visit(CommunicationSection n);
+   public void visit(CommunicationSection n) throws Exception;
 
    /**
     * <PRE>
@@ -1089,7 +1088,7 @@ public interface Visitor {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(CommunicationDescriptionEntry n);
+   public void visit(CommunicationDescriptionEntry n) throws Exception;
 
    /**
     * <PRE>
@@ -1102,7 +1101,7 @@ public interface Visitor {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public void visit(CommunicationInputEntry n);
+   public void visit(CommunicationInputEntry n) throws Exception;
 
    /**
     * <PRE>
@@ -1113,7 +1112,7 @@ public interface Visitor {
     * nodeListOptional -> ( CommunicationOutputClause() )*
     * </PRE>
     */
-   public void visit(CommunicationOutputEntry n);
+   public void visit(CommunicationOutputEntry n) throws Exception;
 
    /**
     * <PRE>
@@ -1126,7 +1125,7 @@ public interface Visitor {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public void visit(CommunicationIOEntry n);
+   public void visit(CommunicationIOEntry n) throws Exception;
 
    /**
     * <PRE>
@@ -1138,7 +1137,7 @@ public interface Visitor {
     *       | [ &lt;SYMBOLIC&gt; ] ( &lt;QUEUE&gt; | &lt;SUB_QUEUE_1&gt; | &lt;SUB_QUEUE_2&gt; | &lt;SUB_QUEUE_3&gt; | &lt;SOURCE&gt; ) [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public void visit(CommunicationInputClause n);
+   public void visit(CommunicationInputClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1150,7 +1149,7 @@ public interface Visitor {
     *       | &lt;ERROR&gt; &lt;KEY&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public void visit(CommunicationOutputClause n);
+   public void visit(CommunicationOutputClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1161,7 +1160,7 @@ public interface Visitor {
     *       | [ &lt;SYMBOLIC&gt; ] &lt;TERMINAL&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public void visit(CommunicationIOClause n);
+   public void visit(CommunicationIOClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1169,7 +1168,7 @@ public interface Visitor {
     * nodeListOptional -> ( FileAndSortDescriptionEntry() ( DataDescriptionEntry() )+ )*
     * </PRE>
     */
-   public void visit(FileSection n);
+   public void visit(FileSection n) throws Exception;
 
    /**
     * <PRE>
@@ -1179,7 +1178,7 @@ public interface Visitor {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(FileAndSortDescriptionEntry n);
+   public void visit(FileAndSortDescriptionEntry n) throws Exception;
 
    /**
     * <PRE>
@@ -1196,7 +1195,7 @@ public interface Visitor {
     *       | RecordingModeClause()
     * </PRE>
     */
-   public void visit(FileAndSortDescriptionEntryClause n);
+   public void visit(FileAndSortDescriptionEntryClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1204,7 +1203,7 @@ public interface Visitor {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public void visit(ExternalClause n);
+   public void visit(ExternalClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1212,7 +1211,7 @@ public interface Visitor {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public void visit(GlobalClause n);
+   public void visit(GlobalClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1223,7 +1222,7 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;RECORDS&gt; | &lt;CHARACTERS&gt; ]
     * </PRE>
     */
-   public void visit(BlockContainsClause n);
+   public void visit(BlockContainsClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1232,7 +1231,7 @@ public interface Visitor {
     * nodeChoice -> ( [ IntegerConstant() &lt;TO&gt; ] IntegerConstant() [ &lt;CHARACTERS&gt; ] | [ &lt;IS&gt; ] &lt;VARYING&gt; [ &lt;IN&gt; ] [ &lt;SIZE&gt; ] [ [ &lt;FROM&gt; ] IntegerConstant() [ &lt;TO&gt; IntegerConstant() ] [ &lt;CHARACTERS&gt; ] ] [ &lt;DEPENDING&gt; [ &lt;ON&gt; ] QualifiedDataName() ] )
     * </PRE>
     */
-   public void visit(RecordContainsClause n);
+   public void visit(RecordContainsClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1241,7 +1240,7 @@ public interface Visitor {
     * nodeChoice1 -> ( &lt;OMITTED&gt; | &lt;STANDARD&gt; | ( DataName() )+ )
     * </PRE>
     */
-   public void visit(LabelRecordsClause n);
+   public void visit(LabelRecordsClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1250,7 +1249,7 @@ public interface Visitor {
     * nodeList -> ( SystemName() &lt;IS&gt; ( QualifiedDataName() | Literal() ) )+
     * </PRE>
     */
-   public void visit(ValueOfClause n);
+   public void visit(ValueOfClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1259,7 +1258,7 @@ public interface Visitor {
     * nodeList -> ( DataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(DataRecordClause n);
+   public void visit(DataRecordClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1270,7 +1269,7 @@ public interface Visitor {
     * nodeListOptional -> ( [ &lt;WITH&gt; ] &lt;FOOTING&gt; [ &lt;AT&gt; ] ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;TOP&gt; ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;BOTTOM&gt; ( DataName() | IntegerConstant() ) )*
     * </PRE>
     */
-   public void visit(LinageClause n);
+   public void visit(LinageClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1280,7 +1279,7 @@ public interface Visitor {
     * mode -> Mode()
     * </PRE>
     */
-   public void visit(RecordingModeClause n);
+   public void visit(RecordingModeClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1289,7 +1288,7 @@ public interface Visitor {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public void visit(CodeSetClause n);
+   public void visit(CodeSetClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1297,14 +1296,14 @@ public interface Visitor {
     * nodeList -> ( QualifiedDataName() )+
     * </PRE>
     */
-   public void visit(ReportClause n);
+   public void visit(ReportClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( LevelNumber() ( DataName() | &lt;FILLER&gt; )? ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_66&gt; DataName() RenamesClause() &lt;DOT&gt; | &lt;LEVEL_77&gt; DataName() ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_78&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | &lt;LEVEL_88&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | ( &lt;EXEC&gt; | &lt;EXECUTE&gt; ) &lt;K_SQL&gt; ( &lt;K_INCLUDE&gt; ( &lt;S_IDENTIFIER&gt; | &lt;S_QUOTED_IDENTIFIER&gt; ) &lt;DOT&gt; | &lt;K_BEGIN&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | &lt;K_END&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | DeclareCursorStatement() &lt;END_EXEC&gt; &lt;DOT&gt; ) )
     * </PRE>
     */
-   public void visit(DataDescriptionEntry n);
+   public void visit(DataDescriptionEntry n) throws Exception;
 
    /**
     * <PRE>
@@ -1313,7 +1312,7 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public void visit(DataDescriptionEntryClause n);
+   public void visit(DataDescriptionEntryClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1321,7 +1320,7 @@ public interface Visitor {
     * dataName -> DataName()
     * </PRE>
     */
-   public void visit(DataRedefinesClause n);
+   public void visit(DataRedefinesClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1330,7 +1329,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; )
     * </PRE>
     */
-   public void visit(DataBlankWhenZeroClause n);
+   public void visit(DataBlankWhenZeroClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1338,7 +1337,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;RIGHT&gt; ]
     * </PRE>
     */
-   public void visit(DataJustifiedClause n);
+   public void visit(DataJustifiedClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1351,7 +1350,7 @@ public interface Visitor {
     * nodeOptional3 -> [ &lt;INDEXED&gt; [ &lt;BY&gt; ] ( IndexName() [ &lt;COMMACHAR&gt; ] )+ ]
     * </PRE>
     */
-   public void visit(DataOccursClause n);
+   public void visit(DataOccursClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1361,7 +1360,7 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;VARYING&gt; ]
     * </PRE>
     */
-   public void visit(DataPictureClause n);
+   public void visit(DataPictureClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1370,7 +1369,7 @@ public interface Visitor {
     * nodeListOptional1 -> ( &lt;DOTCHAR&gt; )*
     * </PRE>
     */
-   public void visit(PictureString n);
+   public void visit(PictureString n) throws Exception;
 
    /**
     * <PRE>
@@ -1378,7 +1377,7 @@ public interface Visitor {
     *       | &lt;DOTCHAR&gt; ( &lt;LPARENCHAR&gt; ( IntegerConstant() | DataName() ) &lt;RPARENCHAR&gt; | NonDotChars() )
     * </PRE>
     */
-   public void visit(PictureOccurence n);
+   public void visit(PictureOccurence n) throws Exception;
 
    /**
     * <PRE>
@@ -1397,14 +1396,14 @@ public interface Visitor {
     *       | &lt;NOTEQUALCHAR&gt;
     * </PRE>
     */
-   public void visit(PicturePunctuation n);
+   public void visit(PicturePunctuation n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;DOLLARCHAR&gt;
     * </PRE>
     */
-   public void visit(PictureCurrency n);
+   public void visit(PictureCurrency n) throws Exception;
 
    /**
     * <PRE>
@@ -1414,7 +1413,7 @@ public interface Visitor {
     *       | PictureCurrency()
     * </PRE>
     */
-   public void visit(NonDotChars n);
+   public void visit(NonDotChars n) throws Exception;
 
    /**
     * <PRE>
@@ -1422,7 +1421,7 @@ public interface Visitor {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public void visit(DataExternalClause n);
+   public void visit(DataExternalClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1430,7 +1429,7 @@ public interface Visitor {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public void visit(DataGlobalClause n);
+   public void visit(DataGlobalClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1438,7 +1437,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;BINARY&gt; | &lt;COMP&gt; | &lt;COMP_1&gt; | &lt;COMP_2&gt; | &lt;COMP_3&gt; | &lt;COMP_4&gt; | &lt;COMP_5&gt; | &lt;COMPUTATIONAL&gt; | &lt;COMPUTATIONAL_1&gt; | &lt;COMPUTATIONAL_2&gt; | &lt;COMPUTATIONAL_3&gt; | &lt;COMPUTATIONAL_4&gt; | &lt;COMPUTATIONAL_5&gt; | &lt;DISPLAY&gt; | &lt;DISPLAY_1&gt; | &lt;INDEX&gt; | &lt;PACKED_DECIMAL&gt; | &lt;POINTER&gt; | &lt;FUNCTION_POINTER&gt; | &lt;PROCEDURE_POINTER&gt; | &lt;OBJECT&gt; &lt;REFERENCE&gt; DataName() )
     * </PRE>
     */
-   public void visit(DataUsageClause n);
+   public void visit(DataUsageClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1447,7 +1446,7 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;SEPARATE&gt; [ &lt;CHARACTER&gt; ] ]
     * </PRE>
     */
-   public void visit(DataSignClause n);
+   public void visit(DataSignClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1455,7 +1454,7 @@ public interface Visitor {
     * nodeOptional -> [ ( &lt;LEFT&gt; | &lt;RIGHT&gt; ) ]
     * </PRE>
     */
-   public void visit(DataSynchronizedClause n);
+   public void visit(DataSynchronizedClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1463,14 +1462,14 @@ public interface Visitor {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() [ &lt;COMMACHAR&gt; ] ] )+
     * </PRE>
     */
-   public void visit(DataValueClause n);
+   public void visit(DataValueClause n) throws Exception;
 
    /**
     * <PRE>
     * dataValueClause -> DataValueClause()
     * </PRE>
     */
-   public void visit(ConditionValueClause n);
+   public void visit(ConditionValueClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1479,7 +1478,7 @@ public interface Visitor {
     * nodeOptional -> [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) QualifiedDataName() ]
     * </PRE>
     */
-   public void visit(RenamesClause n);
+   public void visit(RenamesClause n) throws Exception;
 
    /**
     * <PRE>
@@ -1489,7 +1488,7 @@ public interface Visitor {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public void visit(WorkingStorageSection n);
+   public void visit(WorkingStorageSection n) throws Exception;
 
    /**
     * <PRE>
@@ -1499,7 +1498,7 @@ public interface Visitor {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public void visit(LinkageSection n);
+   public void visit(LinkageSection n) throws Exception;
 
    /**
     * <PRE>
@@ -1510,7 +1509,7 @@ public interface Visitor {
     * procedureBody -> ProcedureBody()
     * </PRE>
     */
-   public void visit(ProcedureDivision n);
+   public void visit(ProcedureDivision n) throws Exception;
 
    /**
     * <PRE>
@@ -1518,7 +1517,7 @@ public interface Visitor {
     * nodeList -> ( [ [ &lt;BY&gt; ] ( &lt;REFERENCE&gt; | &lt;VALUE&gt; ) ] QualifiedDataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(UsingArgs n);
+   public void visit(UsingArgs n) throws Exception;
 
    /**
     * <PRE>
@@ -1530,7 +1529,7 @@ public interface Visitor {
     * nodeToken4 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(Declaratives n);
+   public void visit(Declaratives n) throws Exception;
 
    /**
     * <PRE>
@@ -1538,7 +1537,7 @@ public interface Visitor {
     * nodeListOptional -> ( ProcedureSection() )*
     * </PRE>
     */
-   public void visit(ProcedureBody n);
+   public void visit(ProcedureBody n) throws Exception;
 
    /**
     * <PRE>
@@ -1547,7 +1546,7 @@ public interface Visitor {
     * paragraphs -> Paragraphs()
     * </PRE>
     */
-   public void visit(ProcedureSection n);
+   public void visit(ProcedureSection n) throws Exception;
 
    /**
     * <PRE>
@@ -1556,7 +1555,7 @@ public interface Visitor {
     * nodeOptional -> [ IntegerConstant() ]
     * </PRE>
     */
-   public void visit(SectionHeader n);
+   public void visit(SectionHeader n) throws Exception;
 
    /**
     * <PRE>
@@ -1564,7 +1563,7 @@ public interface Visitor {
     * nodeListOptional1 -> ( Paragraph() )*
     * </PRE>
     */
-   public void visit(Paragraphs n);
+   public void visit(Paragraphs n) throws Exception;
 
    /**
     * <PRE>
@@ -1573,7 +1572,7 @@ public interface Visitor {
     * nodeChoice1 -> ( ExitProgramStatement() &lt;DOT&gt; | ExitStatement() &lt;DOT&gt; | AlteredGoto() | ( Sentence() )* )
     * </PRE>
     */
-   public void visit(Paragraph n);
+   public void visit(Paragraph n) throws Exception;
 
    /**
     * <PRE>
@@ -1581,14 +1580,14 @@ public interface Visitor {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(Sentence n);
+   public void visit(Sentence n) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( Statement() )+
     * </PRE>
     */
-   public void visit(StatementList n);
+   public void visit(StatementList n) throws Exception;
 
    /**
     * <PRE>
@@ -1596,7 +1595,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public void visit(Statement n);
+   public void visit(Statement n) throws Exception;
 
    /**
     * <PRE>
@@ -1608,7 +1607,7 @@ public interface Visitor {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public void visit(EnableStatement n);
+   public void visit(EnableStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1620,7 +1619,7 @@ public interface Visitor {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public void visit(DisableStatement n);
+   public void visit(DisableStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1632,7 +1631,7 @@ public interface Visitor {
     * nodeOptional -> [ ";" | &lt;NO&gt; &lt;DATA&gt; Statement() ]
     * </PRE>
     */
-   public void visit(ReceiveStatement n);
+   public void visit(ReceiveStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1643,7 +1642,7 @@ public interface Visitor {
     * nodeOptional2 -> [ ( &lt;BEFORE&gt; | &lt;AFTER&gt; ) [ &lt;ADVANCING&gt; ] ( ( ( Identifier() | Literal() ) [ &lt;LINE&gt; | &lt;LINES&gt; ] ) | ( MnemonicName() | &lt;PAGE&gt; ) ) ]
     * </PRE>
     */
-   public void visit(SendStatement n);
+   public void visit(SendStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1652,7 +1651,7 @@ public interface Visitor {
     * nodeChoice1 -> ( &lt;K_WHENEVER&gt; ( &lt;K_NOT&gt; &lt;K_FOUND&gt; | &lt;K_SQLERROR&gt; | &lt;K_SQLWARNING&gt; ) Statement() | ( ( SQLStatement() | DeclareCursorStatement() | &lt;K_PREPARE&gt; &lt;S_IDENTIFIER&gt; &lt;K_FROM&gt; &lt;S_BIND&gt; | &lt;K_ALTER&gt; &lt;K_SESSION&gt; SQLSetStatement() | &lt;K_EXECUTE&gt; SkipToEndExec() | &lt;K_CONNECT&gt; &lt;S_BIND&gt; | SkipToEndExec() ) &lt;END_EXEC&gt; ) )
     * </PRE>
     */
-   public void visit(ExecSqlStatement n);
+   public void visit(ExecSqlStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1663,7 +1662,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | QueryStatement() )
     * </PRE>
     */
-   public void visit(DeclareCursorStatement n);
+   public void visit(DeclareCursorStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1672,7 +1671,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;FROM&gt; ( MnemonicName() | EnvironmentName() | &lt;DATE&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY_OF_WEEK&gt; | &lt;TIME&gt; ) | [ &lt;MESSAGE&gt; ] &lt;COUNT&gt; ]
     * </PRE>
     */
-   public void visit(AcceptStatement n);
+   public void visit(AcceptStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1683,7 +1682,7 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;END_ADD&gt; ]
     * </PRE>
     */
-   public void visit(AddStatement n);
+   public void visit(AddStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1692,7 +1691,7 @@ public interface Visitor {
     *       | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; Identifier() [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public void visit(AddBody n);
+   public void visit(AddBody n) throws Exception;
 
    /**
     * <PRE>
@@ -1700,14 +1699,14 @@ public interface Visitor {
     * nodeOptional -> [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public void visit(ArithIdentifier n);
+   public void visit(ArithIdentifier n) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( ArithIdentifier() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(ArithIdentifierList n);
+   public void visit(ArithIdentifierList n) throws Exception;
 
    /**
     * <PRE>
@@ -1715,14 +1714,14 @@ public interface Visitor {
     *       | Literal()
     * </PRE>
     */
-   public void visit(IdOrLiteral n);
+   public void visit(IdOrLiteral n) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( IdOrLiteral() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(IdOrLiteralList n);
+   public void visit(IdOrLiteralList n) throws Exception;
 
    /**
     * <PRE>
@@ -1731,7 +1730,7 @@ public interface Visitor {
     * nodeToken1 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(AlteredGoto n);
+   public void visit(AlteredGoto n) throws Exception;
 
    /**
     * <PRE>
@@ -1739,7 +1738,7 @@ public interface Visitor {
     * nodeList -> ( ProcedureName() &lt;TO&gt; [ &lt;PROCEED&gt; &lt;TO&gt; ] ProcedureName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(AlterStatement n);
+   public void visit(AlterStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1752,7 +1751,7 @@ public interface Visitor {
     * nodeOptional4 -> [ &lt;END_CALL&gt; ]
     * </PRE>
     */
-   public void visit(CallStatement n);
+   public void visit(CallStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1761,7 +1760,7 @@ public interface Visitor {
     *       | FileName()
     * </PRE>
     */
-   public void visit(CallByReferenceArgs n);
+   public void visit(CallByReferenceArgs n) throws Exception;
 
    /**
     * <PRE>
@@ -1770,7 +1769,7 @@ public interface Visitor {
     *       | Literal()
     * </PRE>
     */
-   public void visit(CallByContentArgs n);
+   public void visit(CallByContentArgs n) throws Exception;
 
    /**
     * <PRE>
@@ -1778,7 +1777,7 @@ public interface Visitor {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(CancelStatement n);
+   public void visit(CancelStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1786,7 +1785,7 @@ public interface Visitor {
     * nodeList -> ( FileName() [ ( ( &lt;REEL&gt; | &lt;UNIT&gt; ) [ ( [ &lt;FOR&gt; ] &lt;REMOVAL&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] | [ &lt;WITH&gt; ] ( &lt;NO&gt; &lt;REWIND&gt; | &lt;LOCK&gt; ) ) ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(CloseStatement n);
+   public void visit(CloseStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1799,14 +1798,14 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;END_COMPUTE&gt; ]
     * </PRE>
     */
-   public void visit(ComputeStatement n);
+   public void visit(ComputeStatement n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;CONTINUE&gt;
     * </PRE>
     */
-   public void visit(ContinueStatement n);
+   public void visit(ContinueStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1818,7 +1817,7 @@ public interface Visitor {
     * nodeOptional3 -> [ &lt;END_DELETE&gt; ]
     * </PRE>
     */
-   public void visit(DeleteStatement n);
+   public void visit(DeleteStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1828,7 +1827,7 @@ public interface Visitor {
     * nodeOptional1 -> [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;ADVANCING&gt; ]
     * </PRE>
     */
-   public void visit(DisplayStatement n);
+   public void visit(DisplayStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1839,14 +1838,14 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;END_DIVIDE&gt; ]
     * </PRE>
     */
-   public void visit(DivideStatement n);
+   public void visit(DivideStatement n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( IdOrLiteral() &lt;INTO&gt; ( IdOrLiteral() | ArithIdentifierList() ) [ &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] ] | IdOrLiteral() &lt;BY&gt; IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] )
     * </PRE>
     */
-   public void visit(DivideBody n);
+   public void visit(DivideBody n) throws Exception;
 
    /**
     * <PRE>
@@ -1855,7 +1854,7 @@ public interface Visitor {
     * nodeOptional -> [ UsingArgs() ]
     * </PRE>
     */
-   public void visit(EntryStatement n);
+   public void visit(EntryStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1867,28 +1866,28 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;END_EVALUATE&gt; ]
     * </PRE>
     */
-   public void visit(EvaluateStatement n);
+   public void visit(EvaluateStatement n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( Identifier() | Condition() | ArithmeticExpression() | Literal() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public void visit(EvaluateValue n);
+   public void visit(EvaluateValue n) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;ANY&gt; | [ &lt;NOT&gt; ] ( Identifier() | Literal() | ArithmeticExpression() ) [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ( Identifier() | Literal() | ArithmeticExpression() ) ] | Condition() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public void visit(EvaluatePhrase n);
+   public void visit(EvaluatePhrase n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;EXIT&gt;
     * </PRE>
     */
-   public void visit(ExitStatement n);
+   public void visit(ExitStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1896,14 +1895,14 @@ public interface Visitor {
     * nodeToken1 -> &lt;PROGRAM&gt;
     * </PRE>
     */
-   public void visit(ExitProgramStatement n);
+   public void visit(ExitProgramStatement n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;GOBACK&gt;
     * </PRE>
     */
-   public void visit(GobackStatement n);
+   public void visit(GobackStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1912,7 +1911,7 @@ public interface Visitor {
     * nodeChoice -> ( ProcedureName() [ ( ProcedureName() )* &lt;DEPENDING&gt; [ &lt;ON&gt; ] Identifier() ] | &lt;MORE_LABELS&gt; )
     * </PRE>
     */
-   public void visit(GotoStatement n);
+   public void visit(GotoStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1924,7 +1923,7 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;END_IF&gt; ]
     * </PRE>
     */
-   public void visit(IfStatement n);
+   public void visit(IfStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1933,7 +1932,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;REPLACING&gt; ( ( &lt;ALPHABETIC&gt; | &lt;ALPHANUMERIC&gt; | &lt;NUMERIC&gt; | &lt;ALPHANUMERIC_EDITED&gt; | &lt;NUMERIC_EDITED&gt; | &lt;DBCS&gt; | &lt;EGCS&gt; ) [ &lt;DATA&gt; ] &lt;BY&gt; ( Identifier() | Literal() [ &lt;COMMACHAR&gt; ] ) )+ ]
     * </PRE>
     */
-   public void visit(InitializeStatement n);
+   public void visit(InitializeStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1942,7 +1941,7 @@ public interface Visitor {
     * nodeChoice -> ( TallyingPhrase() | ConvertingPhrase() | ReplacingPhrase() )
     * </PRE>
     */
-   public void visit(InspectStatement n);
+   public void visit(InspectStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -1951,7 +1950,7 @@ public interface Visitor {
     * nodeOptional -> [ ReplacingPhrase() ]
     * </PRE>
     */
-   public void visit(TallyingPhrase n);
+   public void visit(TallyingPhrase n) throws Exception;
 
    /**
     * <PRE>
@@ -1962,7 +1961,7 @@ public interface Visitor {
     * nodeListOptional -> ( BeforeAfterPhrase() )*
     * </PRE>
     */
-   public void visit(ConvertingPhrase n);
+   public void visit(ConvertingPhrase n) throws Exception;
 
    /**
     * <PRE>
@@ -1970,7 +1969,7 @@ public interface Visitor {
     * nodeList -> ( &lt;CHARACTERS&gt; &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* | ( &lt;ALL&gt; | &lt;LEADING&gt; | &lt;FIRST&gt; ) ( ( Identifier() | Literal() ) &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* )+ )+
     * </PRE>
     */
-   public void visit(ReplacingPhrase n);
+   public void visit(ReplacingPhrase n) throws Exception;
 
    /**
     * <PRE>
@@ -1979,7 +1978,7 @@ public interface Visitor {
     * nodeChoice1 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public void visit(BeforeAfterPhrase n);
+   public void visit(BeforeAfterPhrase n) throws Exception;
 
    /**
     * <PRE>
@@ -1993,7 +1992,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] | &lt;GIVING&gt; ( FileName() )+ )
     * </PRE>
     */
-   public void visit(MergeStatement n);
+   public void visit(MergeStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2001,7 +2000,7 @@ public interface Visitor {
     * nodeChoice -> ( ( Identifier() | Literal() ) &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public void visit(MoveStatement n);
+   public void visit(MoveStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2012,7 +2011,7 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;END_MULTIPLY&gt; ]
     * </PRE>
     */
-   public void visit(MultiplyStatement n);
+   public void visit(MultiplyStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2021,7 +2020,7 @@ public interface Visitor {
     * nodeChoice -> ( IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() | ArithIdentifierList() )
     * </PRE>
     */
-   public void visit(MultiplyBody n);
+   public void visit(MultiplyBody n) throws Exception;
 
    /**
     * <PRE>
@@ -2029,7 +2028,7 @@ public interface Visitor {
     * nodeList -> ( &lt;INPUT&gt; ( FileName() [ ( &lt;REVERSED&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] [ &lt;COMMACHAR&gt; ] )+ | &lt;OUTPUT&gt; ( FileName() [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ] [ &lt;COMMACHAR&gt; ] )+ | &lt;I_O&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;EXTEND&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ )+
     * </PRE>
     */
-   public void visit(OpenStatement n);
+   public void visit(OpenStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2037,7 +2036,7 @@ public interface Visitor {
     * performBody -> PerformBody()
     * </PRE>
     */
-   public void visit(PerformStatement n);
+   public void visit(PerformStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2045,7 +2044,7 @@ public interface Visitor {
     *       | PerformProcedure() [ PerformOption() ]
     * </PRE>
     */
-   public void visit(PerformBody n);
+   public void visit(PerformBody n) throws Exception;
 
    /**
     * <PRE>
@@ -2053,7 +2052,7 @@ public interface Visitor {
     * nodeOptional -> [ ( &lt;THRU&gt; | &lt;THROUGH&gt; ) ProcedureName() ]
     * </PRE>
     */
-   public void visit(PerformProcedure n);
+   public void visit(PerformProcedure n) throws Exception;
 
    /**
     * <PRE>
@@ -2061,7 +2060,7 @@ public interface Visitor {
     *       | &lt;AFTER&gt;
     * </PRE>
     */
-   public void visit(BeforeOrAfter n);
+   public void visit(BeforeOrAfter n) throws Exception;
 
    /**
     * <PRE>
@@ -2070,7 +2069,7 @@ public interface Visitor {
     *       | [ PerformTest() ] &lt;VARYING&gt; PerformVaryingList()
     * </PRE>
     */
-   public void visit(PerformOption n);
+   public void visit(PerformOption n) throws Exception;
 
    /**
     * <PRE>
@@ -2079,7 +2078,7 @@ public interface Visitor {
     * beforeOrAfter -> BeforeOrAfter()
     * </PRE>
     */
-   public void visit(PerformTest n);
+   public void visit(PerformTest n) throws Exception;
 
    /**
     * <PRE>
@@ -2087,7 +2086,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;AFTER&gt; PerformVarying() [ &lt;COMMACHAR&gt; ] )*
     * </PRE>
     */
-   public void visit(PerformVaryingList n);
+   public void visit(PerformVaryingList n) throws Exception;
 
    /**
     * <PRE>
@@ -2100,7 +2099,7 @@ public interface Visitor {
     * condition -> Condition()
     * </PRE>
     */
-   public void visit(PerformVarying n);
+   public void visit(PerformVarying n) throws Exception;
 
    /**
     * <PRE>
@@ -2117,7 +2116,7 @@ public interface Visitor {
     * nodeOptional8 -> [ &lt;END_READ&gt; ]
     * </PRE>
     */
-   public void visit(ReadStatement n);
+   public void visit(ReadStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2126,7 +2125,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;FROM&gt; QualifiedDataName() ]
     * </PRE>
     */
-   public void visit(ReleaseStatement n);
+   public void visit(ReleaseStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2141,7 +2140,7 @@ public interface Visitor {
     * nodeOptional4 -> [ &lt;END_RETURN&gt; ]
     * </PRE>
     */
-   public void visit(ReturnStatement n);
+   public void visit(ReturnStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2153,7 +2152,7 @@ public interface Visitor {
     * nodeOptional3 -> [ &lt;END_REWRITE&gt; ]
     * </PRE>
     */
-   public void visit(RewriteStatement n);
+   public void visit(RewriteStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2166,7 +2165,7 @@ public interface Visitor {
     * nodeOptional3 -> [ &lt;END_SEARCH&gt; ]
     * </PRE>
     */
-   public void visit(SearchStatement n);
+   public void visit(SearchStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2174,7 +2173,7 @@ public interface Visitor {
     * nodeList -> ( ( Identifier() [ &lt;COMMACHAR&gt; ] )+ ( &lt;TO&gt; ( Identifier() | &lt;TRUE&gt; | &lt;FALSE&gt; | &lt;ON&gt; | &lt;OFF&gt; | Literal() ) | ( &lt;UP&gt; | &lt;DOWN&gt; ) [ &lt;BY&gt; ] ( Identifier() | Literal() ) ) )+
     * </PRE>
     */
-   public void visit(SetStatement n);
+   public void visit(SetStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2187,7 +2186,7 @@ public interface Visitor {
     * nodeChoice1 -> ( &lt;GIVING&gt; ( FileName() )+ | &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] )
     * </PRE>
     */
-   public void visit(SortStatement n);
+   public void visit(SortStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2199,7 +2198,7 @@ public interface Visitor {
     * nodeOptional3 -> [ &lt;END_START&gt; ]
     * </PRE>
     */
-   public void visit(StartStatement n);
+   public void visit(StartStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2207,7 +2206,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;RUN&gt; | Literal() )
     * </PRE>
     */
-   public void visit(StopStatement n);
+   public void visit(StopStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2221,7 +2220,7 @@ public interface Visitor {
     * nodeOptional3 -> [ &lt;END_STRING&gt; ]
     * </PRE>
     */
-   public void visit(StringStatement n);
+   public void visit(StringStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2232,7 +2231,7 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;END_SUBTRACT&gt; ]
     * </PRE>
     */
-   public void visit(SubtractStatement n);
+   public void visit(SubtractStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2248,7 +2247,7 @@ public interface Visitor {
     * nodeOptional5 -> [ &lt;END_UNSTRING&gt; ]
     * </PRE>
     */
-   public void visit(UnstringStatement n);
+   public void visit(UnstringStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2256,7 +2255,7 @@ public interface Visitor {
     * nodeChoice -> ( [ &lt;FOR&gt; ] &lt;DEBUGGING&gt; [ &lt;ON&gt; ] ( ( Identifier() | &lt;ALL&gt; [ &lt;REFERENCES&gt; ] [ &lt;OF&gt; ] Identifier() | FileName() | ProcedureName() )+ | &lt;ALL&gt; &lt;PROCEDURES&gt; ) | [ &lt;GLOBAL&gt; ] &lt;AFTER&gt; [ &lt;STANDARD&gt; ] ( ( &lt;EXCEPTION&gt; | &lt;ERROR&gt; ) | [ ( &lt;BEGINNING&gt; | &lt;ENDING&gt; ) ] [ ( &lt;FILE&gt; | &lt;REEL&gt; | &lt;UNIT&gt; ) ] &lt;LABEL&gt; ) &lt;PROCEDURE&gt; [ &lt;ON&gt; ] ( ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;INPUT&gt; | &lt;OUTPUT&gt; | &lt;I_O&gt; | &lt;EXTEND&gt; ) )
     * </PRE>
     */
-   public void visit(UseStatement n);
+   public void visit(UseStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2271,7 +2270,7 @@ public interface Visitor {
     * nodeOptional6 -> [ &lt;END_WRITE&gt; ]
     * </PRE>
     */
-   public void visit(WriteStatement n);
+   public void visit(WriteStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2280,28 +2279,28 @@ public interface Visitor {
     * nodeChoice1 -> ( &lt;PAGE&gt; | ( Identifier() | IntegerConstant() | FigurativeConstant() ) [ ( &lt;LINE&gt; | &lt;LINES&gt; ) ] | MnemonicName() )
     * </PRE>
     */
-   public void visit(AdvancingPhrase n);
+   public void visit(AdvancingPhrase n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;S_IDENTIFIER&gt;
     * </PRE>
     */
-   public void visit(S_Identifier n);
+   public void visit(S_Identifier n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public void visit(S_Quoted_Identifier n);
+   public void visit(S_Quoted_Identifier n) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public void visit(S_Char_Literal n);
+   public void visit(S_Char_Literal n) throws Exception;
 
    /**
     * <PRE>
@@ -2317,7 +2316,7 @@ public interface Visitor {
     *       | SQLSetStatement()
     * </PRE>
     */
-   public void visit(SQLStatement n);
+   public void visit(SQLStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2325,7 +2324,7 @@ public interface Visitor {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public void visit(SQLCloseStatement n);
+   public void visit(SQLCloseStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2334,7 +2333,7 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public void visit(CommitStatement n);
+   public void visit(CommitStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2346,7 +2345,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; ( RelObjectName() [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ] | IndicatorBind() ) )*
     * </PRE>
     */
-   public void visit(FetchStatement n);
+   public void visit(FetchStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2354,7 +2353,7 @@ public interface Visitor {
     * nodeOptional -> [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ]
     * </PRE>
     */
-   public void visit(IndicatorBind n);
+   public void visit(IndicatorBind n) throws Exception;
 
    /**
     * <PRE>
@@ -2368,7 +2367,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;K_NOWAIT&gt; ]
     * </PRE>
     */
-   public void visit(LockTableStatement n);
+   public void visit(LockTableStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2377,7 +2376,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;K_USING&gt; Arguments() ]
     * </PRE>
     */
-   public void visit(SQLOpenStatement n);
+   public void visit(SQLOpenStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2387,7 +2386,7 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public void visit(RollbackStatement n);
+   public void visit(RollbackStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2396,7 +2395,7 @@ public interface Visitor {
     * nodeChoice -> ( ( &lt;K_READ&gt; ( &lt;K_ONLY&gt; | &lt;K_WRITE&gt; ) ) | ( &lt;K_USE&gt; &lt;K_ROLLBACK&gt; &lt;K_SEGMENT&gt; RelObjectName() ) )
     * </PRE>
     */
-   public void visit(SetTransactionStatement n);
+   public void visit(SetTransactionStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2406,7 +2405,7 @@ public interface Visitor {
     * arguments -> Arguments()
     * </PRE>
     */
-   public void visit(SetVariableStatement n);
+   public void visit(SetVariableStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2414,7 +2413,7 @@ public interface Visitor {
     *       | SetVariableStatement()
     * </PRE>
     */
-   public void visit(SQLSetStatement n);
+   public void visit(SQLSetStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2423,7 +2422,7 @@ public interface Visitor {
     *       | ( &lt;K_EXCLUSIVE&gt; )
     * </PRE>
     */
-   public void visit(LockMode n);
+   public void visit(LockMode n) throws Exception;
 
    /**
     * <PRE>
@@ -2431,7 +2430,7 @@ public interface Visitor {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public void visit(SavepointStatement n);
+   public void visit(SavepointStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2443,7 +2442,7 @@ public interface Visitor {
     * nodeOptional1 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public void visit(UpdateStatement n);
+   public void visit(UpdateStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2453,7 +2452,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; TableColumn() "=" UpdatedValue() )*
     * </PRE>
     */
-   public void visit(ColumnValues n);
+   public void visit(ColumnValues n) throws Exception;
 
    /**
     * <PRE>
@@ -2461,7 +2460,7 @@ public interface Visitor {
     *       | PlSqlExpression()
     * </PRE>
     */
-   public void visit(UpdatedValue n);
+   public void visit(UpdatedValue n) throws Exception;
 
    /**
     * <PRE>
@@ -2472,7 +2471,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;K_VALUES&gt; &lt;LPARENCHAR&gt; PlSqlExpressionList() &lt;RPARENCHAR&gt; | SelectStatement() )
     * </PRE>
     */
-   public void visit(InsertStatement n);
+   public void visit(InsertStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2480,7 +2479,7 @@ public interface Visitor {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | &lt;S_BIND&gt; )
     * </PRE>
     */
-   public void visit(SQLUsingDMLReturn n);
+   public void visit(SQLUsingDMLReturn n) throws Exception;
 
    /**
     * <PRE>
@@ -2491,21 +2490,21 @@ public interface Visitor {
     * nodeOptional2 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public void visit(SQLDeleteStatement n);
+   public void visit(SQLDeleteStatement n) throws Exception;
 
    /**
     * <PRE>
     * selectStatement -> SelectStatement()
     * </PRE>
     */
-   public void visit(QueryStatement n);
+   public void visit(QueryStatement n) throws Exception;
 
    /**
     * <PRE>
     * plSqlExpressions -> PlSqlExpressions()
     * </PRE>
     */
-   public void visit(PlSqlExpression n);
+   public void visit(PlSqlExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2513,7 +2512,7 @@ public interface Visitor {
     *       | PlSqlAndExpressions()
     * </PRE>
     */
-   public void visit(PlSqlExpressions n);
+   public void visit(PlSqlExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2521,7 +2520,7 @@ public interface Visitor {
     * nodeList -> ( &lt;K_OR&gt; PlSqlAndExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlOrExpression n);
+   public void visit(PlSqlOrExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2529,7 +2528,7 @@ public interface Visitor {
     *       | PlSqlUnaryLogicalExpressions()
     * </PRE>
     */
-   public void visit(PlSqlAndExpressions n);
+   public void visit(PlSqlAndExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2537,7 +2536,7 @@ public interface Visitor {
     * nodeList -> ( &lt;K_AND&gt; PlSqlUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlAndExpression n);
+   public void visit(PlSqlAndExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2545,7 +2544,7 @@ public interface Visitor {
     *       | PlSqlRelationalExpressions()
     * </PRE>
     */
-   public void visit(PlSqlUnaryLogicalExpressions n);
+   public void visit(PlSqlUnaryLogicalExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2553,7 +2552,7 @@ public interface Visitor {
     * plSqlRelationalExpressions -> PlSqlRelationalExpressions()
     * </PRE>
     */
-   public void visit(PlSqlUnaryLogicalExpression n);
+   public void visit(PlSqlUnaryLogicalExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2561,7 +2560,7 @@ public interface Visitor {
     *       | PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlRelationalExpressions n);
+   public void visit(PlSqlRelationalExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2569,7 +2568,7 @@ public interface Visitor {
     * nodeChoice -> ( Relop() PlSqlSimpleExpressions() | PlSqlInClause() | PlSqlBetweenClause() | PlSqlLikeClause() | IsNullClause() )
     * </PRE>
     */
-   public void visit(PlSqlRelationalExpression n);
+   public void visit(PlSqlRelationalExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2577,7 +2576,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; PlSqlExpression() )*
     * </PRE>
     */
-   public void visit(PlSqlExpressionList n);
+   public void visit(PlSqlExpressionList n) throws Exception;
 
    /**
     * <PRE>
@@ -2588,7 +2587,7 @@ public interface Visitor {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(PlSqlInClause n);
+   public void visit(PlSqlInClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2599,7 +2598,7 @@ public interface Visitor {
     * plSqlSimpleExpressions1 -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlBetweenClause n);
+   public void visit(PlSqlBetweenClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2608,7 +2607,7 @@ public interface Visitor {
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlLikeClause n);
+   public void visit(PlSqlLikeClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2617,14 +2616,14 @@ public interface Visitor {
     * nodeToken1 -> &lt;K_NULL&gt;
     * </PRE>
     */
-   public void visit(IsNullClause n);
+   public void visit(IsNullClause n) throws Exception;
 
    /**
     * <PRE>
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlSimpleExpression n);
+   public void visit(PlSqlSimpleExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2632,7 +2631,7 @@ public interface Visitor {
     *       | PlSqlMultiplicativeExpressions()
     * </PRE>
     */
-   public void visit(PlSqlSimpleExpressions n);
+   public void visit(PlSqlSimpleExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2640,7 +2639,7 @@ public interface Visitor {
     * nodeList -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) | "||" ) PlSqlMultiplicativeExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlAdditiveExpression n);
+   public void visit(PlSqlAdditiveExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2648,7 +2647,7 @@ public interface Visitor {
     *       | PlSqlExpotentExpressions()
     * </PRE>
     */
-   public void visit(PlSqlMultiplicativeExpressions n);
+   public void visit(PlSqlMultiplicativeExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2656,7 +2655,7 @@ public interface Visitor {
     * nodeList -> ( ( "*" | "/" ) PlSqlExpotentExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlMultiplicativeExpression n);
+   public void visit(PlSqlMultiplicativeExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2664,7 +2663,7 @@ public interface Visitor {
     *       | PlSqlUnaryExpressions()
     * </PRE>
     */
-   public void visit(PlSqlExpotentExpressions n);
+   public void visit(PlSqlExpotentExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2672,7 +2671,7 @@ public interface Visitor {
     * nodeList -> ( &lt;POW&gt; PlSqlUnaryExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlExpotentExpression n);
+   public void visit(PlSqlExpotentExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2680,14 +2679,14 @@ public interface Visitor {
     *       | PlSqlPrimaryExpression()
     * </PRE>
     */
-   public void visit(PlSqlUnaryExpressions n);
+   public void visit(PlSqlUnaryExpressions n) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) PlSqlPrimaryExpression() )
     * </PRE>
     */
-   public void visit(PlSqlUnaryExpression n);
+   public void visit(PlSqlUnaryExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2701,7 +2700,7 @@ public interface Visitor {
     *       | &lt;LPARENCHAR&gt; PlSqlExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(PlSqlPrimaryExpression n);
+   public void visit(PlSqlPrimaryExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2709,7 +2708,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;DOTCHAR&gt; DotObjectName() [ &lt;DOTCHAR&gt; DotObjectName() ] ]
     * </PRE>
     */
-   public void visit(TableColumn n);
+   public void visit(TableColumn n) throws Exception;
 
    /**
     * <PRE>
@@ -2718,7 +2717,7 @@ public interface Visitor {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public void visit(RelObjectName n);
+   public void visit(RelObjectName n) throws Exception;
 
    /**
     * <PRE>
@@ -2727,7 +2726,7 @@ public interface Visitor {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public void visit(DotObjectName n);
+   public void visit(DotObjectName n) throws Exception;
 
    /**
     * <PRE>
@@ -2735,7 +2734,7 @@ public interface Visitor {
     *       | &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public void visit(OracleObjectName n);
+   public void visit(OracleObjectName n) throws Exception;
 
    /**
     * <PRE>
@@ -2749,7 +2748,7 @@ public interface Visitor {
     *       | &lt;LESSTHANOREQUAL&gt;
     * </PRE>
     */
-   public void visit(Relop n);
+   public void visit(Relop n) throws Exception;
 
    /**
     * <PRE>
@@ -2757,7 +2756,7 @@ public interface Visitor {
     * nodeOptional -> [ "/" DotObjectName() ]
     * </PRE>
     */
-   public void visit(TableReference n);
+   public void visit(TableReference n) throws Exception;
 
    /**
     * <PRE>
@@ -2765,14 +2764,14 @@ public interface Visitor {
     *       | ( [ ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) ] &lt;S_NUMBER&gt; )
     * </PRE>
     */
-   public void visit(NumOrID n);
+   public void visit(NumOrID n) throws Exception;
 
    /**
     * <PRE>
     * plSqlExpressionList -> PlSqlExpressionList()
     * </PRE>
     */
-   public void visit(Arguments n);
+   public void visit(Arguments n) throws Exception;
 
    /**
     * <PRE>
@@ -2781,7 +2780,7 @@ public interface Visitor {
     * nodeOptional1 -> [ ForUpdateClause() ]
     * </PRE>
     */
-   public void visit(SelectStatement n);
+   public void visit(SelectStatement n) throws Exception;
 
    /**
     * <PRE>
@@ -2796,7 +2795,7 @@ public interface Visitor {
     * nodeOptional5 -> [ SetClause() ]
     * </PRE>
     */
-   public void visit(SelectWithoutOrder n);
+   public void visit(SelectWithoutOrder n) throws Exception;
 
    /**
     * <PRE>
@@ -2804,7 +2803,7 @@ public interface Visitor {
     *       | SelectItem() ( &lt;COMMACHAR&gt; SelectItem() )*
     * </PRE>
     */
-   public void visit(SelectList n);
+   public void visit(SelectList n) throws Exception;
 
    /**
     * <PRE>
@@ -2815,7 +2814,7 @@ public interface Visitor {
     *       | TableColumn() [ AsObjectName() ]
     * </PRE>
     */
-   public void visit(SelectItem n);
+   public void visit(SelectItem n) throws Exception;
 
    /**
     * <PRE>
@@ -2823,7 +2822,7 @@ public interface Visitor {
     *       | RelObjectName() &lt;DOTCHAR&gt; DotObjectName() &lt;DOTCHAR&gt; &lt;ASTERISKCHAR&gt;
     * </PRE>
     */
-   public void visit(SelectAllItems n);
+   public void visit(SelectAllItems n) throws Exception;
 
    /**
     * <PRE>
@@ -2831,7 +2830,7 @@ public interface Visitor {
     *       | &lt;K_AS&gt; DotObjectName()
     * </PRE>
     */
-   public void visit(AsObjectName n);
+   public void visit(AsObjectName n) throws Exception;
 
    /**
     * <PRE>
@@ -2840,7 +2839,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; IntoItem() )*
     * </PRE>
     */
-   public void visit(IntoClause n);
+   public void visit(IntoClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2848,7 +2847,7 @@ public interface Visitor {
     *       | ( IndicatorBind() )
     * </PRE>
     */
-   public void visit(IntoItem n);
+   public void visit(IntoItem n) throws Exception;
 
    /**
     * <PRE>
@@ -2857,7 +2856,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; FromItem() )*
     * </PRE>
     */
-   public void visit(FromClause n);
+   public void visit(FromClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2865,7 +2864,7 @@ public interface Visitor {
     * nodeChoice1 -> ( JoinerExpression() [ &lt;K_AS&gt; AsObjectName() ] | [ AsObjectName() ] )
     * </PRE>
     */
-   public void visit(FromItem n);
+   public void visit(FromItem n) throws Exception;
 
    /**
     * <PRE>
@@ -2873,7 +2872,7 @@ public interface Visitor {
     *       | SelectStatement()
     * </PRE>
     */
-   public void visit(FromItemExpression n);
+   public void visit(FromItemExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2881,7 +2880,7 @@ public interface Visitor {
     *       | RelObjectName() &lt;K_JOIN&gt; TableReference() [ JoinWhereClause() ]
     * </PRE>
     */
-   public void visit(JoinerExpression n);
+   public void visit(JoinerExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2889,7 +2888,7 @@ public interface Visitor {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public void visit(JoinWhereClause n);
+   public void visit(JoinWhereClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2897,14 +2896,14 @@ public interface Visitor {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public void visit(WhereClause n);
+   public void visit(WhereClause n) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] &lt;K_CONNECT&gt; &lt;K_BY&gt; SQLExpression() [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] )
     * </PRE>
     */
-   public void visit(ConnectClause n);
+   public void visit(ConnectClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2914,7 +2913,7 @@ public interface Visitor {
     * nodeOptional -> [ &lt;K_HAVING&gt; SQLExpression() ]
     * </PRE>
     */
-   public void visit(GroupByClause n);
+   public void visit(GroupByClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2922,7 +2921,7 @@ public interface Visitor {
     * nodeChoice1 -> ( ( &lt;LPARENCHAR&gt; SelectStatement() &lt;RPARENCHAR&gt; ) | SelectStatement() )
     * </PRE>
     */
-   public void visit(SetClause n);
+   public void visit(SetClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2933,7 +2932,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() [ &lt;K_ASC&gt; | &lt;K_DESC&gt; ] )*
     * </PRE>
     */
-   public void visit(OrderByClause n);
+   public void visit(OrderByClause n) throws Exception;
 
    /**
     * <PRE>
@@ -2942,14 +2941,14 @@ public interface Visitor {
     * nodeOptional -> [ &lt;K_OF&gt; TableColumn() ( &lt;COMMACHAR&gt; TableColumn() )* ]
     * </PRE>
     */
-   public void visit(ForUpdateClause n);
+   public void visit(ForUpdateClause n) throws Exception;
 
    /**
     * <PRE>
     * sQLOrExpressions -> SQLOrExpressions()
     * </PRE>
     */
-   public void visit(SQLExpression n);
+   public void visit(SQLExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2957,7 +2956,7 @@ public interface Visitor {
     *       | SQLAndExpressions()
     * </PRE>
     */
-   public void visit(SQLOrExpressions n);
+   public void visit(SQLOrExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2965,7 +2964,7 @@ public interface Visitor {
     * nodeList -> ( &lt;K_OR&gt; SQLAndExpressions() )+
     * </PRE>
     */
-   public void visit(SQLOrExpression n);
+   public void visit(SQLOrExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2973,7 +2972,7 @@ public interface Visitor {
     *       | SQLUnaryLogicalExpressions()
     * </PRE>
     */
-   public void visit(SQLAndExpressions n);
+   public void visit(SQLAndExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -2981,7 +2980,7 @@ public interface Visitor {
     * nodeList -> ( &lt;K_AND&gt; SQLUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public void visit(SQLAndExpression n);
+   public void visit(SQLAndExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -2989,7 +2988,7 @@ public interface Visitor {
     *       | SQLRelationalExpressions()
     * </PRE>
     */
-   public void visit(SQLUnaryLogicalExpressions n);
+   public void visit(SQLUnaryLogicalExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -3000,7 +2999,7 @@ public interface Visitor {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(ExistsClause n);
+   public void visit(ExistsClause n) throws Exception;
 
    /**
     * <PRE>
@@ -3008,7 +3007,7 @@ public interface Visitor {
     *       | ( SQLRelopExpression() | &lt;LPARENCHAR&gt; SQLExpressionList() &lt;RPARENCHAR&gt; | ( SQLPriorExpression() | SQLSimpleExpressions() ) )
     * </PRE>
     */
-   public void visit(SQLRelationalExpressions n);
+   public void visit(SQLRelationalExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -3016,7 +3015,7 @@ public interface Visitor {
     * nodeChoice1 -> ( ( SQLInClause() ) | ( SQLBetweenClause() ) | ( SQLLikeClause() ) | IsNullClause() )
     * </PRE>
     */
-   public void visit(SQLRelationalExpression n);
+   public void visit(SQLRelationalExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3025,7 +3024,7 @@ public interface Visitor {
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public void visit(SQLPriorExpression n);
+   public void visit(SQLPriorExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3033,7 +3032,7 @@ public interface Visitor {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() )*
     * </PRE>
     */
-   public void visit(SQLExpressionList n);
+   public void visit(SQLExpressionList n) throws Exception;
 
    /**
     * <PRE>
@@ -3042,7 +3041,7 @@ public interface Visitor {
     * nodeChoice1 -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpressions() )
     * </PRE>
     */
-   public void visit(SQLRelopExpression n);
+   public void visit(SQLRelopExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3050,7 +3049,7 @@ public interface Visitor {
     * nodeChoice -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpression() )
     * </PRE>
     */
-   public void visit(SQLRelationalOperatorExpression n);
+   public void visit(SQLRelationalOperatorExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3061,7 +3060,7 @@ public interface Visitor {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(SQLInClause n);
+   public void visit(SQLInClause n) throws Exception;
 
    /**
     * <PRE>
@@ -3072,7 +3071,7 @@ public interface Visitor {
     * sQLSimpleExpression1 -> SQLSimpleExpression()
     * </PRE>
     */
-   public void visit(SQLBetweenClause n);
+   public void visit(SQLBetweenClause n) throws Exception;
 
    /**
     * <PRE>
@@ -3081,21 +3080,21 @@ public interface Visitor {
     * sQLSimpleExpression -> SQLSimpleExpression()
     * </PRE>
     */
-   public void visit(SQLLikeClause n);
+   public void visit(SQLLikeClause n) throws Exception;
 
    /**
     * <PRE>
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public void visit(SQLSimpleExpression n);
+   public void visit(SQLSimpleExpression n) throws Exception;
 
    /**
     * <PRE>
     * sQLAdditiveExpressions -> SQLAdditiveExpressions()
     * </PRE>
     */
-   public void visit(SQLSimpleExpressions n);
+   public void visit(SQLSimpleExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -3103,7 +3102,7 @@ public interface Visitor {
     *       | SQLMultiplicativeExpressions()
     * </PRE>
     */
-   public void visit(SQLAdditiveExpressions n);
+   public void visit(SQLAdditiveExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -3111,7 +3110,7 @@ public interface Visitor {
     * nodeList -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) | &lt;CONCAT&gt; ) SQLMultiplicativeExpressions() )+
     * </PRE>
     */
-   public void visit(SQLAdditiveExpression n);
+   public void visit(SQLAdditiveExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3119,7 +3118,7 @@ public interface Visitor {
     *       | SQLExpotentExpressions()
     * </PRE>
     */
-   public void visit(SQLMultiplicativeExpressions n);
+   public void visit(SQLMultiplicativeExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -3127,7 +3126,7 @@ public interface Visitor {
     * nodeList -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) SQLExpotentExpressions() )+
     * </PRE>
     */
-   public void visit(SQLMultiplicativeExpression n);
+   public void visit(SQLMultiplicativeExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3135,7 +3134,7 @@ public interface Visitor {
     *       | SQLUnaryExpressions()
     * </PRE>
     */
-   public void visit(SQLExpotentExpressions n);
+   public void visit(SQLExpotentExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -3143,7 +3142,7 @@ public interface Visitor {
     * nodeList -> ( &lt;POW&gt; SQLUnaryExpressions() )+
     * </PRE>
     */
-   public void visit(SQLExpotentExpression n);
+   public void visit(SQLExpotentExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3151,7 +3150,7 @@ public interface Visitor {
     *       | SQLPrimaryExpression()
     * </PRE>
     */
-   public void visit(SQLUnaryExpressions n);
+   public void visit(SQLUnaryExpressions n) throws Exception;
 
    /**
     * <PRE>
@@ -3159,7 +3158,7 @@ public interface Visitor {
     * sQLPrimaryExpression -> SQLPrimaryExpression()
     * </PRE>
     */
-   public void visit(SQLUnaryExpression n);
+   public void visit(SQLUnaryExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3172,7 +3171,7 @@ public interface Visitor {
     *       | &lt;LPARENCHAR&gt; SQLExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(SQLPrimaryExpression n);
+   public void visit(SQLPrimaryExpression n) throws Exception;
 
    /**
     * <PRE>
@@ -3183,14 +3182,14 @@ public interface Visitor {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(FunctionCall n);
+   public void visit(FunctionCall n) throws Exception;
 
    /**
     * <PRE>
     * sQLExpressionList -> SQLExpressionList()
     * </PRE>
     */
-   public void visit(SQLArguments n);
+   public void visit(SQLArguments n) throws Exception;
 
    /**
     * <PRE>
@@ -3201,14 +3200,14 @@ public interface Visitor {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(OuterJoinExpression n);
+   public void visit(OuterJoinExpression n) throws Exception;
 
    /**
     * <PRE>
     * selectWithoutOrder -> SelectWithoutOrder()
     * </PRE>
     */
-   public void visit(SubQuery n);
+   public void visit(SubQuery n) throws Exception;
 
 }
 

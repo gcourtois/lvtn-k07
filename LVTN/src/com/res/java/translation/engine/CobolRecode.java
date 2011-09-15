@@ -68,7 +68,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	private int paraStatementCount=0,sectionStatementCount=0;
 	
 	@Override
-	public void visit(ProcedureSection n) {
+	public void visit(ProcedureSection n) throws Exception {
 		n.sectionHeader.sectionName.accept(this);
 		sectionStatementCount=0;
 		//String sectionName=lastTokenString;
@@ -80,7 +80,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(GotoStatement n) {
+	public void visit(GotoStatement n) throws Exception {
 		NodeOptional nodeopt=(NodeOptional)((NodeSequence)n.nodeChoice.choice).elementAt(1);
 		if(!nodeopt.present()) {
 			
@@ -108,12 +108,12 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 	
 	@Override
-	public void visit(ProcedureName n) {
+	public void visit(ProcedureName n) throws Exception {
 		((NodeSequence)n.nodeChoice.choice).elementAt(0).accept(this);
 	}
 
 	@Override
-	public void visit(Paragraph n) {
+	public void visit(Paragraph n) throws Exception {
 		//n.paragraphName.accept(this);
 		//String paragraphName=lastTokenString;
 		paraStatementCount=0;
@@ -135,13 +135,13 @@ public class CobolRecode extends DepthFirstVisitor {
 	private SymbolProperties props = null;
 	
 	@Override
-	public void visit(NodeToken n) {
+	public void visit(NodeToken n) throws Exception {
 		lastTokenString=n.tokenImage;
 	}
 
 
 	@Override
-	public void visit(UnstringStatement n) {
+	public void visit(UnstringStatement n) throws Exception {
 		boolean onOverflowTailDead=false,notOnOverflowTailDead=false;
 
 		n.nodeOptional3.accept(this);
@@ -162,7 +162,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(IfStatement n) {
+	public void visit(IfStatement n) throws Exception {
 		boolean ifTailDead=false;boolean elseTailDead=false;
 		switch(n.nodeChoice.which) {
 		case 0:
@@ -200,7 +200,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(Statement n) {
+	public void visit(Statement n) throws Exception {
 		
 		if(context.getTraceLevel()>=2) {
 			System.out.println("Doing CobolRecode statement "+n.line);
@@ -222,7 +222,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(StatementList n) {
+	public void visit(StatementList n) throws Exception {
 		boolean deadAlready=(nextStatementDead.size()>0)?nextStatementDead.peek().booleanValue():false;
 		nextStatementDead.push(deadAlready);
 		super.visit(n);
@@ -230,12 +230,12 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(StopStatement n) {
+	public void visit(StopStatement n) throws Exception {
 		super.visit(n);
 	}
 
 	@Override
-	public void visit(SubtractStatement n) {
+	public void visit(SubtractStatement n) throws Exception {
 		//Interpret Overflow as Size Error
 		boolean onOverflowTailDead=false,notOnOverflowTailDead=false;
 
@@ -257,7 +257,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(DivideStatement n) {
+	public void visit(DivideStatement n) throws Exception {
 		//Interpret Overflow as Size Error
 		boolean onOverflowTailDead=false,notOnOverflowTailDead=false;
 
@@ -280,7 +280,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(MultiplyStatement n) {
+	public void visit(MultiplyStatement n) throws Exception {
 		//Interpret Overflow as Size Error
 		boolean onOverflowTailDead=false,notOnOverflowTailDead=false;
 
@@ -302,7 +302,7 @@ public class CobolRecode extends DepthFirstVisitor {
 		}
 
 	@Override
-	public void visit(ComputeStatement n) {
+	public void visit(ComputeStatement n) throws Exception {
 		//Interpret Overflow as Size Error
 		boolean onOverflowTailDead=false,notOnOverflowTailDead=false;
 
@@ -324,7 +324,7 @@ public class CobolRecode extends DepthFirstVisitor {
 		}
 
 	@Override
-	public void visit(AddStatement n) {
+	public void visit(AddStatement n) throws Exception {
 		//Interpret Overflow as Size Error
 		boolean onOverflowTailDead=false,notOnOverflowTailDead=false;
 
@@ -346,7 +346,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(SearchStatement n) {
+	public void visit(SearchStatement n) throws Exception {
 		n.nodeOptional2.accept(this);
 		boolean searchMakesNextDead = lastStatementDead;
 		for(Enumeration<Node> e=n.nodeList.elements();e.hasMoreElements();) {
@@ -369,7 +369,7 @@ public class CobolRecode extends DepthFirstVisitor {
 	}
 
 	@Override
-	public void visit(AlterStatement n) {
+	public void visit(AlterStatement n) throws Exception {
 			for(Enumeration<Node> e=n.nodeList.elements();e.hasMoreElements();) {
 				NodeSequence nodeseq=(NodeSequence)e.nextElement();
 				nodeseq.elementAt(0).accept(this);

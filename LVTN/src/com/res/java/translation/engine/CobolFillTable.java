@@ -166,13 +166,13 @@ public class CobolFillTable extends DepthFirstVisitor {
     public String errorMessage;
 
     @Override
-    public void visit(CompilationUnit n) {
+    public void visit(CompilationUnit n) throws Exception {
         SymbolTable.getInstance().setCloneOnLookup(false);
         super.visit(n);
     }
 
     @Override
-    public void visit(NestedProgramUnit n) {
+    public void visit(NestedProgramUnit n) throws Exception {
         boolean saveFirstParagraph = firstParagraph;
         firstParagraph = true;
         n.nestedIdentificationDivision.accept(this);
@@ -185,7 +185,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         firstParagraph = saveFirstParagraph;
     }
 
-    private void postProcess(Node n) {
+    private void postProcess(Node n) throws Exception {
         for (SymbolProperties file : filesToPostProcess) {
             if (file.getOtherData2() != null) {
                 //file.setOtherData2(SymbolTable.getScope().lookup((String)file.getOtherData2(),SymbolConstants.DATA));
@@ -226,7 +226,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ProgramUnit n) {
+    public void visit(ProgramUnit n) throws Exception {
         firstParagraph = true;
         n.identificationDivision.accept(this);
         n.nodeOptional1.accept(this);
@@ -294,21 +294,21 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(SectionName n) {
+    public void visit(SectionName n) throws Exception {
         super.visit(n);
         sectionName = lastTokenString;
         sectionProps = SymbolTable.getInstance().lookup(sectionName, SymbolConstants.SECTION);
     }
 
     @Override
-    public void visit(ParagraphName n) {
+    public void visit(ParagraphName n) throws Exception {
         super.visit(n);
         paragraphName = lastTokenString;
         paragraphProps = SymbolTable.getInstance().lookup(paragraphName, SymbolConstants.PARAGRAPH);
     }
 
     @Override
-    public void visit(ProcedureName n) {
+    public void visit(ProcedureName n) throws Exception {
         sectionName = paragraphName = null;
         n.nodeChoice.choice.accept(this);
         if (paragraphName != null && sectionName != null) {
@@ -317,7 +317,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ProcedureSection n) {
+    public void visit(ProcedureSection n) throws Exception {
 
         parent = null;
         props = null;
@@ -382,7 +382,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(Paragraph n) {
+    public void visit(Paragraph n) throws Exception {
         n.nodeChoice.choice.accept(this);
         if (n.nodeChoice.which == 0) {
             parent = null;
@@ -390,7 +390,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             while (dataStack != null && dataStack.size() > 0) {
                 parent = (SymbolProperties) dataStack.peek();
                 if (parent.getType() == SymbolConstants.PROGRAM
-                        || parent.getType() == SymbolConstants.SECTION) {
+                        || parent.getType() == SymbolConstants.SECTION)  {
                     break;
                 }
                 if (props == null) {
@@ -444,7 +444,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(EntryStatement n) {
+    public void visit(EntryStatement n) throws Exception {
         n.literal.accept(this);
         createProgram(paragraphName = RunTimeUtil.getInstance().stripQuotes(literal.toString(), true), true);
     }
@@ -458,7 +458,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private boolean doUseStatementsInDeclaratives = false;
 
     @Override
-    public void visit(ProcedureDivision n) {
+    public void visit(ProcedureDivision n) throws Exception {
         doUseStatementsInDeclaratives = false;
         n.nodeOptional1.accept(this);
         if (n.procedureBody.paragraphs.nodeListOptional.present()) {
@@ -480,7 +480,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(UsingArgs n) {
+    public void visit(UsingArgs n) throws Exception {
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             props = null;
             e.nextElement().accept(this);
@@ -499,7 +499,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(NodeToken n) {
+    public void visit(NodeToken n) throws Exception {
         if (n.tokenImage.trim().length() <= 0) {
             return;
         }
@@ -551,7 +551,7 @@ public class CobolFillTable extends DepthFirstVisitor {
    
 
     @Override
-    public void visit(Literal n) {
+    public void visit(Literal n) throws Exception {
         doLiteral = true;
         literal = new ExpressionString();
         n.nodeChoice.accept(this);
@@ -564,7 +564,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(FigurativeConstant n) {
+    public void visit(FigurativeConstant n) throws Exception {
         String lit = null;
         switch (n.nodeChoice.which) {
             case 0:
@@ -603,7 +603,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private ArrayList<SymbolProperties> filesToPostProcess = new ArrayList<SymbolProperties>();
 
     @Override
-    public void visit(FileAndSortDescriptionEntry n) {
+    public void visit(FileAndSortDescriptionEntry n) throws Exception {
         while (!dataStack.peek().isProgram()) {
             dataStack.pop();
         }
@@ -644,17 +644,17 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(DataBlankWhenZeroClause n) {
+    public void visit(DataBlankWhenZeroClause n) throws Exception {
         props.setBlankWhenZero(true);
     }
 
     @Override
-    public void visit(ExternalClause n) {
+    public void visit(ExternalClause n) throws Exception {
         props.setExternal(true);
     }
 
     @Override
-    public void visit(SameAreaClause n) {
+    public void visit(SameAreaClause n) throws Exception {
         redefinesName = null;
         SymbolProperties par = null,prev=null;
         ArrayList<SymbolProperties> a = new ArrayList<SymbolProperties>();
@@ -681,7 +681,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private boolean doingLinkageSection = false;
 
     @Override
-    public void visit(LinkageSection n) {
+    public void visit(LinkageSection n) throws Exception {
         doingLinkageSection = true;
         //Pop the file name as not parents until we reach the program
         while (dataStack.size() > 0 && ((SymbolProperties) dataStack.peek()).getType() != SymbolConstants.PROGRAM) {
@@ -692,7 +692,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(WorkingStorageSection n) {
+    public void visit(WorkingStorageSection n) throws Exception {
 
         //Pop the file name as not parents until we reach the program
         while (dataStack.size() > 0 && ((SymbolProperties) dataStack.peek()).getType() != SymbolConstants.PROGRAM) {
@@ -703,13 +703,13 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(AccessModeClause n) {
+    public void visit(AccessModeClause n) throws Exception {
         props.setOtherData1(n.nodeChoice.which);
         n.nodeChoice.choice.accept(this);
     }
 
     @Override
-    public void visit(AlternateRecordKeyClause n) {
+    public void visit(AlternateRecordKeyClause n) throws Exception {
         SymbolProperties saveProps = props;
         n.qualifiedDataName.accept(this);
         if (saveProps.getOtherData() == null) {
@@ -721,7 +721,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(KeyClause n) {
+    public void visit(KeyClause n) throws Exception {
         SymbolProperties saveProps = props;
         n.qualifiedDataName.accept(this);
         saveProps.setOtherData2(props);
@@ -729,7 +729,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(RecordContainsClause n) {
+    public void visit(RecordContainsClause n) throws Exception {
         switch (n.nodeChoice.which) {
             case 0:
                 ((NodeSequence) n.nodeChoice.choice).elementAt(1).accept(this);
@@ -748,7 +748,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private boolean doNotAddChildrenToSymbolTable = false;
 
     @Override
-    public void visit(DataDescriptionEntry n) {
+    public void visit(DataDescriptionEntry n) throws Exception {
         if (context.getTraceLevel() >= 2) {
             System.out.println("Doing CobolFillTable DataDescriptionEntry " + n.line);
         }
@@ -1086,7 +1086,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
     
     @Override
-    public void visit(Subscript n) {
+    public void visit(Subscript n) throws Exception {
         SymbolProperties propsDataName = props;
         //for (Enumeration e=n.nodeList.elements();e.hasMoreElements();) {
         //NodeChoice ch=(NodeChoice)e.nextElement();
@@ -1108,31 +1108,31 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(AddStatement n) {
+    public void visit(AddStatement n) throws Exception {
         expressionType = Constants.INTEGER;
         super.visit(n);
     }
 
     @Override
-    public void visit(DivideStatement n) {
+    public void visit(DivideStatement n) throws Exception {
         expressionType = Constants.INTEGER;
         super.visit(n);
     }
 
     @Override
-    public void visit(MultiplyStatement n) {
+    public void visit(MultiplyStatement n) throws Exception {
         expressionType = Constants.INTEGER;
         super.visit(n);
     }
 
     @Override
-    public void visit(SubtractStatement n) {
+    public void visit(SubtractStatement n) throws Exception {
         expressionType = Constants.INTEGER;
         super.visit(n);
     }
 
     @Override
-    public void visit(ArithIdentifier n) {
+    public void visit(ArithIdentifier n) throws Exception {
         super.visit(n);
         if (props == null) {
             return;
@@ -1145,7 +1145,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(IdOrLiteral n) {
+    public void visit(IdOrLiteral n) throws Exception {
         super.visit(n);
         switch (n.nodeChoice.which) {
             case 0:
@@ -1172,7 +1172,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ProgramIdParagraph n) {
+    public void visit(ProgramIdParagraph n) throws Exception {
         doingProgramName = true;
         //super.visit(n);
         n.programName.accept(this);
@@ -1181,7 +1181,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ProgramName n) {
+    public void visit(ProgramName n) throws Exception {
         super.visit(n);
         if (doingProgramName) {
             createProgram(n.cobolWord.nodeToken.tokenImage, false);
@@ -1244,7 +1244,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(NestedProgramIdParagraph n) {
+    public void visit(NestedProgramIdParagraph n) throws Exception {
         doingProgramName = true;
         super.visit(n);
         SymbolTable.getInstance().startProgram((SymbolProperties) dataStack.peek());
@@ -1252,17 +1252,17 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(DataExternalClause n) {
+    public void visit(DataExternalClause n) throws Exception {
         props.setExternal(true);
     }
 
     @Override
-    public void visit(DataJustifiedClause n) {
+    public void visit(DataJustifiedClause n) throws Exception {
         props.setJustifiedRight(n.nodeOptional.present());
     }
 
     @Override
-    public void visit(DataName n) {
+    public void visit(DataName n) throws Exception {
         super.visit(n);
         if (insertDummyData) {
             SymbolProperties tempProps = new SymbolProperties();
@@ -1275,7 +1275,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(CdName n) {
+    public void visit(CdName n) throws Exception {
         super.visit(n);
         SymbolProperties tempProps = new SymbolProperties();
         tempProps.setDataName(lastTokenString);
@@ -1286,7 +1286,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(MoveStatement n) {
+    public void visit(MoveStatement n) throws Exception {
 
         switch (n.nodeChoice.which) {
             case 0:
@@ -1416,7 +1416,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private ArrayList<SymbolProperties> dependingOnToPostProcess = null;
 
     @Override
-    public void visit(DataOccursClause n) {
+    public void visit(DataOccursClause n) throws Exception {
         SymbolProperties tempprops = null;
         if (n.nodeOptional.present()) {
             NodeChoice nodechoice = ((NodeChoice) ((NodeSequence) n.nodeOptional.node).elementAt(0));
@@ -1568,20 +1568,20 @@ public class CobolFillTable extends DepthFirstVisitor {
     private long integerConstant = 0;
 
     @Override
-    public void visit(IntegerConstant n) {
+    public void visit(IntegerConstant n) throws Exception {
         super.visit(n);
         integerConstant = FieldFormat.parseNumber(((NodeToken) n.nodeChoice.choice).tokenImage).longValue();
         //literal=((NodeToken)n.nodeChoice.choice).tokenImage;
     }
 
     @Override
-    public void visit(DataPictureClause n) {
+    public void visit(DataPictureClause n) throws Exception {
         n.pictureString.accept(this);
         props.setVarying(n.nodeOptional1.present());
     }
 
     @Override
-    public void visit(PictureString n) {
+    public void visit(PictureString n) throws Exception {
         this.pictureString = "";
         doingPicture = true;
         super.visit(n);
@@ -1589,19 +1589,19 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(PictureCurrency n) {
+    public void visit(PictureCurrency n) throws Exception {
         this.pictureString += n.nodeToken.tokenImage;
     }
 
     private String redefinesName = null;
 
     @Override
-    public void visit(DataRedefinesClause n) {
+    public void visit(DataRedefinesClause n) throws Exception {
         redefinesName = n.dataName.cobolWord.nodeToken.tokenImage;
     }
 
     @Override
-    public void visit(RenamesClause n) {
+    public void visit(RenamesClause n) throws Exception {
         SymbolProperties tempProps;
         tempProps = props;
         
@@ -1703,7 +1703,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
 	@Override
-    public void visit(DataSignClause n) {
+    public void visit(DataSignClause n) throws Exception {
         if (n.nodeChoice.which == 0) {
             props.setSignLeading(true);
         }
@@ -1714,7 +1714,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(DataUsageClause n) {
+    public void visit(DataUsageClause n) throws Exception {
 
         switch (n.nodeChoice.which) {
             case 3://Comp-2
@@ -1760,7 +1760,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(DataValueClause n) {
+    public void visit(DataValueClause n) throws Exception {
         //super.visit(n.nodeList);
         ArrayList<SymbolProperties.CoupleValue> a = new ArrayList<SymbolProperties.CoupleValue>();
         doit:
@@ -1793,14 +1793,14 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(LevelNumber n) {
+    public void visit(LevelNumber n) throws Exception {
         short lvl = Short.parseShort(n.nodeToken.tokenImage);
         props.setLevelNumber(lvl);
         super.visit(n);
     }
 
     @Override
-    public void visit(QualifiedDataName n) {
+    public void visit(QualifiedDataName n) throws Exception {
         qualified = new Stack<String>();
         doQualified = true;
         super.visit(n);
@@ -1808,7 +1808,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         processQualifiedStack(n);
     }
 
-    private void processQualifiedStack(Node n) {
+    private void processQualifiedStack(Node n) throws Exception {
 
         SymbolProperties props2 = null;
         props = null;
@@ -1873,14 +1873,14 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(LeftmostCharacterPosition n) {
+    public void visit(LeftmostCharacterPosition n) throws Exception {
         SymbolProperties propsDataName = props;
         super.visit(n);
         props = propsDataName;
     }
 
     @Override
-    public void visit(Length n) {
+    public void visit(Length n) throws Exception {
         SymbolProperties propsDataName = props;
         super.visit(n);
         props = propsDataName;
@@ -1892,7 +1892,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private int expressionType = 0;
 
     @Override
-    public void visit(ArithmeticExpression n) {
+    public void visit(ArithmeticExpression n) throws Exception {
         expressionType = Constants.SHORT;
         super.visit(n);
     }
@@ -1903,7 +1903,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(Basis n) {
+    public void visit(Basis n) throws Exception {
         super.visit(n);
         if (isStatementInError) {
             return;
@@ -1965,7 +1965,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ComputeStatement n) {
+    public void visit(ComputeStatement n) throws Exception {
         expressionType = Constants.INTEGER;
         int lhsType = 0;
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
@@ -1995,7 +1995,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(AcceptStatement n) {
+    public void visit(AcceptStatement n) throws Exception {
         n.identifier.accept(this);
         setMod(props);
         props = findProgram(props);
@@ -2013,9 +2013,9 @@ public class CobolFillTable extends DepthFirstVisitor {
         propagateRefParents(node);
     }
     /*
-    private void propagateRef(ArrayList<SymbolProperties> n) {
+    private void propagateRef(ArrayList<SymbolProperties> n) throws Exception {
     if (n==null) return;int i=0;
-    for(SymbolProperties child:n) {
+    for(SymbolProperties child:n) throws Exception {
     propagateRef(child);
     }
     }
@@ -2093,9 +2093,9 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     /*
-    private void propagateMod(ArrayList<SymbolProperties> n) {
+    private void propagateMod(ArrayList<SymbolProperties> n) throws Exception {
     if (n==null) return;
-    for(SymbolProperties child:n) {
+    for(SymbolProperties child:n) throws Exception {
     propagateMod(child);
     }
     }
@@ -2203,7 +2203,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(PerformVarying n) {
+    public void visit(PerformVarying n) throws Exception {
         n.identifier.accept(this);
         if (props == null) {
             return;
@@ -2213,7 +2213,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ConvertingPhrase n) {
+    public void visit(ConvertingPhrase n) throws Exception {
         props = null;
         n.nodeChoice.accept(this);
         if (props != null) {
@@ -2228,7 +2228,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(PerformOption n) {
+    public void visit(PerformOption n) throws Exception {
         props = null;
         if (n.nodeChoice.which == 0) {
             ((NodeSequence) n.nodeChoice.choice).elementAt(0).accept(this);
@@ -2241,7 +2241,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(InspectStatement n) {
+    public void visit(InspectStatement n) throws Exception {
         n.identifier.accept(this);
         if (isStatementInError || props == null) {
             return;
@@ -2255,7 +2255,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ReplacingPhrase n) {
+    public void visit(ReplacingPhrase n) throws Exception {
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             NodeChoice nodechoice0 = (NodeChoice) e.nextElement();
             NodeSequence seq = (NodeSequence) nodechoice0.choice;
@@ -2286,7 +2286,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         System.out.println("@CobolSourceFile():" + msg);
     }
 
-    private void doInspectPhrase1(Node n) {
+    private void doInspectPhrase1(Node n) throws Exception {
         props = null;
         literal = null;
         n.accept(this);
@@ -2303,7 +2303,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(TallyingPhrase n) {
+    public void visit(TallyingPhrase n) throws Exception {
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             NodeSequence seq = (NodeSequence) e.nextElement();
             seq.elementAt(0).accept(this);
@@ -2332,12 +2332,12 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(BeforeAfterPhrase n) {
+    public void visit(BeforeAfterPhrase n) throws Exception {
         doInspectPhrase1(n.nodeChoice1);
     }
 
     @Override
-    public void visit(SetStatement n) {
+    public void visit(SetStatement n) throws Exception {
         props = null;
         for (Enumeration<Node> e0 = n.nodeList.elements(); e0.hasMoreElements();) {
             NodeSequence nodeSequence  = (NodeSequence) e0.nextElement();
@@ -2355,7 +2355,7 @@ public class CobolFillTable extends DepthFirstVisitor {
      }
 
     @Override
-    public void visit(ConditionNameReference n) {
+    public void visit(ConditionNameReference n) throws Exception {
         qualified.clear();
         doQualified = true;
         n.conditionName.accept(this);
@@ -2378,7 +2378,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ClassCondition n) {
+    public void visit(ClassCondition n) throws Exception {
         super.visit(n.identifier);
         if (isStatementInError || props == null) {
             return;
@@ -2425,13 +2425,13 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ExecSqlStatement n) {
+    public void visit(ExecSqlStatement n) throws Exception {
         context.setSqlTranslated(true);
         super.visit(n);
     }
 
     @Override
-    public void visit(StringStatement n) {
+    public void visit(StringStatement n) throws Exception {
         n.identifier.accept(this);
         if (props == null) {
             return;
@@ -2467,7 +2467,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(UnstringStatement n) {
+    public void visit(UnstringStatement n) throws Exception {
         n.identifier.accept(this);
         if (props == null) {
             return;
@@ -2528,7 +2528,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(OpenStatement n) {
+    public void visit(OpenStatement n) throws Exception {
         boolean inp = false, op = false, iop = false, ext = false;
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             NodeChoice nodech = (NodeChoice) e.nextElement();
@@ -2574,7 +2574,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(ReadStatement n) {
+    public void visit(ReadStatement n) throws Exception {
         n.fileName.accept(this);
         if (props == null) {
             return;
@@ -2594,7 +2594,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(WriteStatement n) {
+    public void visit(WriteStatement n) throws Exception {
         n.recordName.accept(this);
         if (props == null) {
             return;
@@ -2621,7 +2621,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(RewriteStatement n) {
+    public void visit(RewriteStatement n) throws Exception {
         n.recordName.accept(this);
         if (props == null) {
             return;
@@ -2647,7 +2647,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     public NodeToken firstTokenInStatement = null;
 
     @Override
-    public void visit(Statement n) {
+    public void visit(Statement n) throws Exception {
         if (context.getTraceLevel() >= 2) {
             System.out.println("Doing CobolFillTable Statement " + n.line);
         }
@@ -2685,7 +2685,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(AssignClause n) {
+    public void visit(AssignClause n) throws Exception {
         n.nodeChoice.accept(this);
         if (props != null && props.getType() == SymbolConstants.FILE) {
             if (lastTokenString.charAt(0) != '\"' && lastTokenString.charAt(0) != '\'') {
@@ -2696,13 +2696,13 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(SelectClause n) {
+    public void visit(SelectClause n) throws Exception {
         n.fileName.accept(this);
 
     }
 
     @Override
-    public void visit(FileName n) {
+    public void visit(FileName n) throws Exception {
         super.visit(n);
         props = SymbolTable.getInstance().lookup(lastTokenString, SymbolConstants.FILE);
         if (props != null) {
@@ -2712,7 +2712,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(FileStatusClause n) {
+    public void visit(FileStatusClause n) throws Exception {
         SymbolProperties saveProps = props;
         props = null;
         n.qualifiedDataName.accept(this);
@@ -2728,7 +2728,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(OrganizationClause n) {
+    public void visit(OrganizationClause n) throws Exception {
         if (props == null) {
             reportError(n, "Unknown Symbol: " + lastTokenString);
         } else {
@@ -2826,7 +2826,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(CallStatement n) {
+    public void visit(CallStatement n) throws Exception {
         props = null;
         n.nodeChoice.choice.accept(this);
         if (props != null) {
@@ -2836,7 +2836,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(CallByContentArgs n) {
+    public void visit(CallByContentArgs n) throws Exception {
         props = null;
         n.nodeChoice.choice.accept(this);
         if (props != null) {
@@ -2845,7 +2845,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(CallByReferenceArgs n) {
+    public void visit(CallByReferenceArgs n) throws Exception {
         props = null;
         n.nodeChoice.choice.accept(this);
         if (props != null) {
@@ -2855,7 +2855,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(InitializeStatement n) {
+    public void visit(InitializeStatement n) throws Exception {
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             e.nextElement().accept(this);
             if (props != null) {
@@ -2875,7 +2875,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
     
     @Override
-    public void visit(Declaratives n) {
+    public void visit(Declaratives n) throws Exception {
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             NodeSequence nodeseq = (NodeSequence) e.nextElement();
             popToProgram();
@@ -2892,7 +2892,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(SearchStatement n) {
+    public void visit(SearchStatement n) throws Exception {
         n.qualifiedDataName.accept(this);
         if (!props.isOccurs()) {
             reportError(n, "Search Statement is valid only on tables with Occurs clause.");
@@ -2913,7 +2913,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(CancelStatement n) {
+    public void visit(CancelStatement n) throws Exception {
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             props = null;
             literal = null;
@@ -2925,7 +2925,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
-    public void visit(CommunicationInputClause n) {
+    public void visit(CommunicationInputClause n) throws Exception {
         insertDummyData = true;
         super.visit(n);
         insertDummyData = false;
@@ -2933,14 +2933,14 @@ public class CobolFillTable extends DepthFirstVisitor {
     private boolean insertDummyData = false;
 
     @Override
-    public void visit(CommunicationIOClause n) {
+    public void visit(CommunicationIOClause n) throws Exception {
         insertDummyData = true;
         super.visit(n);
         insertDummyData = false;
     }
 
     @Override
-    public void visit(CommunicationOutputClause n) {
+    public void visit(CommunicationOutputClause n) throws Exception {
         insertDummyData = true;
         super.visit(n);
         insertDummyData = false;

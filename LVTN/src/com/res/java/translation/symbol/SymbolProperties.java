@@ -398,10 +398,6 @@ public class SymbolProperties implements Cloneable {
         this.isAParentInOccurs = isAParentInOccurs;
     }
 
-    public void setOccursParents(ArrayList<SymbolProperties> occursParents) {
-        OccursParents = occursParents;
-    }
-
     public SymbolProperties getRedefines() {
         return redefines;
     }
@@ -410,6 +406,10 @@ public class SymbolProperties implements Cloneable {
         this.redefines = redefines;
     }
 
+    public void setOccursParents(ArrayList<SymbolProperties> occursParents) {
+        OccursParents = occursParents;
+    }
+    
     public ArrayList<SymbolProperties> getOccursParents() {
         return OccursParents;
     }

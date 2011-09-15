@@ -4,7 +4,8 @@
 
 package com.res.cobol.syntaxtree;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * Represents an optional grammar list, e.g. ( A )*
@@ -28,17 +29,23 @@ public class NodeListOptional extends com.res.cobol.RESNode implements NodeListI
    public Node elementAt(int i)  { return nodes.elementAt(i); }
    public int size()             { return nodes.size(); }
    public boolean present()      { return nodes.size() != 0; }
-   public void accept(com.res.cobol.visitor.Visitor v) {
-      v.visit(this);
+   public void accept(com.res.cobol.visitor.Visitor v) throws Exception {
+       v.visit(this);
    }
-   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) {
-      return v.visit(this,argu);
+
+   public <R, A> R accept(com.res.cobol.visitor.GJVisitor<R, A> v, A argu)
+           throws Exception {
+       return v.visit(this, argu);
    }
-   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) {
-      return v.visit(this);
+
+   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v)
+           throws Exception {
+       return v.visit(this);
    }
-   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) {
-      v.visit(this,argu);
+
+   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu)
+           throws Exception {
+       v.visit(this, argu);
    }
 
    public void setParent(Node n) { parent = n; }

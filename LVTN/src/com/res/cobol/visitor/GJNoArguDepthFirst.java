@@ -3,8 +3,9 @@
 //
 
 package com.res.cobol.visitor;
+import java.util.Enumeration;
+
 import com.res.cobol.syntaxtree.*;
-import java.util.*;
 
 /**
  * Provides default methods which visit each node in the tree in depth-first
@@ -14,7 +15,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
    //
    // Auto class visitors--probably don't need to be overridden.
    //
-   public R visit(NodeList n) {
+   public R visit(NodeList n) throws Exception {
       R _ret=null;
       int _count=0;
       for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
@@ -24,7 +25,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
       return _ret;
    }
 
-   public R visit(NodeListOptional n) {
+   public R visit(NodeListOptional n) throws Exception {
       if ( n.present() ) {
          R _ret=null;
          int _count=0;
@@ -38,14 +39,14 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
          return null;
    }
 
-   public R visit(NodeOptional n) {
+   public R visit(NodeOptional n) throws Exception {
       if ( n.present() )
          return n.node.accept(this);
       else
          return null;
    }
 
-   public R visit(NodeSequence n) {
+   public R visit(NodeSequence n) throws Exception {
       R _ret=null;
       int _count=0;
       for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
@@ -55,7 +56,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
       return _ret;
    }
 
-   public R visit(NodeToken n) { return null; }
+   public R visit(NodeToken n) throws Exception { return null; }
 
    //
    // User-generated visitor methods below
@@ -66,7 +67,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;COBOL_WORD&gt;
     * </PRE>
     */
-   public R visit(CobolWord n) {
+   public R visit(CobolWord n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -83,7 +84,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;COMMA_INTEGER&gt;
     * </PRE>
     */
-   public R visit(IntegerConstant n) {
+   public R visit(IntegerConstant n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -95,7 +96,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( IntegerConstant() &lt;DOTCHAR&gt; [ IntegerConstant() ] | &lt;DOTCHAR&gt; IntegerConstant() | IntegerConstant() )
     * </PRE>
     */
-   public R visit(NumericConstant n) {
+   public R visit(NumericConstant n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeChoice.accept(this);
@@ -107,7 +108,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;LEVEL_NUMBER&gt;
     * </PRE>
     */
-   public R visit(LevelNumber n) {
+   public R visit(LevelNumber n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -130,7 +131,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;NULLS&gt;
     * </PRE>
     */
-   public R visit(FigurativeConstant n) {
+   public R visit(FigurativeConstant n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -141,7 +142,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;QUOTEDSTRING&gt; | &lt;HEXNUMBER&gt; )
     * </PRE>
     */
-   public R visit(NonNumericConstant n) {
+   public R visit(NonNumericConstant n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -153,7 +154,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( NonNumericConstant() | NumericConstant() | FigurativeConstant() | IntrinsicFunction() | SpecialRegister() | &lt;LINAGE_COUNTER&gt; [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public R visit(Literal n) {
+   public R visit(Literal n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeChoice.accept(this);
@@ -166,7 +167,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( ( &lt;AND&gt; | &lt;OR&gt; ) ( CombinableCondition() | AbbreviationRest() ) )*
     * </PRE>
     */
-   public R visit(Condition n) {
+   public R visit(Condition n) throws Exception {
       R _ret=null;
       n.combinableCondition.accept(this);
       n.nodeListOptional.accept(this);
@@ -179,7 +180,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * simpleCondition -> SimpleCondition()
     * </PRE>
     */
-   public R visit(CombinableCondition n) {
+   public R visit(CombinableCondition n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.simpleCondition.accept(this);
@@ -191,7 +192,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ClassCondition() | RelationCondition() | ConditionNameCondition() | &lt;LPARENCHAR&gt; Condition() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public R visit(SimpleCondition n) {
+   public R visit(SimpleCondition n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -205,7 +206,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;NUMERIC&gt; | &lt;ALPHABETIC&gt; | &lt;ALPHABETIC_LOWER&gt; | &lt;ALPHABETIC_UPPER&gt; | ClassName() | &lt;DBCS&gt; | &lt;KANJI&gt; )
     * </PRE>
     */
-   public R visit(ClassCondition n) {
+   public R visit(ClassCondition n) throws Exception {
       R _ret=null;
       n.identifier.accept(this);
       n.nodeOptional.accept(this);
@@ -219,7 +220,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * conditionNameReference -> ConditionNameReference()
     * </PRE>
     */
-   public R visit(ConditionNameCondition n) {
+   public R visit(ConditionNameCondition n) throws Exception {
       R _ret=null;
       n.conditionNameReference.accept(this);
       return _ret;
@@ -231,7 +232,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( RelationalOperator() ArithmeticExpression() | SignCondition() )
     * </PRE>
     */
-   public R visit(RelationCondition n) {
+   public R visit(RelationCondition n) throws Exception {
       R _ret=null;
       n.arithmeticExpression.accept(this);
       n.nodeChoice.accept(this);
@@ -245,7 +246,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;POSITIVE&gt; | &lt;NEGATIVE&gt; | ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; ) )
     * </PRE>
     */
-   public R visit(SignCondition n) {
+   public R visit(SignCondition n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeOptional1.accept(this);
@@ -260,7 +261,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;GREATER&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;MORETHANOREQUAL&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;LESSTHANOREQUAL&gt; | &lt;GREATER&gt; [ &lt;THAN&gt; ] | &lt;MORETHANCHAR&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] | &lt;LESSTHANCHAR&gt; | ( &lt;EQUAL&gt; | &lt;EQUALS&gt; ) [ &lt;TO&gt; ] | &lt;EQUALCHAR&gt; [ &lt;TO&gt; ] | &lt;NOTEQUALCHAR&gt; )
     * </PRE>
     */
-   public R visit(RelationalOperator n) {
+   public R visit(RelationalOperator n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeOptional1.accept(this);
@@ -273,7 +274,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( [ &lt;NOT&gt; ] [ RelationalOperator() ] AbbreviationLeaf() )+
     * </PRE>
     */
-   public R visit(AbbreviationRest n) {
+   public R visit(AbbreviationRest n) throws Exception {
       R _ret=null;
       n.nodeList.accept(this);
       return _ret;
@@ -284,7 +285,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ArithmeticExpression() | &lt;LPARENCHAR&gt; ArithmeticExpression() AbbreviationRest() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public R visit(AbbreviationLeaf n) {
+   public R visit(AbbreviationLeaf n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -295,7 +296,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ParagraphName() [ ( &lt;IN&gt; | &lt;OF&gt; ) SectionName() ] | SectionName() )
     * </PRE>
     */
-   public R visit(ProcedureName n) {
+   public R visit(ProcedureName n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -306,7 +307,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( QualifiedDataName() ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* [ &lt;LPARENCHAR&gt; LeftmostCharacterPosition() &lt;COLONCHAR&gt; [ Length() ] &lt;RPARENCHAR&gt; ] | &lt;RETURN_CODE&gt; )
     * </PRE>
     */
-   public R visit(Identifier n) {
+   public R visit(Identifier n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -317,7 +318,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeSequence -> ( DataName() ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public R visit(QualifiedDataName n) {
+   public R visit(QualifiedDataName n) throws Exception {
       R _ret=null;
       n.nodeSequence.accept(this);
       return _ret;
@@ -328,7 +329,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeSequence -> ( &lt;FUNCTION&gt; ( &lt;F_ACOS&gt; | &lt;F_ANNUITY&gt; | &lt;F_ASIN&gt; | &lt;F_ATAN&gt; | &lt;F_CHAR&gt; | &lt;F_COS&gt; | &lt;F_CURRENT_DATE&gt; | &lt;F_DATE_OF_INTEGER&gt; | &lt;F_DATE_TO_YYYYMMDD&gt; | &lt;F_DATEVAL&gt; | &lt;F_DAY_OF_INTEGER&gt; | &lt;F_DAY_TO_YYYYDDD&gt; | &lt;F_DISPLAY_OF&gt; | &lt;F_FACTORIAL&gt; | &lt;F_INTEGER&gt; | &lt;F_INTEGER_OF_DATE&gt; | &lt;F_INTEGER_OF_DAY&gt; | &lt;F_INTEGER_PART&gt; | &lt;F_LENGTH&gt; | &lt;F_LOG&gt; | &lt;F_LOG10&gt; | &lt;F_LOWER_CASE&gt; | &lt;F_MAX&gt; | &lt;F_MEAN&gt; | &lt;F_MEDIAN&gt; | &lt;F_MIDRANGE&gt; | &lt;F_MIN&gt; | &lt;F_MOD&gt; | &lt;F_NATIONAL_OF&gt; | &lt;F_NUMVAL&gt; | &lt;F_NUMVAL_C&gt; | &lt;F_ORD&gt; | &lt;F_ORD_MAX&gt; | &lt;F_ORD_MIN&gt; | &lt;F_PRESENT_VALUE&gt; | &lt;F_RANDOM&gt; | &lt;F_RANGE&gt; | &lt;F_REM&gt; | &lt;F_REVERSE&gt; | &lt;F_SIN&gt; | &lt;F_SQRT&gt; | &lt;F_STANDARD_DEVIATION&gt; | &lt;F_SUM&gt; | &lt;F_TAN&gt; | &lt;F_UNDATE&gt; | &lt;F_UPPER_CASE&gt; | &lt;F_VARIANCE&gt; | &lt;F_WHEN_COMPILED&gt; | &lt;F_YEAR_TO_YYYY&gt; | &lt;F_YEARWINDOW&gt; ) [ &lt;LPARENCHAR&gt; [ QualifiedDataName() &lt;LPARENCHAR&gt; ( &lt;ALL&gt; [ &lt;COMMACHAR&gt; ] )+ &lt;RPARENCHAR&gt; | FunctionArgument() ( [ &lt;COMMACHAR&gt; ] FunctionArgument() )* ] &lt;RPARENCHAR&gt; ] )
     * </PRE>
     */
-   public R visit(IntrinsicFunction n) {
+   public R visit(IntrinsicFunction n) throws Exception {
       R _ret=null;
       n.nodeSequence.accept(this);
       return _ret;
@@ -341,7 +342,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | ArithmeticExpression()
     * </PRE>
     */
-   public R visit(FunctionArgument n) {
+   public R visit(FunctionArgument n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -352,7 +353,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public R visit(Length n) {
+   public R visit(Length n) throws Exception {
       R _ret=null;
       n.arithmeticExpression.accept(this);
       return _ret;
@@ -363,7 +364,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public R visit(LeftmostCharacterPosition n) {
+   public R visit(LeftmostCharacterPosition n) throws Exception {
       R _ret=null;
       n.arithmeticExpression.accept(this);
       return _ret;
@@ -375,7 +376,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* | ( ( &lt;IN&gt; | &lt;OF&gt; ) MnemonicName() )* )
     * </PRE>
     */
-   public R visit(ConditionNameReference n) {
+   public R visit(ConditionNameReference n) throws Exception {
       R _ret=null;
       n.conditionName.accept(this);
       n.nodeChoice.accept(this);
@@ -387,7 +388,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ] IntegerConstant() | QualifiedDataName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] | IndexName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] )
     * </PRE>
     */
-   public R visit(Subscript n) {
+   public R visit(Subscript n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -398,7 +399,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(Mode n) {
+   public R visit(Mode n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -409,7 +410,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(AlphabetName n) {
+   public R visit(AlphabetName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -420,7 +421,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(ClassName n) {
+   public R visit(ClassName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -431,7 +432,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(ConditionName n) {
+   public R visit(ConditionName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -442,7 +443,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(DataName n) {
+   public R visit(DataName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -453,7 +454,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(FileName n) {
+   public R visit(FileName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -464,7 +465,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(IndexName n) {
+   public R visit(IndexName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -475,7 +476,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(MnemonicName n) {
+   public R visit(MnemonicName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -486,7 +487,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public R visit(RecordName n) {
+   public R visit(RecordName n) throws Exception {
       R _ret=null;
       n.qualifiedDataName.accept(this);
       return _ret;
@@ -497,7 +498,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(RoutineName n) {
+   public R visit(RoutineName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -508,7 +509,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(SymbolicCharacter n) {
+   public R visit(SymbolicCharacter n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -519,7 +520,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(LibraryName n) {
+   public R visit(LibraryName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -530,7 +531,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(ProgramName n) {
+   public R visit(ProgramName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -541,7 +542,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(CdName n) {
+   public R visit(CdName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -558,7 +559,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | CobolWord()
     * </PRE>
     */
-   public R visit(SectionName n) {
+   public R visit(SectionName n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -575,7 +576,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | CobolWord()
     * </PRE>
     */
-   public R visit(ParagraphName n) {
+   public R visit(ParagraphName n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -586,7 +587,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(SystemName n) {
+   public R visit(SystemName n) throws Exception {
       R _ret=null;
       n.cobolWord.accept(this);
       return _ret;
@@ -597,7 +598,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(ComputerName n) {
+   public R visit(ComputerName n) throws Exception {
       R _ret=null;
       n.systemName.accept(this);
       return _ret;
@@ -608,7 +609,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(LanguageName n) {
+   public R visit(LanguageName n) throws Exception {
       R _ret=null;
       n.systemName.accept(this);
       return _ret;
@@ -619,7 +620,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(EnvironmentName n) {
+   public R visit(EnvironmentName n) throws Exception {
       R _ret=null;
       n.systemName.accept(this);
       return _ret;
@@ -630,7 +631,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(AssignmentName n) {
+   public R visit(AssignmentName n) throws Exception {
       R _ret=null;
       n.systemName.accept(this);
       return _ret;
@@ -641,7 +642,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * programName -> ProgramName()
     * </PRE>
     */
-   public R visit(BasisName n) {
+   public R visit(BasisName n) throws Exception {
       R _ret=null;
       n.programName.accept(this);
       return _ret;
@@ -652,7 +653,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;ADDRESS&gt; &lt;OF&gt; DataName() | &lt;LENGTH&gt; &lt;OF&gt; Identifier() | &lt;DEBUG_LINE&gt; | &lt;DEBUG_NAME&gt; | &lt;DEBUG_CONTENTS&gt; | &lt;DEBUG_ITEM&gt; | &lt;DEBUG_SUB_1&gt; | &lt;DEBUG_SUB_2&gt; | &lt;DEBUG_SUB_3&gt; | &lt;RETURN_CODE&gt; | &lt;SHIFT_OUT&gt; | &lt;SHIFT_IN&gt; | &lt;SORT_CONTROL&gt; | &lt;SORT_CORE_SIZE&gt; | &lt;SORT_FILE_SIZE&gt; | &lt;SORT_MESSAGE&gt; | &lt;SORT_MODE_SIZE&gt; | &lt;SORT_RETURN&gt; | &lt;TALLY&gt; | &lt;WHEN_COMPILED&gt; )
     * </PRE>
     */
-   public R visit(SpecialRegister n) {
+   public R visit(SpecialRegister n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -664,7 +665,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ) TimesDiv() )*
     * </PRE>
     */
-   public R visit(ArithmeticExpression n) {
+   public R visit(ArithmeticExpression n) throws Exception {
       R _ret=null;
       n.timesDiv.accept(this);
       n.nodeListOptional.accept(this);
@@ -677,7 +678,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) Power() )*
     * </PRE>
     */
-   public R visit(TimesDiv n) {
+   public R visit(TimesDiv n) throws Exception {
       R _ret=null;
       n.power.accept(this);
       n.nodeListOptional.accept(this);
@@ -691,7 +692,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;POW&gt; Basis() )*
     * </PRE>
     */
-   public R visit(Power n) {
+   public R visit(Power n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.basis.accept(this);
@@ -704,7 +705,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( Identifier() | Literal() | &lt;LPARENCHAR&gt; ArithmeticExpression() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public R visit(Basis n) {
+   public R visit(Basis n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -715,7 +716,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;COMMENT2&gt; [ &lt;DOT2&gt; ] )+
     * </PRE>
     */
-   public R visit(CommentLine n) {
+   public R visit(CommentLine n) throws Exception {
       R _ret=null;
       n.nodeList.accept(this);
       return _ret;
@@ -727,7 +728,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;EOF&gt;
     * </PRE>
     */
-   public R visit(CompilationUnit n) {
+   public R visit(CompilationUnit n) throws Exception {
       R _ret=null;
       n.nodeListOptional.accept(this);
       n.nodeToken.accept(this);
@@ -742,7 +743,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ ProcedureDivision() ]
     * </PRE>
     */
-   public R visit(ProgramUnit n) {
+   public R visit(ProgramUnit n) throws Exception {
       R _ret=null;
       n.identificationDivision.accept(this);
       n.nodeOptional.accept(this);
@@ -761,7 +762,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * endProgramStatement -> EndProgramStatement()
     * </PRE>
     */
-   public R visit(NestedProgramUnit n) {
+   public R visit(NestedProgramUnit n) throws Exception {
       R _ret=null;
       n.nestedIdentificationDivision.accept(this);
       n.nodeOptional.accept(this);
@@ -780,7 +781,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(EndProgramStatement n) {
+   public R visit(EndProgramStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -798,7 +799,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public R visit(IdentificationDivision n) {
+   public R visit(IdentificationDivision n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -817,7 +818,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public R visit(NestedIdentificationDivision n) {
+   public R visit(NestedIdentificationDivision n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeToken.accept(this);
@@ -836,7 +837,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SecurityParagraph()
     * </PRE>
     */
-   public R visit(IdentificationDivisionParagraph n) {
+   public R visit(IdentificationDivisionParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -851,7 +852,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(ProgramIdParagraph n) {
+   public R visit(ProgramIdParagraph n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -870,7 +871,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(NestedProgramIdParagraph n) {
+   public R visit(NestedProgramIdParagraph n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -885,7 +886,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;INITIAL&gt; [ &lt;COMMON&gt; ] | &lt;COMMON&gt; [ &lt;INITIAL&gt; ] )
     * </PRE>
     */
-   public R visit(InitialOrCommon n) {
+   public R visit(InitialOrCommon n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -898,7 +899,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(AuthorParagraph n) {
+   public R visit(AuthorParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -913,7 +914,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(InstallationParagraph n) {
+   public R visit(InstallationParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -928,7 +929,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(DateWrittenParagraph n) {
+   public R visit(DateWrittenParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -943,7 +944,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(DateCompiledParagraph n) {
+   public R visit(DateCompiledParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -958,7 +959,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(SecurityParagraph n) {
+   public R visit(SecurityParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -972,7 +973,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( EnvironmentSection() )*
     * </PRE>
     */
-   public R visit(EnvironmentDivision n) {
+   public R visit(EnvironmentDivision n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeListOptional.accept(this);
@@ -985,7 +986,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | InputOutputSection()
     * </PRE>
     */
-   public R visit(EnvironmentSection n) {
+   public R visit(EnvironmentSection n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -999,7 +1000,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( ConfigurationSectionParagraph() )*
     * </PRE>
     */
-   public R visit(ConfigurationSection n) {
+   public R visit(ConfigurationSection n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1015,7 +1016,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SpecialNamesParagraph()
     * </PRE>
     */
-   public R visit(ConfigurationSectionParagraph n) {
+   public R visit(ConfigurationSectionParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1030,7 +1031,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(SourceComputerParagraph n) {
+   public R visit(SourceComputerParagraph n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1049,7 +1050,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(ObjectComputerParagraph n) {
+   public R visit(ObjectComputerParagraph n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1067,7 +1068,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | CharacterSetClause()
     * </PRE>
     */
-   public R visit(ObjectComputerClause n) {
+   public R visit(ObjectComputerClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1081,7 +1082,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;WORDS&gt; | &lt;CHARACTERS&gt; | &lt;MODULES&gt; ]
     * </PRE>
     */
-   public R visit(MemorySizeClause n) {
+   public R visit(MemorySizeClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1099,7 +1100,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public R visit(CollatingSequenceClause n) {
+   public R visit(CollatingSequenceClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeOptional1.accept(this);
@@ -1116,7 +1117,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * integerConstant -> IntegerConstant()
     * </PRE>
     */
-   public R visit(SegmentLimitClause n) {
+   public R visit(SegmentLimitClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1130,7 +1131,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;SET&gt;
     * </PRE>
     */
-   public R visit(CharacterSetClause n) {
+   public R visit(CharacterSetClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1144,7 +1145,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ SpecialNameClause() ( [ &lt;COMMACHAR&gt; ] SpecialNameClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public R visit(SpecialNamesParagraph n) {
+   public R visit(SpecialNamesParagraph n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1162,7 +1163,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | EnvironmentNameIsMnemonicNameClause()
     * </PRE>
     */
-   public R visit(SpecialNameClause n) {
+   public R visit(SpecialNameClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1176,7 +1177,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;STANDARD_2&gt; | &lt;NATIVE&gt; | CobolWord() | ( Literal() [ ( ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() | ( &lt;ALSO&gt; Literal() [ &lt;COMMACHAR&gt; ] )+ ) ] [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public R visit(AlphabetClause n) {
+   public R visit(AlphabetClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.alphabetName.accept(this);
@@ -1193,7 +1194,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( Literal() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() ] )+
     * </PRE>
     */
-   public R visit(ClassClause n) {
+   public R visit(ClassClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.className.accept(this);
@@ -1210,7 +1211,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * literal -> Literal()
     * </PRE>
     */
-   public R visit(CurrencySignClause n) {
+   public R visit(CurrencySignClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1226,7 +1227,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;COMMA&gt;
     * </PRE>
     */
-   public R visit(DecimalPointClause n) {
+   public R visit(DecimalPointClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1242,7 +1243,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;IN&gt; AlphabetName() ]
     * </PRE>
     */
-   public R visit(SymbolicCharactersClause n) {
+   public R visit(SymbolicCharactersClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1256,7 +1257,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( EnvironmentName() [ &lt;IS&gt; ] MnemonicName() [ SpecialNamesParagraphStatusPhrase() ] | SpecialNamesParagraphStatusPhrase() )
     * </PRE>
     */
-   public R visit(EnvironmentNameIsMnemonicNameClause n) {
+   public R visit(EnvironmentNameIsMnemonicNameClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1267,7 +1268,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] | &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] )
     * </PRE>
     */
-   public R visit(SpecialNamesParagraphStatusPhrase n) {
+   public R visit(SpecialNamesParagraphStatusPhrase n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1279,7 +1280,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( InputOutputSectionParagraph() )+
     * </PRE>
     */
-   public R visit(InputOutputSection n) {
+   public R visit(InputOutputSection n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeList.accept(this);
@@ -1292,7 +1293,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | IOControlParagraph()
     * </PRE>
     */
-   public R visit(InputOutputSectionParagraph n) {
+   public R visit(InputOutputSectionParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1304,7 +1305,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( FileControlEntry() &lt;DOT&gt; )*
     * </PRE>
     */
-   public R visit(FileControlParagraph n) {
+   public R visit(FileControlParagraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeListOptional.accept(this);
@@ -1317,7 +1318,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( FileControlClause() )*
     * </PRE>
     */
-   public R visit(FileControlEntry n) {
+   public R visit(FileControlEntry n) throws Exception {
       R _ret=null;
       n.selectClause.accept(this);
       n.nodeListOptional.accept(this);
@@ -1338,7 +1339,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PasswordClause()
     * </PRE>
     */
-   public R visit(FileControlClause n) {
+   public R visit(FileControlClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1351,7 +1352,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * fileName -> FileName()
     * </PRE>
     */
-   public R visit(SelectClause n) {
+   public R visit(SelectClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1367,7 +1368,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( AssignmentName() | Literal() )
     * </PRE>
     */
-   public R visit(AssignClause n) {
+   public R visit(AssignClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1383,7 +1384,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> ( &lt;AREA&gt; | &lt;AREAS&gt; )?
     * </PRE>
     */
-   public R visit(ReserveClause n) {
+   public R visit(ReserveClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.integerConstant.accept(this);
@@ -1398,7 +1399,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( SequentialOrganizationClause() | IndexedOrganizationClause() | RelativeOrganizationClause() | LineSequentialOrganizationClause() )
     * </PRE>
     */
-   public R visit(OrganizationClause n) {
+   public R visit(OrganizationClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeOptional1.accept(this);
@@ -1411,7 +1412,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public R visit(SequentialOrganizationClause n) {
+   public R visit(SequentialOrganizationClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -1423,7 +1424,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public R visit(LineSequentialOrganizationClause n) {
+   public R visit(LineSequentialOrganizationClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1435,7 +1436,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;RELATIVE&gt;
     * </PRE>
     */
-   public R visit(RelativeOrganizationClause n) {
+   public R visit(RelativeOrganizationClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -1446,7 +1447,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;INDEXED&gt;
     * </PRE>
     */
-   public R visit(IndexedOrganizationClause n) {
+   public R visit(IndexedOrganizationClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -1460,7 +1461,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( QualifiedDataName() | Literal() )
     * </PRE>
     */
-   public R visit(PaddingCharacterClause n) {
+   public R visit(PaddingCharacterClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1477,7 +1478,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;IMPLICIT&gt; | AssignmentName() )
     * </PRE>
     */
-   public R visit(RecordDelimiterClause n) {
+   public R visit(RecordDelimiterClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1494,7 +1495,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( SequentialAccessMode() | RandomAccessMode() | DynamicAccessMode() )
     * </PRE>
     */
-   public R visit(AccessModeClause n) {
+   public R visit(AccessModeClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1508,7 +1509,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public R visit(SequentialAccessMode n) {
+   public R visit(SequentialAccessMode n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -1519,7 +1520,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;RANDOM&gt;
     * </PRE>
     */
-   public R visit(RandomAccessMode n) {
+   public R visit(RandomAccessMode n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -1530,7 +1531,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;DYNAMIC&gt;
     * </PRE>
     */
-   public R visit(DynamicAccessMode n) {
+   public R visit(DynamicAccessMode n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -1544,7 +1545,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public R visit(KeyClause n) {
+   public R visit(KeyClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -1564,7 +1565,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional3 -> [ [ &lt;WITH&gt; ] &lt;DUPLICATES&gt; ]
     * </PRE>
     */
-   public R visit(AlternateRecordKeyClause n) {
+   public R visit(AlternateRecordKeyClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1583,7 +1584,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * dataName -> DataName()
     * </PRE>
     */
-   public R visit(PasswordClause n) {
+   public R visit(PasswordClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1600,7 +1601,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ QualifiedDataName() ]
     * </PRE>
     */
-   public R visit(FileStatusClause n) {
+   public R visit(FileStatusClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -1617,7 +1618,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ IOControlClause() ( [ &lt;DOT&gt; ] IOControlClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public R visit(IOControlParagraph n) {
+   public R visit(IOControlParagraph n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1632,7 +1633,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public R visit(IOControlClause n) {
+   public R visit(IOControlClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeChoice.accept(this);
@@ -1648,7 +1649,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( Rerun2() | IntegerConstant() [ &lt;CLOCK_UNITS&gt; ] )
     * </PRE>
     */
-   public R visit(RerunClause n) {
+   public R visit(RerunClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1663,7 +1664,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | [ &lt;END&gt; ] [ &lt;OF&gt; ] ( &lt;REEL&gt; | &lt;UNIT&gt; ) &lt;OF&gt; FileName()
     * </PRE>
     */
-   public R visit(Rerun2 n) {
+   public R visit(Rerun2 n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1678,7 +1679,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( FileName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(SameAreaClause n) {
+   public R visit(SameAreaClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1697,7 +1698,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( FileName() [ &lt;POSITION&gt; ] [ IntegerConstant() ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(MultipleFileClause n) {
+   public R visit(MultipleFileClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1713,7 +1714,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( DataDivisionSection() )*
     * </PRE>
     */
-   public R visit(DataDivision n) {
+   public R visit(DataDivision n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeListOptional.accept(this);
@@ -1728,7 +1729,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | CommunicationSection()
     * </PRE>
     */
-   public R visit(DataDivisionSection n) {
+   public R visit(DataDivisionSection n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1742,7 +1743,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( CommunicationDescriptionEntry() ( DataDescriptionEntry() )* )*
     * </PRE>
     */
-   public R visit(CommunicationSection n) {
+   public R visit(CommunicationSection n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -1757,7 +1758,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(CommunicationDescriptionEntry n) {
+   public R visit(CommunicationDescriptionEntry n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeToken.accept(this);
@@ -1775,7 +1776,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public R visit(CommunicationInputEntry n) {
+   public R visit(CommunicationInputEntry n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.cdName.accept(this);
@@ -1796,7 +1797,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( CommunicationOutputClause() )*
     * </PRE>
     */
-   public R visit(CommunicationOutputEntry n) {
+   public R visit(CommunicationOutputEntry n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.cdName.accept(this);
@@ -1817,7 +1818,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public R visit(CommunicationIOEntry n) {
+   public R visit(CommunicationIOEntry n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.cdName.accept(this);
@@ -1839,7 +1840,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | [ &lt;SYMBOLIC&gt; ] ( &lt;QUEUE&gt; | &lt;SUB_QUEUE_1&gt; | &lt;SUB_QUEUE_2&gt; | &lt;SUB_QUEUE_3&gt; | &lt;SOURCE&gt; ) [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public R visit(CommunicationInputClause n) {
+   public R visit(CommunicationInputClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1855,7 +1856,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;ERROR&gt; &lt;KEY&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public R visit(CommunicationOutputClause n) {
+   public R visit(CommunicationOutputClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1870,7 +1871,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | [ &lt;SYMBOLIC&gt; ] &lt;TERMINAL&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public R visit(CommunicationIOClause n) {
+   public R visit(CommunicationIOClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1882,7 +1883,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( FileAndSortDescriptionEntry() ( DataDescriptionEntry() )+ )*
     * </PRE>
     */
-   public R visit(FileSection n) {
+   public R visit(FileSection n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeListOptional.accept(this);
@@ -1897,7 +1898,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(FileAndSortDescriptionEntry n) {
+   public R visit(FileAndSortDescriptionEntry n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.fileName.accept(this);
@@ -1921,7 +1922,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | RecordingModeClause()
     * </PRE>
     */
-   public R visit(FileAndSortDescriptionEntryClause n) {
+   public R visit(FileAndSortDescriptionEntryClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -1933,7 +1934,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public R visit(ExternalClause n) {
+   public R visit(ExternalClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -1946,7 +1947,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public R visit(GlobalClause n) {
+   public R visit(GlobalClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -1962,7 +1963,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;RECORDS&gt; | &lt;CHARACTERS&gt; ]
     * </PRE>
     */
-   public R visit(BlockContainsClause n) {
+   public R visit(BlockContainsClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1979,7 +1980,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( [ IntegerConstant() &lt;TO&gt; ] IntegerConstant() [ &lt;CHARACTERS&gt; ] | [ &lt;IS&gt; ] &lt;VARYING&gt; [ &lt;IN&gt; ] [ &lt;SIZE&gt; ] [ [ &lt;FROM&gt; ] IntegerConstant() [ &lt;TO&gt; IntegerConstant() ] [ &lt;CHARACTERS&gt; ] ] [ &lt;DEPENDING&gt; [ &lt;ON&gt; ] QualifiedDataName() ] )
     * </PRE>
     */
-   public R visit(RecordContainsClause n) {
+   public R visit(RecordContainsClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -1994,7 +1995,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( &lt;OMITTED&gt; | &lt;STANDARD&gt; | ( DataName() )+ )
     * </PRE>
     */
-   public R visit(LabelRecordsClause n) {
+   public R visit(LabelRecordsClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -2009,7 +2010,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( SystemName() &lt;IS&gt; ( QualifiedDataName() | Literal() ) )+
     * </PRE>
     */
-   public R visit(ValueOfClause n) {
+   public R visit(ValueOfClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -2024,7 +2025,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( DataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(DataRecordClause n) {
+   public R visit(DataRecordClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -2041,7 +2042,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( [ &lt;WITH&gt; ] &lt;FOOTING&gt; [ &lt;AT&gt; ] ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;TOP&gt; ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;BOTTOM&gt; ( DataName() | IntegerConstant() ) )*
     * </PRE>
     */
-   public R visit(LinageClause n) {
+   public R visit(LinageClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -2059,7 +2060,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * mode -> Mode()
     * </PRE>
     */
-   public R visit(RecordingModeClause n) {
+   public R visit(RecordingModeClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -2075,7 +2076,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public R visit(CodeSetClause n) {
+   public R visit(CodeSetClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -2089,7 +2090,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( QualifiedDataName() )+
     * </PRE>
     */
-   public R visit(ReportClause n) {
+   public R visit(ReportClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeList.accept(this);
@@ -2101,7 +2102,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( LevelNumber() ( DataName() | &lt;FILLER&gt; )? ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_66&gt; DataName() RenamesClause() &lt;DOT&gt; | &lt;LEVEL_77&gt; DataName() ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_78&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | &lt;LEVEL_88&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | ( &lt;EXEC&gt; | &lt;EXECUTE&gt; ) &lt;K_SQL&gt; ( &lt;K_INCLUDE&gt; ( &lt;S_IDENTIFIER&gt; | &lt;S_QUOTED_IDENTIFIER&gt; ) &lt;DOT&gt; | &lt;K_BEGIN&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | &lt;K_END&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | DeclareCursorStatement() &lt;END_EXEC&gt; &lt;DOT&gt; ) )
     * </PRE>
     */
-   public R visit(DataDescriptionEntry n) {
+   public R visit(DataDescriptionEntry n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2114,7 +2115,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public R visit(DataDescriptionEntryClause n) {
+   public R visit(DataDescriptionEntryClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeChoice.accept(this);
@@ -2128,7 +2129,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * dataName -> DataName()
     * </PRE>
     */
-   public R visit(DataRedefinesClause n) {
+   public R visit(DataRedefinesClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.dataName.accept(this);
@@ -2142,7 +2143,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; )
     * </PRE>
     */
-   public R visit(DataBlankWhenZeroClause n) {
+   public R visit(DataBlankWhenZeroClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -2156,7 +2157,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;RIGHT&gt; ]
     * </PRE>
     */
-   public R visit(DataJustifiedClause n) {
+   public R visit(DataJustifiedClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -2174,7 +2175,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional3 -> [ &lt;INDEXED&gt; [ &lt;BY&gt; ] ( IndexName() [ &lt;COMMACHAR&gt; ] )+ ]
     * </PRE>
     */
-   public R visit(DataOccursClause n) {
+   public R visit(DataOccursClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -2194,7 +2195,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;VARYING&gt; ]
     * </PRE>
     */
-   public R visit(DataPictureClause n) {
+   public R visit(DataPictureClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -2210,7 +2211,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional1 -> ( &lt;DOTCHAR&gt; )*
     * </PRE>
     */
-   public R visit(PictureString n) {
+   public R visit(PictureString n) throws Exception {
       R _ret=null;
       n.pictureOccurence.accept(this);
       n.nodeListOptional.accept(this);
@@ -2224,7 +2225,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;DOTCHAR&gt; ( &lt;LPARENCHAR&gt; ( IntegerConstant() | DataName() ) &lt;RPARENCHAR&gt; | NonDotChars() )
     * </PRE>
     */
-   public R visit(PictureOccurence n) {
+   public R visit(PictureOccurence n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2247,7 +2248,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;NOTEQUALCHAR&gt;
     * </PRE>
     */
-   public R visit(PicturePunctuation n) {
+   public R visit(PicturePunctuation n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2258,7 +2259,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;DOLLARCHAR&gt;
     * </PRE>
     */
-   public R visit(PictureCurrency n) {
+   public R visit(PictureCurrency n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -2272,7 +2273,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PictureCurrency()
     * </PRE>
     */
-   public R visit(NonDotChars n) {
+   public R visit(NonDotChars n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2284,7 +2285,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public R visit(DataExternalClause n) {
+   public R visit(DataExternalClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -2297,7 +2298,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public R visit(DataGlobalClause n) {
+   public R visit(DataGlobalClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -2310,7 +2311,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;BINARY&gt; | &lt;COMP&gt; | &lt;COMP_1&gt; | &lt;COMP_2&gt; | &lt;COMP_3&gt; | &lt;COMP_4&gt; | &lt;COMP_5&gt; | &lt;COMPUTATIONAL&gt; | &lt;COMPUTATIONAL_1&gt; | &lt;COMPUTATIONAL_2&gt; | &lt;COMPUTATIONAL_3&gt; | &lt;COMPUTATIONAL_4&gt; | &lt;COMPUTATIONAL_5&gt; | &lt;DISPLAY&gt; | &lt;DISPLAY_1&gt; | &lt;INDEX&gt; | &lt;PACKED_DECIMAL&gt; | &lt;POINTER&gt; | &lt;FUNCTION_POINTER&gt; | &lt;PROCEDURE_POINTER&gt; | &lt;OBJECT&gt; &lt;REFERENCE&gt; DataName() )
     * </PRE>
     */
-   public R visit(DataUsageClause n) {
+   public R visit(DataUsageClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeChoice.accept(this);
@@ -2324,7 +2325,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;SEPARATE&gt; [ &lt;CHARACTER&gt; ] ]
     * </PRE>
     */
-   public R visit(DataSignClause n) {
+   public R visit(DataSignClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeChoice.accept(this);
@@ -2338,7 +2339,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ ( &lt;LEFT&gt; | &lt;RIGHT&gt; ) ]
     * </PRE>
     */
-   public R visit(DataSynchronizedClause n) {
+   public R visit(DataSynchronizedClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -2351,7 +2352,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() [ &lt;COMMACHAR&gt; ] ] )+
     * </PRE>
     */
-   public R visit(DataValueClause n) {
+   public R visit(DataValueClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeList.accept(this);
@@ -2363,7 +2364,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * dataValueClause -> DataValueClause()
     * </PRE>
     */
-   public R visit(ConditionValueClause n) {
+   public R visit(ConditionValueClause n) throws Exception {
       R _ret=null;
       n.dataValueClause.accept(this);
       return _ret;
@@ -2376,7 +2377,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) QualifiedDataName() ]
     * </PRE>
     */
-   public R visit(RenamesClause n) {
+   public R visit(RenamesClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.qualifiedDataName.accept(this);
@@ -2392,7 +2393,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public R visit(WorkingStorageSection n) {
+   public R visit(WorkingStorageSection n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -2409,7 +2410,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public R visit(LinkageSection n) {
+   public R visit(LinkageSection n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -2427,7 +2428,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * procedureBody -> ProcedureBody()
     * </PRE>
     */
-   public R visit(ProcedureDivision n) {
+   public R visit(ProcedureDivision n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -2443,7 +2444,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( [ [ &lt;BY&gt; ] ( &lt;REFERENCE&gt; | &lt;VALUE&gt; ) ] QualifiedDataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(UsingArgs n) {
+   public R visit(UsingArgs n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -2460,7 +2461,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken4 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(Declaratives n) {
+   public R visit(Declaratives n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -2477,7 +2478,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( ProcedureSection() )*
     * </PRE>
     */
-   public R visit(ProcedureBody n) {
+   public R visit(ProcedureBody n) throws Exception {
       R _ret=null;
       n.paragraphs.accept(this);
       n.nodeListOptional.accept(this);
@@ -2491,7 +2492,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * paragraphs -> Paragraphs()
     * </PRE>
     */
-   public R visit(ProcedureSection n) {
+   public R visit(ProcedureSection n) throws Exception {
       R _ret=null;
       n.sectionHeader.accept(this);
       n.nodeToken.accept(this);
@@ -2506,7 +2507,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ IntegerConstant() ]
     * </PRE>
     */
-   public R visit(SectionHeader n) {
+   public R visit(SectionHeader n) throws Exception {
       R _ret=null;
       n.sectionName.accept(this);
       n.nodeToken.accept(this);
@@ -2520,7 +2521,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional1 -> ( Paragraph() )*
     * </PRE>
     */
-   public R visit(Paragraphs n) {
+   public R visit(Paragraphs n) throws Exception {
       R _ret=null;
       n.nodeListOptional.accept(this);
       n.nodeListOptional1.accept(this);
@@ -2534,7 +2535,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( ExitProgramStatement() &lt;DOT&gt; | ExitStatement() &lt;DOT&gt; | AlteredGoto() | ( Sentence() )* )
     * </PRE>
     */
-   public R visit(Paragraph n) {
+   public R visit(Paragraph n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeToken.accept(this);
@@ -2548,7 +2549,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(Sentence n) {
+   public R visit(Sentence n) throws Exception {
       R _ret=null;
       n.nodeList.accept(this);
       n.nodeToken.accept(this);
@@ -2560,7 +2561,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( Statement() )+
     * </PRE>
     */
-   public R visit(StatementList n) {
+   public R visit(StatementList n) throws Exception {
       R _ret=null;
       n.nodeList.accept(this);
       return _ret;
@@ -2572,7 +2573,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public R visit(Statement n) {
+   public R visit(Statement n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -2589,7 +2590,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public R visit(EnableStatement n) {
+   public R visit(EnableStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -2610,7 +2611,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public R visit(DisableStatement n) {
+   public R visit(DisableStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -2631,7 +2632,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ ";" | &lt;NO&gt; &lt;DATA&gt; Statement() ]
     * </PRE>
     */
-   public R visit(ReceiveStatement n) {
+   public R visit(ReceiveStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -2651,7 +2652,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ ( &lt;BEFORE&gt; | &lt;AFTER&gt; ) [ &lt;ADVANCING&gt; ] ( ( ( Identifier() | Literal() ) [ &lt;LINE&gt; | &lt;LINES&gt; ] ) | ( MnemonicName() | &lt;PAGE&gt; ) ) ]
     * </PRE>
     */
-   public R visit(SendStatement n) {
+   public R visit(SendStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -2668,7 +2669,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( &lt;K_WHENEVER&gt; ( &lt;K_NOT&gt; &lt;K_FOUND&gt; | &lt;K_SQLERROR&gt; | &lt;K_SQLWARNING&gt; ) Statement() | ( ( SQLStatement() | DeclareCursorStatement() | &lt;K_PREPARE&gt; &lt;S_IDENTIFIER&gt; &lt;K_FROM&gt; &lt;S_BIND&gt; | &lt;K_ALTER&gt; &lt;K_SESSION&gt; SQLSetStatement() | &lt;K_EXECUTE&gt; SkipToEndExec() | &lt;K_CONNECT&gt; &lt;S_BIND&gt; | SkipToEndExec() ) &lt;END_EXEC&gt; ) )
     * </PRE>
     */
-   public R visit(ExecSqlStatement n) {
+   public R visit(ExecSqlStatement n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeToken.accept(this);
@@ -2685,7 +2686,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | QueryStatement() )
     * </PRE>
     */
-   public R visit(DeclareCursorStatement n) {
+   public R visit(DeclareCursorStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -2702,7 +2703,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;FROM&gt; ( MnemonicName() | EnvironmentName() | &lt;DATE&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY_OF_WEEK&gt; | &lt;TIME&gt; ) | [ &lt;MESSAGE&gt; ] &lt;COUNT&gt; ]
     * </PRE>
     */
-   public R visit(AcceptStatement n) {
+   public R visit(AcceptStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.identifier.accept(this);
@@ -2719,7 +2720,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;END_ADD&gt; ]
     * </PRE>
     */
-   public R visit(AddStatement n) {
+   public R visit(AddStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.addBody.accept(this);
@@ -2736,7 +2737,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; Identifier() [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public R visit(AddBody n) {
+   public R visit(AddBody n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2748,7 +2749,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public R visit(ArithIdentifier n) {
+   public R visit(ArithIdentifier n) throws Exception {
       R _ret=null;
       n.identifier.accept(this);
       n.nodeOptional.accept(this);
@@ -2760,7 +2761,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ArithIdentifier() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(ArithIdentifierList n) {
+   public R visit(ArithIdentifierList n) throws Exception {
       R _ret=null;
       n.nodeList.accept(this);
       return _ret;
@@ -2772,7 +2773,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | Literal()
     * </PRE>
     */
-   public R visit(IdOrLiteral n) {
+   public R visit(IdOrLiteral n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2783,7 +2784,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( IdOrLiteral() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(IdOrLiteralList n) {
+   public R visit(IdOrLiteralList n) throws Exception {
       R _ret=null;
       n.nodeList.accept(this);
       return _ret;
@@ -2796,7 +2797,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(AlteredGoto n) {
+   public R visit(AlteredGoto n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -2810,7 +2811,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ProcedureName() &lt;TO&gt; [ &lt;PROCEED&gt; &lt;TO&gt; ] ProcedureName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(AlterStatement n) {
+   public R visit(AlterStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -2828,7 +2829,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional4 -> [ &lt;END_CALL&gt; ]
     * </PRE>
     */
-   public R visit(CallStatement n) {
+   public R visit(CallStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -2847,7 +2848,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | FileName()
     * </PRE>
     */
-   public R visit(CallByReferenceArgs n) {
+   public R visit(CallByReferenceArgs n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2860,7 +2861,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | Literal()
     * </PRE>
     */
-   public R visit(CallByContentArgs n) {
+   public R visit(CallByContentArgs n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -2872,7 +2873,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(CancelStatement n) {
+   public R visit(CancelStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -2885,7 +2886,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( FileName() [ ( ( &lt;REEL&gt; | &lt;UNIT&gt; ) [ ( [ &lt;FOR&gt; ] &lt;REMOVAL&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] | [ &lt;WITH&gt; ] ( &lt;NO&gt; &lt;REWIND&gt; | &lt;LOCK&gt; ) ) ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(CloseStatement n) {
+   public R visit(CloseStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -2903,7 +2904,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;END_COMPUTE&gt; ]
     * </PRE>
     */
-   public R visit(ComputeStatement n) {
+   public R visit(ComputeStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -2920,7 +2921,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;CONTINUE&gt;
     * </PRE>
     */
-   public R visit(ContinueStatement n) {
+   public R visit(ContinueStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -2936,7 +2937,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional3 -> [ &lt;END_DELETE&gt; ]
     * </PRE>
     */
-   public R visit(DeleteStatement n) {
+   public R visit(DeleteStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.fileName.accept(this);
@@ -2955,7 +2956,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;ADVANCING&gt; ]
     * </PRE>
     */
-   public R visit(DisplayStatement n) {
+   public R visit(DisplayStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -2973,7 +2974,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;END_DIVIDE&gt; ]
     * </PRE>
     */
-   public R visit(DivideStatement n) {
+   public R visit(DivideStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.divideBody.accept(this);
@@ -2988,7 +2989,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( IdOrLiteral() &lt;INTO&gt; ( IdOrLiteral() | ArithIdentifierList() ) [ &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] ] | IdOrLiteral() &lt;BY&gt; IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] )
     * </PRE>
     */
-   public R visit(DivideBody n) {
+   public R visit(DivideBody n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3001,7 +3002,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ UsingArgs() ]
     * </PRE>
     */
-   public R visit(EntryStatement n) {
+   public R visit(EntryStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.literal.accept(this);
@@ -3019,7 +3020,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;END_EVALUATE&gt; ]
     * </PRE>
     */
-   public R visit(EvaluateStatement n) {
+   public R visit(EvaluateStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.evaluateValue.accept(this);
@@ -3035,7 +3036,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( Identifier() | Condition() | ArithmeticExpression() | Literal() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public R visit(EvaluateValue n) {
+   public R visit(EvaluateValue n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3046,7 +3047,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;ANY&gt; | [ &lt;NOT&gt; ] ( Identifier() | Literal() | ArithmeticExpression() ) [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ( Identifier() | Literal() | ArithmeticExpression() ) ] | Condition() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public R visit(EvaluatePhrase n) {
+   public R visit(EvaluatePhrase n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3057,7 +3058,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;EXIT&gt;
     * </PRE>
     */
-   public R visit(ExitStatement n) {
+   public R visit(ExitStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -3069,7 +3070,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;PROGRAM&gt;
     * </PRE>
     */
-   public R visit(ExitProgramStatement n) {
+   public R visit(ExitProgramStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -3081,7 +3082,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;GOBACK&gt;
     * </PRE>
     */
-   public R visit(GobackStatement n) {
+   public R visit(GobackStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -3094,7 +3095,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ProcedureName() [ ( ProcedureName() )* &lt;DEPENDING&gt; [ &lt;ON&gt; ] Identifier() ] | &lt;MORE_LABELS&gt; )
     * </PRE>
     */
-   public R visit(GotoStatement n) {
+   public R visit(GotoStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -3112,7 +3113,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;END_IF&gt; ]
     * </PRE>
     */
-   public R visit(IfStatement n) {
+   public R visit(IfStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.condition.accept(this);
@@ -3130,7 +3131,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;REPLACING&gt; ( ( &lt;ALPHABETIC&gt; | &lt;ALPHANUMERIC&gt; | &lt;NUMERIC&gt; | &lt;ALPHANUMERIC_EDITED&gt; | &lt;NUMERIC_EDITED&gt; | &lt;DBCS&gt; | &lt;EGCS&gt; ) [ &lt;DATA&gt; ] &lt;BY&gt; ( Identifier() | Literal() [ &lt;COMMACHAR&gt; ] ) )+ ]
     * </PRE>
     */
-   public R visit(InitializeStatement n) {
+   public R visit(InitializeStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -3145,7 +3146,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( TallyingPhrase() | ConvertingPhrase() | ReplacingPhrase() )
     * </PRE>
     */
-   public R visit(InspectStatement n) {
+   public R visit(InspectStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.identifier.accept(this);
@@ -3160,7 +3161,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ ReplacingPhrase() ]
     * </PRE>
     */
-   public R visit(TallyingPhrase n) {
+   public R visit(TallyingPhrase n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -3177,7 +3178,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( BeforeAfterPhrase() )*
     * </PRE>
     */
-   public R visit(ConvertingPhrase n) {
+   public R visit(ConvertingPhrase n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -3193,7 +3194,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;CHARACTERS&gt; &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* | ( &lt;ALL&gt; | &lt;LEADING&gt; | &lt;FIRST&gt; ) ( ( Identifier() | Literal() ) &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* )+ )+
     * </PRE>
     */
-   public R visit(ReplacingPhrase n) {
+   public R visit(ReplacingPhrase n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -3207,7 +3208,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public R visit(BeforeAfterPhrase n) {
+   public R visit(BeforeAfterPhrase n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -3227,7 +3228,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] | &lt;GIVING&gt; ( FileName() )+ )
     * </PRE>
     */
-   public R visit(MergeStatement n) {
+   public R visit(MergeStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.fileName.accept(this);
@@ -3246,7 +3247,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ( Identifier() | Literal() ) &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public R visit(MoveStatement n) {
+   public R visit(MoveStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -3262,7 +3263,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;END_MULTIPLY&gt; ]
     * </PRE>
     */
-   public R visit(MultiplyStatement n) {
+   public R visit(MultiplyStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.multiplyBody.accept(this);
@@ -3279,7 +3280,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() | ArithIdentifierList() )
     * </PRE>
     */
-   public R visit(MultiplyBody n) {
+   public R visit(MultiplyBody n) throws Exception {
       R _ret=null;
       n.idOrLiteral.accept(this);
       n.nodeToken.accept(this);
@@ -3293,7 +3294,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;INPUT&gt; ( FileName() [ ( &lt;REVERSED&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] [ &lt;COMMACHAR&gt; ] )+ | &lt;OUTPUT&gt; ( FileName() [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ] [ &lt;COMMACHAR&gt; ] )+ | &lt;I_O&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;EXTEND&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ )+
     * </PRE>
     */
-   public R visit(OpenStatement n) {
+   public R visit(OpenStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -3306,7 +3307,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * performBody -> PerformBody()
     * </PRE>
     */
-   public R visit(PerformStatement n) {
+   public R visit(PerformStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.performBody.accept(this);
@@ -3319,7 +3320,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PerformProcedure() [ PerformOption() ]
     * </PRE>
     */
-   public R visit(PerformBody n) {
+   public R visit(PerformBody n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3331,7 +3332,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ ( &lt;THRU&gt; | &lt;THROUGH&gt; ) ProcedureName() ]
     * </PRE>
     */
-   public R visit(PerformProcedure n) {
+   public R visit(PerformProcedure n) throws Exception {
       R _ret=null;
       n.procedureName.accept(this);
       n.nodeOptional.accept(this);
@@ -3344,7 +3345,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;AFTER&gt;
     * </PRE>
     */
-   public R visit(BeforeOrAfter n) {
+   public R visit(BeforeOrAfter n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3357,7 +3358,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | [ PerformTest() ] &lt;VARYING&gt; PerformVaryingList()
     * </PRE>
     */
-   public R visit(PerformOption n) {
+   public R visit(PerformOption n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3370,7 +3371,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * beforeOrAfter -> BeforeOrAfter()
     * </PRE>
     */
-   public R visit(PerformTest n) {
+   public R visit(PerformTest n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -3384,7 +3385,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;AFTER&gt; PerformVarying() [ &lt;COMMACHAR&gt; ] )*
     * </PRE>
     */
-   public R visit(PerformVaryingList n) {
+   public R visit(PerformVaryingList n) throws Exception {
       R _ret=null;
       n.performVarying.accept(this);
       n.nodeListOptional.accept(this);
@@ -3402,7 +3403,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * condition -> Condition()
     * </PRE>
     */
-   public R visit(PerformVarying n) {
+   public R visit(PerformVarying n) throws Exception {
       R _ret=null;
       n.identifier.accept(this);
       n.nodeToken.accept(this);
@@ -3429,7 +3430,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional8 -> [ &lt;END_READ&gt; ]
     * </PRE>
     */
-   public R visit(ReadStatement n) {
+   public R visit(ReadStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.fileName.accept(this);
@@ -3452,7 +3453,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;FROM&gt; QualifiedDataName() ]
     * </PRE>
     */
-   public R visit(ReleaseStatement n) {
+   public R visit(ReleaseStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.recordName.accept(this);
@@ -3473,7 +3474,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional4 -> [ &lt;END_RETURN&gt; ]
     * </PRE>
     */
-   public R visit(ReturnStatement n) {
+   public R visit(ReturnStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.fileName.accept(this);
@@ -3497,7 +3498,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional3 -> [ &lt;END_REWRITE&gt; ]
     * </PRE>
     */
-   public R visit(RewriteStatement n) {
+   public R visit(RewriteStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.recordName.accept(this);
@@ -3519,7 +3520,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional3 -> [ &lt;END_SEARCH&gt; ]
     * </PRE>
     */
-   public R visit(SearchStatement n) {
+   public R visit(SearchStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -3537,7 +3538,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ( Identifier() [ &lt;COMMACHAR&gt; ] )+ ( &lt;TO&gt; ( Identifier() | &lt;TRUE&gt; | &lt;FALSE&gt; | &lt;ON&gt; | &lt;OFF&gt; | Literal() ) | ( &lt;UP&gt; | &lt;DOWN&gt; ) [ &lt;BY&gt; ] ( Identifier() | Literal() ) ) )+
     * </PRE>
     */
-   public R visit(SetStatement n) {
+   public R visit(SetStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -3555,7 +3556,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( &lt;GIVING&gt; ( FileName() )+ | &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] )
     * </PRE>
     */
-   public R visit(SortStatement n) {
+   public R visit(SortStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.fileName.accept(this);
@@ -3577,7 +3578,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional3 -> [ &lt;END_START&gt; ]
     * </PRE>
     */
-   public R visit(StartStatement n) {
+   public R visit(StartStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.fileName.accept(this);
@@ -3594,7 +3595,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;RUN&gt; | Literal() )
     * </PRE>
     */
-   public R visit(StopStatement n) {
+   public R visit(StopStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -3613,7 +3614,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional3 -> [ &lt;END_STRING&gt; ]
     * </PRE>
     */
-   public R visit(StringStatement n) {
+   public R visit(StringStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeList.accept(this);
@@ -3635,7 +3636,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;END_SUBTRACT&gt; ]
     * </PRE>
     */
-   public R visit(SubtractStatement n) {
+   public R visit(SubtractStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -3659,7 +3660,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional5 -> [ &lt;END_UNSTRING&gt; ]
     * </PRE>
     */
-   public R visit(UnstringStatement n) {
+   public R visit(UnstringStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.identifier.accept(this);
@@ -3680,7 +3681,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( [ &lt;FOR&gt; ] &lt;DEBUGGING&gt; [ &lt;ON&gt; ] ( ( Identifier() | &lt;ALL&gt; [ &lt;REFERENCES&gt; ] [ &lt;OF&gt; ] Identifier() | FileName() | ProcedureName() )+ | &lt;ALL&gt; &lt;PROCEDURES&gt; ) | [ &lt;GLOBAL&gt; ] &lt;AFTER&gt; [ &lt;STANDARD&gt; ] ( ( &lt;EXCEPTION&gt; | &lt;ERROR&gt; ) | [ ( &lt;BEGINNING&gt; | &lt;ENDING&gt; ) ] [ ( &lt;FILE&gt; | &lt;REEL&gt; | &lt;UNIT&gt; ) ] &lt;LABEL&gt; ) &lt;PROCEDURE&gt; [ &lt;ON&gt; ] ( ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;INPUT&gt; | &lt;OUTPUT&gt; | &lt;I_O&gt; | &lt;EXTEND&gt; ) )
     * </PRE>
     */
-   public R visit(UseStatement n) {
+   public R visit(UseStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -3700,7 +3701,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional6 -> [ &lt;END_WRITE&gt; ]
     * </PRE>
     */
-   public R visit(WriteStatement n) {
+   public R visit(WriteStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.recordName.accept(this);
@@ -3721,7 +3722,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( &lt;PAGE&gt; | ( Identifier() | IntegerConstant() | FigurativeConstant() ) [ ( &lt;LINE&gt; | &lt;LINES&gt; ) ] | MnemonicName() )
     * </PRE>
     */
-   public R visit(AdvancingPhrase n) {
+   public R visit(AdvancingPhrase n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeOptional.accept(this);
@@ -3734,7 +3735,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;S_IDENTIFIER&gt;
     * </PRE>
     */
-   public R visit(S_Identifier n) {
+   public R visit(S_Identifier n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -3745,7 +3746,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public R visit(S_Quoted_Identifier n) {
+   public R visit(S_Quoted_Identifier n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -3756,7 +3757,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken -> &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public R visit(S_Char_Literal n) {
+   public R visit(S_Char_Literal n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       return _ret;
@@ -3776,7 +3777,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLSetStatement()
     * </PRE>
     */
-   public R visit(SQLStatement n) {
+   public R visit(SQLStatement n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3788,7 +3789,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public R visit(SQLCloseStatement n) {
+   public R visit(SQLCloseStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.relObjectName.accept(this);
@@ -3802,7 +3803,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public R visit(CommitStatement n) {
+   public R visit(CommitStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -3820,7 +3821,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; ( RelObjectName() [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ] | IndicatorBind() ) )*
     * </PRE>
     */
-   public R visit(FetchStatement n) {
+   public R visit(FetchStatement n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -3837,7 +3838,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ]
     * </PRE>
     */
-   public R visit(IndicatorBind n) {
+   public R visit(IndicatorBind n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -3856,7 +3857,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;K_NOWAIT&gt; ]
     * </PRE>
     */
-   public R visit(LockTableStatement n) {
+   public R visit(LockTableStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -3876,7 +3877,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;K_USING&gt; Arguments() ]
     * </PRE>
     */
-   public R visit(SQLOpenStatement n) {
+   public R visit(SQLOpenStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.relObjectName.accept(this);
@@ -3892,7 +3893,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public R visit(RollbackStatement n) {
+   public R visit(RollbackStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -3908,7 +3909,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ( &lt;K_READ&gt; ( &lt;K_ONLY&gt; | &lt;K_WRITE&gt; ) ) | ( &lt;K_USE&gt; &lt;K_ROLLBACK&gt; &lt;K_SEGMENT&gt; RelObjectName() ) )
     * </PRE>
     */
-   public R visit(SetTransactionStatement n) {
+   public R visit(SetTransactionStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -3924,7 +3925,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * arguments -> Arguments()
     * </PRE>
     */
-   public R visit(SetVariableStatement n) {
+   public R visit(SetVariableStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.relObjectName.accept(this);
@@ -3939,7 +3940,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SetVariableStatement()
     * </PRE>
     */
-   public R visit(SQLSetStatement n) {
+   public R visit(SQLSetStatement n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3952,7 +3953,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | ( &lt;K_EXCLUSIVE&gt; )
     * </PRE>
     */
-   public R visit(LockMode n) {
+   public R visit(LockMode n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -3964,7 +3965,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public R visit(SavepointStatement n) {
+   public R visit(SavepointStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.relObjectName.accept(this);
@@ -3981,7 +3982,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public R visit(UpdateStatement n) {
+   public R visit(UpdateStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.tableReference.accept(this);
@@ -4000,7 +4001,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; TableColumn() "=" UpdatedValue() )*
     * </PRE>
     */
-   public R visit(ColumnValues n) {
+   public R visit(ColumnValues n) throws Exception {
       R _ret=null;
       n.tableColumn.accept(this);
       n.nodeToken.accept(this);
@@ -4015,7 +4016,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlExpression()
     * </PRE>
     */
-   public R visit(UpdatedValue n) {
+   public R visit(UpdatedValue n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4030,7 +4031,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;K_VALUES&gt; &lt;LPARENCHAR&gt; PlSqlExpressionList() &lt;RPARENCHAR&gt; | SelectStatement() )
     * </PRE>
     */
-   public R visit(InsertStatement n) {
+   public R visit(InsertStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -4046,7 +4047,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | &lt;S_BIND&gt; )
     * </PRE>
     */
-   public R visit(SQLUsingDMLReturn n) {
+   public R visit(SQLUsingDMLReturn n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeChoice.accept(this);
@@ -4062,7 +4063,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional2 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public R visit(SQLDeleteStatement n) {
+   public R visit(SQLDeleteStatement n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -4077,7 +4078,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * selectStatement -> SelectStatement()
     * </PRE>
     */
-   public R visit(QueryStatement n) {
+   public R visit(QueryStatement n) throws Exception {
       R _ret=null;
       n.selectStatement.accept(this);
       return _ret;
@@ -4088,7 +4089,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * plSqlExpressions -> PlSqlExpressions()
     * </PRE>
     */
-   public R visit(PlSqlExpression n) {
+   public R visit(PlSqlExpression n) throws Exception {
       R _ret=null;
       n.plSqlExpressions.accept(this);
       return _ret;
@@ -4100,7 +4101,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlAndExpressions()
     * </PRE>
     */
-   public R visit(PlSqlExpressions n) {
+   public R visit(PlSqlExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4112,7 +4113,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;K_OR&gt; PlSqlAndExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlOrExpression n) {
+   public R visit(PlSqlOrExpression n) throws Exception {
       R _ret=null;
       n.plSqlAndExpressions.accept(this);
       n.nodeList.accept(this);
@@ -4125,7 +4126,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlUnaryLogicalExpressions()
     * </PRE>
     */
-   public R visit(PlSqlAndExpressions n) {
+   public R visit(PlSqlAndExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4137,7 +4138,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;K_AND&gt; PlSqlUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlAndExpression n) {
+   public R visit(PlSqlAndExpression n) throws Exception {
       R _ret=null;
       n.plSqlUnaryLogicalExpressions.accept(this);
       n.nodeList.accept(this);
@@ -4150,7 +4151,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlRelationalExpressions()
     * </PRE>
     */
-   public R visit(PlSqlUnaryLogicalExpressions n) {
+   public R visit(PlSqlUnaryLogicalExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4162,7 +4163,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * plSqlRelationalExpressions -> PlSqlRelationalExpressions()
     * </PRE>
     */
-   public R visit(PlSqlUnaryLogicalExpression n) {
+   public R visit(PlSqlUnaryLogicalExpression n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.plSqlRelationalExpressions.accept(this);
@@ -4175,7 +4176,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlRelationalExpressions n) {
+   public R visit(PlSqlRelationalExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4187,7 +4188,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( Relop() PlSqlSimpleExpressions() | PlSqlInClause() | PlSqlBetweenClause() | PlSqlLikeClause() | IsNullClause() )
     * </PRE>
     */
-   public R visit(PlSqlRelationalExpression n) {
+   public R visit(PlSqlRelationalExpression n) throws Exception {
       R _ret=null;
       n.plSqlSimpleExpressions.accept(this);
       n.nodeChoice.accept(this);
@@ -4200,7 +4201,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; PlSqlExpression() )*
     * </PRE>
     */
-   public R visit(PlSqlExpressionList n) {
+   public R visit(PlSqlExpressionList n) throws Exception {
       R _ret=null;
       n.plSqlExpression.accept(this);
       n.nodeListOptional.accept(this);
@@ -4216,7 +4217,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(PlSqlInClause n) {
+   public R visit(PlSqlInClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -4235,7 +4236,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * plSqlSimpleExpressions1 -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlBetweenClause n) {
+   public R visit(PlSqlBetweenClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -4252,7 +4253,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlLikeClause n) {
+   public R visit(PlSqlLikeClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -4267,7 +4268,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;K_NULL&gt;
     * </PRE>
     */
-   public R visit(IsNullClause n) {
+   public R visit(IsNullClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -4280,7 +4281,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlSimpleExpression n) {
+   public R visit(PlSqlSimpleExpression n) throws Exception {
       R _ret=null;
       n.plSqlSimpleExpressions.accept(this);
       return _ret;
@@ -4292,7 +4293,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlMultiplicativeExpressions()
     * </PRE>
     */
-   public R visit(PlSqlSimpleExpressions n) {
+   public R visit(PlSqlSimpleExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4304,7 +4305,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) | "||" ) PlSqlMultiplicativeExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlAdditiveExpression n) {
+   public R visit(PlSqlAdditiveExpression n) throws Exception {
       R _ret=null;
       n.plSqlMultiplicativeExpressions.accept(this);
       n.nodeList.accept(this);
@@ -4317,7 +4318,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlExpotentExpressions()
     * </PRE>
     */
-   public R visit(PlSqlMultiplicativeExpressions n) {
+   public R visit(PlSqlMultiplicativeExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4329,7 +4330,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ( "*" | "/" ) PlSqlExpotentExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlMultiplicativeExpression n) {
+   public R visit(PlSqlMultiplicativeExpression n) throws Exception {
       R _ret=null;
       n.plSqlExpotentExpressions.accept(this);
       n.nodeList.accept(this);
@@ -4342,7 +4343,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlUnaryExpressions()
     * </PRE>
     */
-   public R visit(PlSqlExpotentExpressions n) {
+   public R visit(PlSqlExpotentExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4354,7 +4355,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;POW&gt; PlSqlUnaryExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlExpotentExpression n) {
+   public R visit(PlSqlExpotentExpression n) throws Exception {
       R _ret=null;
       n.plSqlUnaryExpressions.accept(this);
       n.nodeList.accept(this);
@@ -4367,7 +4368,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | PlSqlPrimaryExpression()
     * </PRE>
     */
-   public R visit(PlSqlUnaryExpressions n) {
+   public R visit(PlSqlUnaryExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4378,7 +4379,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeSequence -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) PlSqlPrimaryExpression() )
     * </PRE>
     */
-   public R visit(PlSqlUnaryExpression n) {
+   public R visit(PlSqlUnaryExpression n) throws Exception {
       R _ret=null;
       n.nodeSequence.accept(this);
       return _ret;
@@ -4396,7 +4397,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;LPARENCHAR&gt; PlSqlExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(PlSqlPrimaryExpression n) {
+   public R visit(PlSqlPrimaryExpression n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4408,7 +4409,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;DOTCHAR&gt; DotObjectName() [ &lt;DOTCHAR&gt; DotObjectName() ] ]
     * </PRE>
     */
-   public R visit(TableColumn n) {
+   public R visit(TableColumn n) throws Exception {
       R _ret=null;
       n.relObjectName.accept(this);
       n.nodeOptional.accept(this);
@@ -4422,7 +4423,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public R visit(RelObjectName n) {
+   public R visit(RelObjectName n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4435,7 +4436,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public R visit(DotObjectName n) {
+   public R visit(DotObjectName n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4447,7 +4448,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public R visit(OracleObjectName n) {
+   public R visit(OracleObjectName n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4465,7 +4466,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;LESSTHANOREQUAL&gt;
     * </PRE>
     */
-   public R visit(Relop n) {
+   public R visit(Relop n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4477,7 +4478,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ "/" DotObjectName() ]
     * </PRE>
     */
-   public R visit(TableReference n) {
+   public R visit(TableReference n) throws Exception {
       R _ret=null;
       n.relObjectName.accept(this);
       n.nodeOptional.accept(this);
@@ -4490,7 +4491,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | ( [ ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) ] &lt;S_NUMBER&gt; )
     * </PRE>
     */
-   public R visit(NumOrID n) {
+   public R visit(NumOrID n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4501,7 +4502,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * plSqlExpressionList -> PlSqlExpressionList()
     * </PRE>
     */
-   public R visit(Arguments n) {
+   public R visit(Arguments n) throws Exception {
       R _ret=null;
       n.plSqlExpressionList.accept(this);
       return _ret;
@@ -4514,7 +4515,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional1 -> [ ForUpdateClause() ]
     * </PRE>
     */
-   public R visit(SelectStatement n) {
+   public R visit(SelectStatement n) throws Exception {
       R _ret=null;
       n.selectWithoutOrder.accept(this);
       n.nodeOptional.accept(this);
@@ -4535,7 +4536,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional5 -> [ SetClause() ]
     * </PRE>
     */
-   public R visit(SelectWithoutOrder n) {
+   public R visit(SelectWithoutOrder n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeOptional.accept(this);
@@ -4555,7 +4556,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SelectItem() ( &lt;COMMACHAR&gt; SelectItem() )*
     * </PRE>
     */
-   public R visit(SelectList n) {
+   public R visit(SelectList n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4570,7 +4571,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | TableColumn() [ AsObjectName() ]
     * </PRE>
     */
-   public R visit(SelectItem n) {
+   public R visit(SelectItem n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4582,7 +4583,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | RelObjectName() &lt;DOTCHAR&gt; DotObjectName() &lt;DOTCHAR&gt; &lt;ASTERISKCHAR&gt;
     * </PRE>
     */
-   public R visit(SelectAllItems n) {
+   public R visit(SelectAllItems n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4594,7 +4595,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;K_AS&gt; DotObjectName()
     * </PRE>
     */
-   public R visit(AsObjectName n) {
+   public R visit(AsObjectName n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4607,7 +4608,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; IntoItem() )*
     * </PRE>
     */
-   public R visit(IntoClause n) {
+   public R visit(IntoClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.intoItem.accept(this);
@@ -4621,7 +4622,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | ( IndicatorBind() )
     * </PRE>
     */
-   public R visit(IntoItem n) {
+   public R visit(IntoItem n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4634,7 +4635,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; FromItem() )*
     * </PRE>
     */
-   public R visit(FromClause n) {
+   public R visit(FromClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.fromItem.accept(this);
@@ -4648,7 +4649,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( JoinerExpression() [ &lt;K_AS&gt; AsObjectName() ] | [ AsObjectName() ] )
     * </PRE>
     */
-   public R visit(FromItem n) {
+   public R visit(FromItem n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -4661,7 +4662,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SelectStatement()
     * </PRE>
     */
-   public R visit(FromItemExpression n) {
+   public R visit(FromItemExpression n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4673,7 +4674,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | RelObjectName() &lt;K_JOIN&gt; TableReference() [ JoinWhereClause() ]
     * </PRE>
     */
-   public R visit(JoinerExpression n) {
+   public R visit(JoinerExpression n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4685,7 +4686,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public R visit(JoinWhereClause n) {
+   public R visit(JoinWhereClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.sQLExpression.accept(this);
@@ -4698,7 +4699,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public R visit(WhereClause n) {
+   public R visit(WhereClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.sQLExpression.accept(this);
@@ -4710,7 +4711,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeSequence -> ( [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] &lt;K_CONNECT&gt; &lt;K_BY&gt; SQLExpression() [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] )
     * </PRE>
     */
-   public R visit(ConnectClause n) {
+   public R visit(ConnectClause n) throws Exception {
       R _ret=null;
       n.nodeSequence.accept(this);
       return _ret;
@@ -4724,7 +4725,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;K_HAVING&gt; SQLExpression() ]
     * </PRE>
     */
-   public R visit(GroupByClause n) {
+   public R visit(GroupByClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -4739,7 +4740,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( ( &lt;LPARENCHAR&gt; SelectStatement() &lt;RPARENCHAR&gt; ) | SelectStatement() )
     * </PRE>
     */
-   public R visit(SetClause n) {
+   public R visit(SetClause n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -4755,7 +4756,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() [ &lt;K_ASC&gt; | &lt;K_DESC&gt; ] )*
     * </PRE>
     */
-   public R visit(OrderByClause n) {
+   public R visit(OrderByClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -4772,7 +4773,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeOptional -> [ &lt;K_OF&gt; TableColumn() ( &lt;COMMACHAR&gt; TableColumn() )* ]
     * </PRE>
     */
-   public R visit(ForUpdateClause n) {
+   public R visit(ForUpdateClause n) throws Exception {
       R _ret=null;
       n.nodeToken.accept(this);
       n.nodeToken1.accept(this);
@@ -4785,7 +4786,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLOrExpressions -> SQLOrExpressions()
     * </PRE>
     */
-   public R visit(SQLExpression n) {
+   public R visit(SQLExpression n) throws Exception {
       R _ret=null;
       n.sQLOrExpressions.accept(this);
       return _ret;
@@ -4797,7 +4798,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLAndExpressions()
     * </PRE>
     */
-   public R visit(SQLOrExpressions n) {
+   public R visit(SQLOrExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4809,7 +4810,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;K_OR&gt; SQLAndExpressions() )+
     * </PRE>
     */
-   public R visit(SQLOrExpression n) {
+   public R visit(SQLOrExpression n) throws Exception {
       R _ret=null;
       n.sQLAndExpressions.accept(this);
       n.nodeList.accept(this);
@@ -4822,7 +4823,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLUnaryLogicalExpressions()
     * </PRE>
     */
-   public R visit(SQLAndExpressions n) {
+   public R visit(SQLAndExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4834,7 +4835,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;K_AND&gt; SQLUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public R visit(SQLAndExpression n) {
+   public R visit(SQLAndExpression n) throws Exception {
       R _ret=null;
       n.sQLUnaryLogicalExpressions.accept(this);
       n.nodeList.accept(this);
@@ -4847,7 +4848,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLRelationalExpressions()
     * </PRE>
     */
-   public R visit(SQLUnaryLogicalExpressions n) {
+   public R visit(SQLUnaryLogicalExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4862,7 +4863,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(ExistsClause n) {
+   public R visit(ExistsClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -4878,7 +4879,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | ( SQLRelopExpression() | &lt;LPARENCHAR&gt; SQLExpressionList() &lt;RPARENCHAR&gt; | ( SQLPriorExpression() | SQLSimpleExpressions() ) )
     * </PRE>
     */
-   public R visit(SQLRelationalExpressions n) {
+   public R visit(SQLRelationalExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -4890,7 +4891,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( ( SQLInClause() ) | ( SQLBetweenClause() ) | ( SQLLikeClause() ) | IsNullClause() )
     * </PRE>
     */
-   public R visit(SQLRelationalExpression n) {
+   public R visit(SQLRelationalExpression n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.nodeChoice1.accept(this);
@@ -4904,7 +4905,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public R visit(SQLPriorExpression n) {
+   public R visit(SQLPriorExpression n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -4918,7 +4919,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() )*
     * </PRE>
     */
-   public R visit(SQLExpressionList n) {
+   public R visit(SQLExpressionList n) throws Exception {
       R _ret=null;
       n.sQLSimpleExpression.accept(this);
       n.nodeListOptional.accept(this);
@@ -4932,7 +4933,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice1 -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpressions() )
     * </PRE>
     */
-   public R visit(SQLRelopExpression n) {
+   public R visit(SQLRelopExpression n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.relop.accept(this);
@@ -4946,7 +4947,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeChoice -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpression() )
     * </PRE>
     */
-   public R visit(SQLRelationalOperatorExpression n) {
+   public R visit(SQLRelationalOperatorExpression n) throws Exception {
       R _ret=null;
       n.relop.accept(this);
       n.nodeChoice.accept(this);
@@ -4962,7 +4963,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(SQLInClause n) {
+   public R visit(SQLInClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -4981,7 +4982,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLSimpleExpression1 -> SQLSimpleExpression()
     * </PRE>
     */
-   public R visit(SQLBetweenClause n) {
+   public R visit(SQLBetweenClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -4998,7 +4999,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLSimpleExpression -> SQLSimpleExpression()
     * </PRE>
     */
-   public R visit(SQLLikeClause n) {
+   public R visit(SQLLikeClause n) throws Exception {
       R _ret=null;
       n.nodeOptional.accept(this);
       n.nodeToken.accept(this);
@@ -5011,7 +5012,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public R visit(SQLSimpleExpression n) {
+   public R visit(SQLSimpleExpression n) throws Exception {
       R _ret=null;
       n.sQLSimpleExpressions.accept(this);
       return _ret;
@@ -5022,7 +5023,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLAdditiveExpressions -> SQLAdditiveExpressions()
     * </PRE>
     */
-   public R visit(SQLSimpleExpressions n) {
+   public R visit(SQLSimpleExpressions n) throws Exception {
       R _ret=null;
       n.sQLAdditiveExpressions.accept(this);
       return _ret;
@@ -5034,7 +5035,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLMultiplicativeExpressions()
     * </PRE>
     */
-   public R visit(SQLAdditiveExpressions n) {
+   public R visit(SQLAdditiveExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -5046,7 +5047,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) | &lt;CONCAT&gt; ) SQLMultiplicativeExpressions() )+
     * </PRE>
     */
-   public R visit(SQLAdditiveExpression n) {
+   public R visit(SQLAdditiveExpression n) throws Exception {
       R _ret=null;
       n.sQLMultiplicativeExpressions.accept(this);
       n.nodeList.accept(this);
@@ -5059,7 +5060,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLExpotentExpressions()
     * </PRE>
     */
-   public R visit(SQLMultiplicativeExpressions n) {
+   public R visit(SQLMultiplicativeExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -5071,7 +5072,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) SQLExpotentExpressions() )+
     * </PRE>
     */
-   public R visit(SQLMultiplicativeExpression n) {
+   public R visit(SQLMultiplicativeExpression n) throws Exception {
       R _ret=null;
       n.sQLExpotentExpressions.accept(this);
       n.nodeList.accept(this);
@@ -5084,7 +5085,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLUnaryExpressions()
     * </PRE>
     */
-   public R visit(SQLExpotentExpressions n) {
+   public R visit(SQLExpotentExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -5096,7 +5097,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeList -> ( &lt;POW&gt; SQLUnaryExpressions() )+
     * </PRE>
     */
-   public R visit(SQLExpotentExpression n) {
+   public R visit(SQLExpotentExpression n) throws Exception {
       R _ret=null;
       n.sQLUnaryExpressions.accept(this);
       n.nodeList.accept(this);
@@ -5109,7 +5110,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | SQLPrimaryExpression()
     * </PRE>
     */
-   public R visit(SQLUnaryExpressions n) {
+   public R visit(SQLUnaryExpressions n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -5121,7 +5122,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLPrimaryExpression -> SQLPrimaryExpression()
     * </PRE>
     */
-   public R visit(SQLUnaryExpression n) {
+   public R visit(SQLUnaryExpression n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       n.sQLPrimaryExpression.accept(this);
@@ -5139,7 +5140,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     *       | &lt;LPARENCHAR&gt; SQLExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(SQLPrimaryExpression n) {
+   public R visit(SQLPrimaryExpression n) throws Exception {
       R _ret=null;
       n.nodeChoice.accept(this);
       return _ret;
@@ -5154,7 +5155,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(FunctionCall n) {
+   public R visit(FunctionCall n) throws Exception {
       R _ret=null;
       n.relObjectName.accept(this);
       n.nodeOptional.accept(this);
@@ -5169,7 +5170,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * sQLExpressionList -> SQLExpressionList()
     * </PRE>
     */
-   public R visit(SQLArguments n) {
+   public R visit(SQLArguments n) throws Exception {
       R _ret=null;
       n.sQLExpressionList.accept(this);
       return _ret;
@@ -5184,7 +5185,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(OuterJoinExpression n) {
+   public R visit(OuterJoinExpression n) throws Exception {
       R _ret=null;
       n.relObjectName.accept(this);
       n.nodeOptional.accept(this);
@@ -5199,7 +5200,7 @@ public class GJNoArguDepthFirst<R> implements GJNoArguVisitor<R> {
     * selectWithoutOrder -> SelectWithoutOrder()
     * </PRE>
     */
-   public R visit(SubQuery n) {
+   public R visit(SubQuery n) throws Exception {
       R _ret=null;
       n.selectWithoutOrder.accept(this);
       return _ret;

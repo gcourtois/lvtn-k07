@@ -8,10 +8,10 @@ package com.res.cobol.syntaxtree;
  * The interface which all syntax tree classes must implement.
  */
 public interface Node extends java.io.Serializable {
-   public void accept(com.res.cobol.visitor.Visitor v);
-   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu);
-   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v);
-   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu);
+   public void accept(com.res.cobol.visitor.Visitor v) throws Exception;
+   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) throws Exception;
+   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) throws Exception;
+   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) throws Exception;
    // It is the responsibility of each implementing class to call
    // setParent() on each of its child Nodes.
    public void setParent(Node n);

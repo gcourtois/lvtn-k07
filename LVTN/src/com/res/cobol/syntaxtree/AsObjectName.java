@@ -6,35 +6,49 @@ package com.res.cobol.syntaxtree;
 
 /**
  * Grammar production:
+ * 
  * <PRE>
- * nodeChoice -> RelObjectName()
+ * nodeChoice -&gt; RelObjectName()
  *       | &lt;K_AS&gt; DotObjectName()
  * </PRE>
  */
 public class AsObjectName extends com.res.cobol.RESNode implements Node {
-   private Node parent;
-   public NodeChoice nodeChoice;
+    private Node parent;
+    public NodeChoice nodeChoice;
 
-   public AsObjectName(NodeChoice n0) {
-      nodeChoice = n0;
-      if ( nodeChoice != null ) nodeChoice.setParent(this);
-   }
+    public AsObjectName(NodeChoice n0) {
+        nodeChoice = n0;
+        if (nodeChoice != null)
+            nodeChoice.setParent(this);
+    }
 
-   public AsObjectName() {}
+    public AsObjectName() {
+    }
 
-   public void accept(com.res.cobol.visitor.Visitor v) {
-      v.visit(this);
-   }
-   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) {
-      return v.visit(this,argu);
-   }
-   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) {
-      return v.visit(this);
-   }
-   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) {
-      v.visit(this,argu);
-   }
-   public void setParent(Node n) { parent = n; }
-   public Node getParent()       { return parent; }
+    public void accept(com.res.cobol.visitor.Visitor v) throws Exception {
+        v.visit(this);
+    }
+
+    public <R, A> R accept(com.res.cobol.visitor.GJVisitor<R, A> v, A argu)
+            throws Exception {
+        return v.visit(this, argu);
+    }
+
+    public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v)
+            throws Exception {
+        return v.visit(this);
+    }
+
+    public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu)
+            throws Exception {
+        v.visit(this, argu);
+    }
+
+    public void setParent(Node n) {
+        parent = n;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
 }
-

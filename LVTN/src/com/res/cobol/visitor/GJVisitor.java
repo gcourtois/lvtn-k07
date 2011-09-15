@@ -4,7 +4,6 @@
 
 package com.res.cobol.visitor;
 import com.res.cobol.syntaxtree.*;
-import java.util.*;
 
 /**
  * All GJ visitors must implement this interface.
@@ -16,11 +15,11 @@ public interface GJVisitor<R,A> {
    // GJ Auto class visitors
    //
 
-   public R visit(NodeList n, A argu);
-   public R visit(NodeListOptional n, A argu);
-   public R visit(NodeOptional n, A argu);
-   public R visit(NodeSequence n, A argu);
-   public R visit(NodeToken n, A argu);
+   public R visit(NodeList n, A argu) throws Exception;
+   public R visit(NodeListOptional n, A argu) throws Exception;
+   public R visit(NodeOptional n, A argu) throws Exception;
+   public R visit(NodeSequence n, A argu) throws Exception;
+   public R visit(NodeToken n, A argu) throws Exception;
 
    //
    // User-generated visitor methods below
@@ -31,7 +30,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;COBOL_WORD&gt;
     * </PRE>
     */
-   public R visit(CobolWord n, A argu);
+   public R visit(CobolWord n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -44,7 +43,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;COMMA_INTEGER&gt;
     * </PRE>
     */
-   public R visit(IntegerConstant n, A argu);
+   public R visit(IntegerConstant n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -52,14 +51,14 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( IntegerConstant() &lt;DOTCHAR&gt; [ IntegerConstant() ] | &lt;DOTCHAR&gt; IntegerConstant() | IntegerConstant() )
     * </PRE>
     */
-   public R visit(NumericConstant n, A argu);
+   public R visit(NumericConstant n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;LEVEL_NUMBER&gt;
     * </PRE>
     */
-   public R visit(LevelNumber n, A argu);
+   public R visit(LevelNumber n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -78,14 +77,14 @@ public interface GJVisitor<R,A> {
     *       | &lt;NULLS&gt;
     * </PRE>
     */
-   public R visit(FigurativeConstant n, A argu);
+   public R visit(FigurativeConstant n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;QUOTEDSTRING&gt; | &lt;HEXNUMBER&gt; )
     * </PRE>
     */
-   public R visit(NonNumericConstant n, A argu);
+   public R visit(NonNumericConstant n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -93,7 +92,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( NonNumericConstant() | NumericConstant() | FigurativeConstant() | IntrinsicFunction() | SpecialRegister() | &lt;LINAGE_COUNTER&gt; [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public R visit(Literal n, A argu);
+   public R visit(Literal n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -101,7 +100,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( ( &lt;AND&gt; | &lt;OR&gt; ) ( CombinableCondition() | AbbreviationRest() ) )*
     * </PRE>
     */
-   public R visit(Condition n, A argu);
+   public R visit(Condition n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -109,14 +108,14 @@ public interface GJVisitor<R,A> {
     * simpleCondition -> SimpleCondition()
     * </PRE>
     */
-   public R visit(CombinableCondition n, A argu);
+   public R visit(CombinableCondition n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( ClassCondition() | RelationCondition() | ConditionNameCondition() | &lt;LPARENCHAR&gt; Condition() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public R visit(SimpleCondition n, A argu);
+   public R visit(SimpleCondition n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -126,14 +125,14 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;NUMERIC&gt; | &lt;ALPHABETIC&gt; | &lt;ALPHABETIC_LOWER&gt; | &lt;ALPHABETIC_UPPER&gt; | ClassName() | &lt;DBCS&gt; | &lt;KANJI&gt; )
     * </PRE>
     */
-   public R visit(ClassCondition n, A argu);
+   public R visit(ClassCondition n, A argu) throws Exception;
 
    /**
     * <PRE>
     * conditionNameReference -> ConditionNameReference()
     * </PRE>
     */
-   public R visit(ConditionNameCondition n, A argu);
+   public R visit(ConditionNameCondition n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -141,7 +140,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( RelationalOperator() ArithmeticExpression() | SignCondition() )
     * </PRE>
     */
-   public R visit(RelationCondition n, A argu);
+   public R visit(RelationCondition n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -150,7 +149,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;POSITIVE&gt; | &lt;NEGATIVE&gt; | ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; ) )
     * </PRE>
     */
-   public R visit(SignCondition n, A argu);
+   public R visit(SignCondition n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -159,49 +158,49 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;GREATER&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;MORETHANOREQUAL&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;LESSTHANOREQUAL&gt; | &lt;GREATER&gt; [ &lt;THAN&gt; ] | &lt;MORETHANCHAR&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] | &lt;LESSTHANCHAR&gt; | ( &lt;EQUAL&gt; | &lt;EQUALS&gt; ) [ &lt;TO&gt; ] | &lt;EQUALCHAR&gt; [ &lt;TO&gt; ] | &lt;NOTEQUALCHAR&gt; )
     * </PRE>
     */
-   public R visit(RelationalOperator n, A argu);
+   public R visit(RelationalOperator n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( [ &lt;NOT&gt; ] [ RelationalOperator() ] AbbreviationLeaf() )+
     * </PRE>
     */
-   public R visit(AbbreviationRest n, A argu);
+   public R visit(AbbreviationRest n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( ArithmeticExpression() | &lt;LPARENCHAR&gt; ArithmeticExpression() AbbreviationRest() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public R visit(AbbreviationLeaf n, A argu);
+   public R visit(AbbreviationLeaf n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( ParagraphName() [ ( &lt;IN&gt; | &lt;OF&gt; ) SectionName() ] | SectionName() )
     * </PRE>
     */
-   public R visit(ProcedureName n, A argu);
+   public R visit(ProcedureName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( QualifiedDataName() ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* [ &lt;LPARENCHAR&gt; LeftmostCharacterPosition() &lt;COLONCHAR&gt; [ Length() ] &lt;RPARENCHAR&gt; ] | &lt;RETURN_CODE&gt; )
     * </PRE>
     */
-   public R visit(Identifier n, A argu);
+   public R visit(Identifier n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( DataName() ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public R visit(QualifiedDataName n, A argu);
+   public R visit(QualifiedDataName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( &lt;FUNCTION&gt; ( &lt;F_ACOS&gt; | &lt;F_ANNUITY&gt; | &lt;F_ASIN&gt; | &lt;F_ATAN&gt; | &lt;F_CHAR&gt; | &lt;F_COS&gt; | &lt;F_CURRENT_DATE&gt; | &lt;F_DATE_OF_INTEGER&gt; | &lt;F_DATE_TO_YYYYMMDD&gt; | &lt;F_DATEVAL&gt; | &lt;F_DAY_OF_INTEGER&gt; | &lt;F_DAY_TO_YYYYDDD&gt; | &lt;F_DISPLAY_OF&gt; | &lt;F_FACTORIAL&gt; | &lt;F_INTEGER&gt; | &lt;F_INTEGER_OF_DATE&gt; | &lt;F_INTEGER_OF_DAY&gt; | &lt;F_INTEGER_PART&gt; | &lt;F_LENGTH&gt; | &lt;F_LOG&gt; | &lt;F_LOG10&gt; | &lt;F_LOWER_CASE&gt; | &lt;F_MAX&gt; | &lt;F_MEAN&gt; | &lt;F_MEDIAN&gt; | &lt;F_MIDRANGE&gt; | &lt;F_MIN&gt; | &lt;F_MOD&gt; | &lt;F_NATIONAL_OF&gt; | &lt;F_NUMVAL&gt; | &lt;F_NUMVAL_C&gt; | &lt;F_ORD&gt; | &lt;F_ORD_MAX&gt; | &lt;F_ORD_MIN&gt; | &lt;F_PRESENT_VALUE&gt; | &lt;F_RANDOM&gt; | &lt;F_RANGE&gt; | &lt;F_REM&gt; | &lt;F_REVERSE&gt; | &lt;F_SIN&gt; | &lt;F_SQRT&gt; | &lt;F_STANDARD_DEVIATION&gt; | &lt;F_SUM&gt; | &lt;F_TAN&gt; | &lt;F_UNDATE&gt; | &lt;F_UPPER_CASE&gt; | &lt;F_VARIANCE&gt; | &lt;F_WHEN_COMPILED&gt; | &lt;F_YEAR_TO_YYYY&gt; | &lt;F_YEARWINDOW&gt; ) [ &lt;LPARENCHAR&gt; [ QualifiedDataName() &lt;LPARENCHAR&gt; ( &lt;ALL&gt; [ &lt;COMMACHAR&gt; ] )+ &lt;RPARENCHAR&gt; | FunctionArgument() ( [ &lt;COMMACHAR&gt; ] FunctionArgument() )* ] &lt;RPARENCHAR&gt; ] )
     * </PRE>
     */
-   public R visit(IntrinsicFunction n, A argu);
+   public R visit(IntrinsicFunction n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -210,21 +209,21 @@ public interface GJVisitor<R,A> {
     *       | ArithmeticExpression()
     * </PRE>
     */
-   public R visit(FunctionArgument n, A argu);
+   public R visit(FunctionArgument n, A argu) throws Exception;
 
    /**
     * <PRE>
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public R visit(Length n, A argu);
+   public R visit(Length n, A argu) throws Exception;
 
    /**
     * <PRE>
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public R visit(LeftmostCharacterPosition n, A argu);
+   public R visit(LeftmostCharacterPosition n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -232,112 +231,112 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* | ( ( &lt;IN&gt; | &lt;OF&gt; ) MnemonicName() )* )
     * </PRE>
     */
-   public R visit(ConditionNameReference n, A argu);
+   public R visit(ConditionNameReference n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ] IntegerConstant() | QualifiedDataName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] | IndexName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] )
     * </PRE>
     */
-   public R visit(Subscript n, A argu);
+   public R visit(Subscript n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(Mode n, A argu);
+   public R visit(Mode n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(AlphabetName n, A argu);
+   public R visit(AlphabetName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(ClassName n, A argu);
+   public R visit(ClassName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(ConditionName n, A argu);
+   public R visit(ConditionName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(DataName n, A argu);
+   public R visit(DataName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(FileName n, A argu);
+   public R visit(FileName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(IndexName n, A argu);
+   public R visit(IndexName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(MnemonicName n, A argu);
+   public R visit(MnemonicName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public R visit(RecordName n, A argu);
+   public R visit(RecordName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(RoutineName n, A argu);
+   public R visit(RoutineName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(SymbolicCharacter n, A argu);
+   public R visit(SymbolicCharacter n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(LibraryName n, A argu);
+   public R visit(LibraryName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(ProgramName n, A argu);
+   public R visit(ProgramName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(CdName n, A argu);
+   public R visit(CdName n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -350,7 +349,7 @@ public interface GJVisitor<R,A> {
     *       | CobolWord()
     * </PRE>
     */
-   public R visit(SectionName n, A argu);
+   public R visit(SectionName n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -363,56 +362,56 @@ public interface GJVisitor<R,A> {
     *       | CobolWord()
     * </PRE>
     */
-   public R visit(ParagraphName n, A argu);
+   public R visit(ParagraphName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public R visit(SystemName n, A argu);
+   public R visit(SystemName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(ComputerName n, A argu);
+   public R visit(ComputerName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(LanguageName n, A argu);
+   public R visit(LanguageName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(EnvironmentName n, A argu);
+   public R visit(EnvironmentName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * systemName -> SystemName()
     * </PRE>
     */
-   public R visit(AssignmentName n, A argu);
+   public R visit(AssignmentName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * programName -> ProgramName()
     * </PRE>
     */
-   public R visit(BasisName n, A argu);
+   public R visit(BasisName n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;ADDRESS&gt; &lt;OF&gt; DataName() | &lt;LENGTH&gt; &lt;OF&gt; Identifier() | &lt;DEBUG_LINE&gt; | &lt;DEBUG_NAME&gt; | &lt;DEBUG_CONTENTS&gt; | &lt;DEBUG_ITEM&gt; | &lt;DEBUG_SUB_1&gt; | &lt;DEBUG_SUB_2&gt; | &lt;DEBUG_SUB_3&gt; | &lt;RETURN_CODE&gt; | &lt;SHIFT_OUT&gt; | &lt;SHIFT_IN&gt; | &lt;SORT_CONTROL&gt; | &lt;SORT_CORE_SIZE&gt; | &lt;SORT_FILE_SIZE&gt; | &lt;SORT_MESSAGE&gt; | &lt;SORT_MODE_SIZE&gt; | &lt;SORT_RETURN&gt; | &lt;TALLY&gt; | &lt;WHEN_COMPILED&gt; )
     * </PRE>
     */
-   public R visit(SpecialRegister n, A argu);
+   public R visit(SpecialRegister n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -420,7 +419,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ) TimesDiv() )*
     * </PRE>
     */
-   public R visit(ArithmeticExpression n, A argu);
+   public R visit(ArithmeticExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -428,7 +427,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) Power() )*
     * </PRE>
     */
-   public R visit(TimesDiv n, A argu);
+   public R visit(TimesDiv n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -437,21 +436,21 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;POW&gt; Basis() )*
     * </PRE>
     */
-   public R visit(Power n, A argu);
+   public R visit(Power n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( Identifier() | Literal() | &lt;LPARENCHAR&gt; ArithmeticExpression() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public R visit(Basis n, A argu);
+   public R visit(Basis n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( &lt;COMMENT2&gt; [ &lt;DOT2&gt; ] )+
     * </PRE>
     */
-   public R visit(CommentLine n, A argu);
+   public R visit(CommentLine n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -459,7 +458,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;EOF&gt;
     * </PRE>
     */
-   public R visit(CompilationUnit n, A argu);
+   public R visit(CompilationUnit n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -469,7 +468,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ ProcedureDivision() ]
     * </PRE>
     */
-   public R visit(ProgramUnit n, A argu);
+   public R visit(ProgramUnit n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -481,7 +480,7 @@ public interface GJVisitor<R,A> {
     * endProgramStatement -> EndProgramStatement()
     * </PRE>
     */
-   public R visit(NestedProgramUnit n, A argu);
+   public R visit(NestedProgramUnit n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -491,7 +490,7 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(EndProgramStatement n, A argu);
+   public R visit(EndProgramStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -502,7 +501,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public R visit(IdentificationDivision n, A argu);
+   public R visit(IdentificationDivision n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -513,7 +512,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public R visit(NestedIdentificationDivision n, A argu);
+   public R visit(NestedIdentificationDivision n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -524,7 +523,7 @@ public interface GJVisitor<R,A> {
     *       | SecurityParagraph()
     * </PRE>
     */
-   public R visit(IdentificationDivisionParagraph n, A argu);
+   public R visit(IdentificationDivisionParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -535,7 +534,7 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(ProgramIdParagraph n, A argu);
+   public R visit(ProgramIdParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -546,14 +545,14 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(NestedProgramIdParagraph n, A argu);
+   public R visit(NestedProgramIdParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;INITIAL&gt; [ &lt;COMMON&gt; ] | &lt;COMMON&gt; [ &lt;INITIAL&gt; ] )
     * </PRE>
     */
-   public R visit(InitialOrCommon n, A argu);
+   public R visit(InitialOrCommon n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -562,7 +561,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(AuthorParagraph n, A argu);
+   public R visit(AuthorParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -571,7 +570,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(InstallationParagraph n, A argu);
+   public R visit(InstallationParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -580,7 +579,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(DateWrittenParagraph n, A argu);
+   public R visit(DateWrittenParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -589,7 +588,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(DateCompiledParagraph n, A argu);
+   public R visit(DateCompiledParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -598,7 +597,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public R visit(SecurityParagraph n, A argu);
+   public R visit(SecurityParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -606,7 +605,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( EnvironmentSection() )*
     * </PRE>
     */
-   public R visit(EnvironmentDivision n, A argu);
+   public R visit(EnvironmentDivision n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -614,7 +613,7 @@ public interface GJVisitor<R,A> {
     *       | InputOutputSection()
     * </PRE>
     */
-   public R visit(EnvironmentSection n, A argu);
+   public R visit(EnvironmentSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -624,7 +623,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( ConfigurationSectionParagraph() )*
     * </PRE>
     */
-   public R visit(ConfigurationSection n, A argu);
+   public R visit(ConfigurationSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -633,7 +632,7 @@ public interface GJVisitor<R,A> {
     *       | SpecialNamesParagraph()
     * </PRE>
     */
-   public R visit(ConfigurationSectionParagraph n, A argu);
+   public R visit(ConfigurationSectionParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -644,7 +643,7 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(SourceComputerParagraph n, A argu);
+   public R visit(SourceComputerParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -655,7 +654,7 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(ObjectComputerParagraph n, A argu);
+   public R visit(ObjectComputerParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -665,7 +664,7 @@ public interface GJVisitor<R,A> {
     *       | CharacterSetClause()
     * </PRE>
     */
-   public R visit(ObjectComputerClause n, A argu);
+   public R visit(ObjectComputerClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -675,7 +674,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;WORDS&gt; | &lt;CHARACTERS&gt; | &lt;MODULES&gt; ]
     * </PRE>
     */
-   public R visit(MemorySizeClause n, A argu);
+   public R visit(MemorySizeClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -686,7 +685,7 @@ public interface GJVisitor<R,A> {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public R visit(CollatingSequenceClause n, A argu);
+   public R visit(CollatingSequenceClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -695,7 +694,7 @@ public interface GJVisitor<R,A> {
     * integerConstant -> IntegerConstant()
     * </PRE>
     */
-   public R visit(SegmentLimitClause n, A argu);
+   public R visit(SegmentLimitClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -703,7 +702,7 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;SET&gt;
     * </PRE>
     */
-   public R visit(CharacterSetClause n, A argu);
+   public R visit(CharacterSetClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -712,7 +711,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ SpecialNameClause() ( [ &lt;COMMACHAR&gt; ] SpecialNameClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public R visit(SpecialNamesParagraph n, A argu);
+   public R visit(SpecialNamesParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -724,7 +723,7 @@ public interface GJVisitor<R,A> {
     *       | EnvironmentNameIsMnemonicNameClause()
     * </PRE>
     */
-   public R visit(SpecialNameClause n, A argu);
+   public R visit(SpecialNameClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -734,7 +733,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;STANDARD_2&gt; | &lt;NATIVE&gt; | CobolWord() | ( Literal() [ ( ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() | ( &lt;ALSO&gt; Literal() [ &lt;COMMACHAR&gt; ] )+ ) ] [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public R visit(AlphabetClause n, A argu);
+   public R visit(AlphabetClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -744,7 +743,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( Literal() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() ] )+
     * </PRE>
     */
-   public R visit(ClassClause n, A argu);
+   public R visit(ClassClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -754,7 +753,7 @@ public interface GJVisitor<R,A> {
     * literal -> Literal()
     * </PRE>
     */
-   public R visit(CurrencySignClause n, A argu);
+   public R visit(CurrencySignClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -763,7 +762,7 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;COMMA&gt;
     * </PRE>
     */
-   public R visit(DecimalPointClause n, A argu);
+   public R visit(DecimalPointClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -773,21 +772,21 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;IN&gt; AlphabetName() ]
     * </PRE>
     */
-   public R visit(SymbolicCharactersClause n, A argu);
+   public R visit(SymbolicCharactersClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( EnvironmentName() [ &lt;IS&gt; ] MnemonicName() [ SpecialNamesParagraphStatusPhrase() ] | SpecialNamesParagraphStatusPhrase() )
     * </PRE>
     */
-   public R visit(EnvironmentNameIsMnemonicNameClause n, A argu);
+   public R visit(EnvironmentNameIsMnemonicNameClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] | &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] )
     * </PRE>
     */
-   public R visit(SpecialNamesParagraphStatusPhrase n, A argu);
+   public R visit(SpecialNamesParagraphStatusPhrase n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -795,7 +794,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( InputOutputSectionParagraph() )+
     * </PRE>
     */
-   public R visit(InputOutputSection n, A argu);
+   public R visit(InputOutputSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -803,7 +802,7 @@ public interface GJVisitor<R,A> {
     *       | IOControlParagraph()
     * </PRE>
     */
-   public R visit(InputOutputSectionParagraph n, A argu);
+   public R visit(InputOutputSectionParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -811,7 +810,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( FileControlEntry() &lt;DOT&gt; )*
     * </PRE>
     */
-   public R visit(FileControlParagraph n, A argu);
+   public R visit(FileControlParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -819,7 +818,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( FileControlClause() )*
     * </PRE>
     */
-   public R visit(FileControlEntry n, A argu);
+   public R visit(FileControlEntry n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -835,7 +834,7 @@ public interface GJVisitor<R,A> {
     *       | PasswordClause()
     * </PRE>
     */
-   public R visit(FileControlClause n, A argu);
+   public R visit(FileControlClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -844,7 +843,7 @@ public interface GJVisitor<R,A> {
     * fileName -> FileName()
     * </PRE>
     */
-   public R visit(SelectClause n, A argu);
+   public R visit(SelectClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -854,7 +853,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( AssignmentName() | Literal() )
     * </PRE>
     */
-   public R visit(AssignClause n, A argu);
+   public R visit(AssignClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -863,7 +862,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> ( &lt;AREA&gt; | &lt;AREAS&gt; )?
     * </PRE>
     */
-   public R visit(ReserveClause n, A argu);
+   public R visit(ReserveClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -872,14 +871,14 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( SequentialOrganizationClause() | IndexedOrganizationClause() | RelativeOrganizationClause() | LineSequentialOrganizationClause() )
     * </PRE>
     */
-   public R visit(OrganizationClause n, A argu);
+   public R visit(OrganizationClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public R visit(SequentialOrganizationClause n, A argu);
+   public R visit(SequentialOrganizationClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -887,21 +886,21 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public R visit(LineSequentialOrganizationClause n, A argu);
+   public R visit(LineSequentialOrganizationClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;RELATIVE&gt;
     * </PRE>
     */
-   public R visit(RelativeOrganizationClause n, A argu);
+   public R visit(RelativeOrganizationClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;INDEXED&gt;
     * </PRE>
     */
-   public R visit(IndexedOrganizationClause n, A argu);
+   public R visit(IndexedOrganizationClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -911,7 +910,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( QualifiedDataName() | Literal() )
     * </PRE>
     */
-   public R visit(PaddingCharacterClause n, A argu);
+   public R visit(PaddingCharacterClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -921,7 +920,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;IMPLICIT&gt; | AssignmentName() )
     * </PRE>
     */
-   public R visit(RecordDelimiterClause n, A argu);
+   public R visit(RecordDelimiterClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -931,28 +930,28 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( SequentialAccessMode() | RandomAccessMode() | DynamicAccessMode() )
     * </PRE>
     */
-   public R visit(AccessModeClause n, A argu);
+   public R visit(AccessModeClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public R visit(SequentialAccessMode n, A argu);
+   public R visit(SequentialAccessMode n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;RANDOM&gt;
     * </PRE>
     */
-   public R visit(RandomAccessMode n, A argu);
+   public R visit(RandomAccessMode n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;DYNAMIC&gt;
     * </PRE>
     */
-   public R visit(DynamicAccessMode n, A argu);
+   public R visit(DynamicAccessMode n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -962,7 +961,7 @@ public interface GJVisitor<R,A> {
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public R visit(KeyClause n, A argu);
+   public R visit(KeyClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -975,7 +974,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional3 -> [ [ &lt;WITH&gt; ] &lt;DUPLICATES&gt; ]
     * </PRE>
     */
-   public R visit(AlternateRecordKeyClause n, A argu);
+   public R visit(AlternateRecordKeyClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -984,7 +983,7 @@ public interface GJVisitor<R,A> {
     * dataName -> DataName()
     * </PRE>
     */
-   public R visit(PasswordClause n, A argu);
+   public R visit(PasswordClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -995,7 +994,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ QualifiedDataName() ]
     * </PRE>
     */
-   public R visit(FileStatusClause n, A argu);
+   public R visit(FileStatusClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1004,7 +1003,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ IOControlClause() ( [ &lt;DOT&gt; ] IOControlClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public R visit(IOControlParagraph n, A argu);
+   public R visit(IOControlParagraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1013,7 +1012,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public R visit(IOControlClause n, A argu);
+   public R visit(IOControlClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1023,7 +1022,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( Rerun2() | IntegerConstant() [ &lt;CLOCK_UNITS&gt; ] )
     * </PRE>
     */
-   public R visit(RerunClause n, A argu);
+   public R visit(RerunClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1031,7 +1030,7 @@ public interface GJVisitor<R,A> {
     *       | [ &lt;END&gt; ] [ &lt;OF&gt; ] ( &lt;REEL&gt; | &lt;UNIT&gt; ) &lt;OF&gt; FileName()
     * </PRE>
     */
-   public R visit(Rerun2 n, A argu);
+   public R visit(Rerun2 n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1042,7 +1041,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( FileName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(SameAreaClause n, A argu);
+   public R visit(SameAreaClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1053,7 +1052,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( FileName() [ &lt;POSITION&gt; ] [ IntegerConstant() ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(MultipleFileClause n, A argu);
+   public R visit(MultipleFileClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1061,7 +1060,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( DataDivisionSection() )*
     * </PRE>
     */
-   public R visit(DataDivision n, A argu);
+   public R visit(DataDivision n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1071,7 +1070,7 @@ public interface GJVisitor<R,A> {
     *       | CommunicationSection()
     * </PRE>
     */
-   public R visit(DataDivisionSection n, A argu);
+   public R visit(DataDivisionSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1081,7 +1080,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( CommunicationDescriptionEntry() ( DataDescriptionEntry() )* )*
     * </PRE>
     */
-   public R visit(CommunicationSection n, A argu);
+   public R visit(CommunicationSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1089,7 +1088,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(CommunicationDescriptionEntry n, A argu);
+   public R visit(CommunicationDescriptionEntry n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1102,7 +1101,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public R visit(CommunicationInputEntry n, A argu);
+   public R visit(CommunicationInputEntry n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1113,7 +1112,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( CommunicationOutputClause() )*
     * </PRE>
     */
-   public R visit(CommunicationOutputEntry n, A argu);
+   public R visit(CommunicationOutputEntry n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1126,7 +1125,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public R visit(CommunicationIOEntry n, A argu);
+   public R visit(CommunicationIOEntry n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1138,7 +1137,7 @@ public interface GJVisitor<R,A> {
     *       | [ &lt;SYMBOLIC&gt; ] ( &lt;QUEUE&gt; | &lt;SUB_QUEUE_1&gt; | &lt;SUB_QUEUE_2&gt; | &lt;SUB_QUEUE_3&gt; | &lt;SOURCE&gt; ) [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public R visit(CommunicationInputClause n, A argu);
+   public R visit(CommunicationInputClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1150,7 +1149,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;ERROR&gt; &lt;KEY&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public R visit(CommunicationOutputClause n, A argu);
+   public R visit(CommunicationOutputClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1161,7 +1160,7 @@ public interface GJVisitor<R,A> {
     *       | [ &lt;SYMBOLIC&gt; ] &lt;TERMINAL&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public R visit(CommunicationIOClause n, A argu);
+   public R visit(CommunicationIOClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1169,7 +1168,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( FileAndSortDescriptionEntry() ( DataDescriptionEntry() )+ )*
     * </PRE>
     */
-   public R visit(FileSection n, A argu);
+   public R visit(FileSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1179,7 +1178,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(FileAndSortDescriptionEntry n, A argu);
+   public R visit(FileAndSortDescriptionEntry n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1196,7 +1195,7 @@ public interface GJVisitor<R,A> {
     *       | RecordingModeClause()
     * </PRE>
     */
-   public R visit(FileAndSortDescriptionEntryClause n, A argu);
+   public R visit(FileAndSortDescriptionEntryClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1204,7 +1203,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public R visit(ExternalClause n, A argu);
+   public R visit(ExternalClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1212,7 +1211,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public R visit(GlobalClause n, A argu);
+   public R visit(GlobalClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1223,7 +1222,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;RECORDS&gt; | &lt;CHARACTERS&gt; ]
     * </PRE>
     */
-   public R visit(BlockContainsClause n, A argu);
+   public R visit(BlockContainsClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1232,7 +1231,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( [ IntegerConstant() &lt;TO&gt; ] IntegerConstant() [ &lt;CHARACTERS&gt; ] | [ &lt;IS&gt; ] &lt;VARYING&gt; [ &lt;IN&gt; ] [ &lt;SIZE&gt; ] [ [ &lt;FROM&gt; ] IntegerConstant() [ &lt;TO&gt; IntegerConstant() ] [ &lt;CHARACTERS&gt; ] ] [ &lt;DEPENDING&gt; [ &lt;ON&gt; ] QualifiedDataName() ] )
     * </PRE>
     */
-   public R visit(RecordContainsClause n, A argu);
+   public R visit(RecordContainsClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1241,7 +1240,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( &lt;OMITTED&gt; | &lt;STANDARD&gt; | ( DataName() )+ )
     * </PRE>
     */
-   public R visit(LabelRecordsClause n, A argu);
+   public R visit(LabelRecordsClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1250,7 +1249,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( SystemName() &lt;IS&gt; ( QualifiedDataName() | Literal() ) )+
     * </PRE>
     */
-   public R visit(ValueOfClause n, A argu);
+   public R visit(ValueOfClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1259,7 +1258,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( DataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(DataRecordClause n, A argu);
+   public R visit(DataRecordClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1270,7 +1269,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( [ &lt;WITH&gt; ] &lt;FOOTING&gt; [ &lt;AT&gt; ] ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;TOP&gt; ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;BOTTOM&gt; ( DataName() | IntegerConstant() ) )*
     * </PRE>
     */
-   public R visit(LinageClause n, A argu);
+   public R visit(LinageClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1280,7 +1279,7 @@ public interface GJVisitor<R,A> {
     * mode -> Mode()
     * </PRE>
     */
-   public R visit(RecordingModeClause n, A argu);
+   public R visit(RecordingModeClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1289,7 +1288,7 @@ public interface GJVisitor<R,A> {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public R visit(CodeSetClause n, A argu);
+   public R visit(CodeSetClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1297,14 +1296,14 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( QualifiedDataName() )+
     * </PRE>
     */
-   public R visit(ReportClause n, A argu);
+   public R visit(ReportClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( LevelNumber() ( DataName() | &lt;FILLER&gt; )? ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_66&gt; DataName() RenamesClause() &lt;DOT&gt; | &lt;LEVEL_77&gt; DataName() ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_78&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | &lt;LEVEL_88&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | ( &lt;EXEC&gt; | &lt;EXECUTE&gt; ) &lt;K_SQL&gt; ( &lt;K_INCLUDE&gt; ( &lt;S_IDENTIFIER&gt; | &lt;S_QUOTED_IDENTIFIER&gt; ) &lt;DOT&gt; | &lt;K_BEGIN&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | &lt;K_END&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | DeclareCursorStatement() &lt;END_EXEC&gt; &lt;DOT&gt; ) )
     * </PRE>
     */
-   public R visit(DataDescriptionEntry n, A argu);
+   public R visit(DataDescriptionEntry n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1313,7 +1312,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public R visit(DataDescriptionEntryClause n, A argu);
+   public R visit(DataDescriptionEntryClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1321,7 +1320,7 @@ public interface GJVisitor<R,A> {
     * dataName -> DataName()
     * </PRE>
     */
-   public R visit(DataRedefinesClause n, A argu);
+   public R visit(DataRedefinesClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1330,7 +1329,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; )
     * </PRE>
     */
-   public R visit(DataBlankWhenZeroClause n, A argu);
+   public R visit(DataBlankWhenZeroClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1338,7 +1337,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;RIGHT&gt; ]
     * </PRE>
     */
-   public R visit(DataJustifiedClause n, A argu);
+   public R visit(DataJustifiedClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1351,7 +1350,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional3 -> [ &lt;INDEXED&gt; [ &lt;BY&gt; ] ( IndexName() [ &lt;COMMACHAR&gt; ] )+ ]
     * </PRE>
     */
-   public R visit(DataOccursClause n, A argu);
+   public R visit(DataOccursClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1361,7 +1360,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;VARYING&gt; ]
     * </PRE>
     */
-   public R visit(DataPictureClause n, A argu);
+   public R visit(DataPictureClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1370,7 +1369,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional1 -> ( &lt;DOTCHAR&gt; )*
     * </PRE>
     */
-   public R visit(PictureString n, A argu);
+   public R visit(PictureString n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1378,7 +1377,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;DOTCHAR&gt; ( &lt;LPARENCHAR&gt; ( IntegerConstant() | DataName() ) &lt;RPARENCHAR&gt; | NonDotChars() )
     * </PRE>
     */
-   public R visit(PictureOccurence n, A argu);
+   public R visit(PictureOccurence n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1397,14 +1396,14 @@ public interface GJVisitor<R,A> {
     *       | &lt;NOTEQUALCHAR&gt;
     * </PRE>
     */
-   public R visit(PicturePunctuation n, A argu);
+   public R visit(PicturePunctuation n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;DOLLARCHAR&gt;
     * </PRE>
     */
-   public R visit(PictureCurrency n, A argu);
+   public R visit(PictureCurrency n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1414,7 +1413,7 @@ public interface GJVisitor<R,A> {
     *       | PictureCurrency()
     * </PRE>
     */
-   public R visit(NonDotChars n, A argu);
+   public R visit(NonDotChars n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1422,7 +1421,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public R visit(DataExternalClause n, A argu);
+   public R visit(DataExternalClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1430,7 +1429,7 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public R visit(DataGlobalClause n, A argu);
+   public R visit(DataGlobalClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1438,7 +1437,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;BINARY&gt; | &lt;COMP&gt; | &lt;COMP_1&gt; | &lt;COMP_2&gt; | &lt;COMP_3&gt; | &lt;COMP_4&gt; | &lt;COMP_5&gt; | &lt;COMPUTATIONAL&gt; | &lt;COMPUTATIONAL_1&gt; | &lt;COMPUTATIONAL_2&gt; | &lt;COMPUTATIONAL_3&gt; | &lt;COMPUTATIONAL_4&gt; | &lt;COMPUTATIONAL_5&gt; | &lt;DISPLAY&gt; | &lt;DISPLAY_1&gt; | &lt;INDEX&gt; | &lt;PACKED_DECIMAL&gt; | &lt;POINTER&gt; | &lt;FUNCTION_POINTER&gt; | &lt;PROCEDURE_POINTER&gt; | &lt;OBJECT&gt; &lt;REFERENCE&gt; DataName() )
     * </PRE>
     */
-   public R visit(DataUsageClause n, A argu);
+   public R visit(DataUsageClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1447,7 +1446,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;SEPARATE&gt; [ &lt;CHARACTER&gt; ] ]
     * </PRE>
     */
-   public R visit(DataSignClause n, A argu);
+   public R visit(DataSignClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1455,7 +1454,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ ( &lt;LEFT&gt; | &lt;RIGHT&gt; ) ]
     * </PRE>
     */
-   public R visit(DataSynchronizedClause n, A argu);
+   public R visit(DataSynchronizedClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1463,14 +1462,14 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() [ &lt;COMMACHAR&gt; ] ] )+
     * </PRE>
     */
-   public R visit(DataValueClause n, A argu);
+   public R visit(DataValueClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * dataValueClause -> DataValueClause()
     * </PRE>
     */
-   public R visit(ConditionValueClause n, A argu);
+   public R visit(ConditionValueClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1479,7 +1478,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) QualifiedDataName() ]
     * </PRE>
     */
-   public R visit(RenamesClause n, A argu);
+   public R visit(RenamesClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1489,7 +1488,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public R visit(WorkingStorageSection n, A argu);
+   public R visit(WorkingStorageSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1499,7 +1498,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public R visit(LinkageSection n, A argu);
+   public R visit(LinkageSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1510,7 +1509,7 @@ public interface GJVisitor<R,A> {
     * procedureBody -> ProcedureBody()
     * </PRE>
     */
-   public R visit(ProcedureDivision n, A argu);
+   public R visit(ProcedureDivision n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1518,7 +1517,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( [ [ &lt;BY&gt; ] ( &lt;REFERENCE&gt; | &lt;VALUE&gt; ) ] QualifiedDataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(UsingArgs n, A argu);
+   public R visit(UsingArgs n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1530,7 +1529,7 @@ public interface GJVisitor<R,A> {
     * nodeToken4 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(Declaratives n, A argu);
+   public R visit(Declaratives n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1538,7 +1537,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( ProcedureSection() )*
     * </PRE>
     */
-   public R visit(ProcedureBody n, A argu);
+   public R visit(ProcedureBody n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1547,7 +1546,7 @@ public interface GJVisitor<R,A> {
     * paragraphs -> Paragraphs()
     * </PRE>
     */
-   public R visit(ProcedureSection n, A argu);
+   public R visit(ProcedureSection n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1556,7 +1555,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ IntegerConstant() ]
     * </PRE>
     */
-   public R visit(SectionHeader n, A argu);
+   public R visit(SectionHeader n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1564,7 +1563,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional1 -> ( Paragraph() )*
     * </PRE>
     */
-   public R visit(Paragraphs n, A argu);
+   public R visit(Paragraphs n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1573,7 +1572,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( ExitProgramStatement() &lt;DOT&gt; | ExitStatement() &lt;DOT&gt; | AlteredGoto() | ( Sentence() )* )
     * </PRE>
     */
-   public R visit(Paragraph n, A argu);
+   public R visit(Paragraph n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1581,14 +1580,14 @@ public interface GJVisitor<R,A> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(Sentence n, A argu);
+   public R visit(Sentence n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( Statement() )+
     * </PRE>
     */
-   public R visit(StatementList n, A argu);
+   public R visit(StatementList n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1596,7 +1595,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public R visit(Statement n, A argu);
+   public R visit(Statement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1608,7 +1607,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public R visit(EnableStatement n, A argu);
+   public R visit(EnableStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1620,7 +1619,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public R visit(DisableStatement n, A argu);
+   public R visit(DisableStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1632,7 +1631,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ ";" | &lt;NO&gt; &lt;DATA&gt; Statement() ]
     * </PRE>
     */
-   public R visit(ReceiveStatement n, A argu);
+   public R visit(ReceiveStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1643,7 +1642,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ ( &lt;BEFORE&gt; | &lt;AFTER&gt; ) [ &lt;ADVANCING&gt; ] ( ( ( Identifier() | Literal() ) [ &lt;LINE&gt; | &lt;LINES&gt; ] ) | ( MnemonicName() | &lt;PAGE&gt; ) ) ]
     * </PRE>
     */
-   public R visit(SendStatement n, A argu);
+   public R visit(SendStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1652,7 +1651,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( &lt;K_WHENEVER&gt; ( &lt;K_NOT&gt; &lt;K_FOUND&gt; | &lt;K_SQLERROR&gt; | &lt;K_SQLWARNING&gt; ) Statement() | ( ( SQLStatement() | DeclareCursorStatement() | &lt;K_PREPARE&gt; &lt;S_IDENTIFIER&gt; &lt;K_FROM&gt; &lt;S_BIND&gt; | &lt;K_ALTER&gt; &lt;K_SESSION&gt; SQLSetStatement() | &lt;K_EXECUTE&gt; SkipToEndExec() | &lt;K_CONNECT&gt; &lt;S_BIND&gt; | SkipToEndExec() ) &lt;END_EXEC&gt; ) )
     * </PRE>
     */
-   public R visit(ExecSqlStatement n, A argu);
+   public R visit(ExecSqlStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1663,7 +1662,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | QueryStatement() )
     * </PRE>
     */
-   public R visit(DeclareCursorStatement n, A argu);
+   public R visit(DeclareCursorStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1672,7 +1671,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;FROM&gt; ( MnemonicName() | EnvironmentName() | &lt;DATE&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY_OF_WEEK&gt; | &lt;TIME&gt; ) | [ &lt;MESSAGE&gt; ] &lt;COUNT&gt; ]
     * </PRE>
     */
-   public R visit(AcceptStatement n, A argu);
+   public R visit(AcceptStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1683,7 +1682,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;END_ADD&gt; ]
     * </PRE>
     */
-   public R visit(AddStatement n, A argu);
+   public R visit(AddStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1692,7 +1691,7 @@ public interface GJVisitor<R,A> {
     *       | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; Identifier() [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public R visit(AddBody n, A argu);
+   public R visit(AddBody n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1700,14 +1699,14 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public R visit(ArithIdentifier n, A argu);
+   public R visit(ArithIdentifier n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( ArithIdentifier() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(ArithIdentifierList n, A argu);
+   public R visit(ArithIdentifierList n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1715,14 +1714,14 @@ public interface GJVisitor<R,A> {
     *       | Literal()
     * </PRE>
     */
-   public R visit(IdOrLiteral n, A argu);
+   public R visit(IdOrLiteral n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeList -> ( IdOrLiteral() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(IdOrLiteralList n, A argu);
+   public R visit(IdOrLiteralList n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1731,7 +1730,7 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;DOT&gt;
     * </PRE>
     */
-   public R visit(AlteredGoto n, A argu);
+   public R visit(AlteredGoto n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1739,7 +1738,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ProcedureName() &lt;TO&gt; [ &lt;PROCEED&gt; &lt;TO&gt; ] ProcedureName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(AlterStatement n, A argu);
+   public R visit(AlterStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1752,7 +1751,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional4 -> [ &lt;END_CALL&gt; ]
     * </PRE>
     */
-   public R visit(CallStatement n, A argu);
+   public R visit(CallStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1761,7 +1760,7 @@ public interface GJVisitor<R,A> {
     *       | FileName()
     * </PRE>
     */
-   public R visit(CallByReferenceArgs n, A argu);
+   public R visit(CallByReferenceArgs n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1770,7 +1769,7 @@ public interface GJVisitor<R,A> {
     *       | Literal()
     * </PRE>
     */
-   public R visit(CallByContentArgs n, A argu);
+   public R visit(CallByContentArgs n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1778,7 +1777,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(CancelStatement n, A argu);
+   public R visit(CancelStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1786,7 +1785,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( FileName() [ ( ( &lt;REEL&gt; | &lt;UNIT&gt; ) [ ( [ &lt;FOR&gt; ] &lt;REMOVAL&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] | [ &lt;WITH&gt; ] ( &lt;NO&gt; &lt;REWIND&gt; | &lt;LOCK&gt; ) ) ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public R visit(CloseStatement n, A argu);
+   public R visit(CloseStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1799,14 +1798,14 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;END_COMPUTE&gt; ]
     * </PRE>
     */
-   public R visit(ComputeStatement n, A argu);
+   public R visit(ComputeStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;CONTINUE&gt;
     * </PRE>
     */
-   public R visit(ContinueStatement n, A argu);
+   public R visit(ContinueStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1818,7 +1817,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional3 -> [ &lt;END_DELETE&gt; ]
     * </PRE>
     */
-   public R visit(DeleteStatement n, A argu);
+   public R visit(DeleteStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1828,7 +1827,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;ADVANCING&gt; ]
     * </PRE>
     */
-   public R visit(DisplayStatement n, A argu);
+   public R visit(DisplayStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1839,14 +1838,14 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;END_DIVIDE&gt; ]
     * </PRE>
     */
-   public R visit(DivideStatement n, A argu);
+   public R visit(DivideStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( IdOrLiteral() &lt;INTO&gt; ( IdOrLiteral() | ArithIdentifierList() ) [ &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] ] | IdOrLiteral() &lt;BY&gt; IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] )
     * </PRE>
     */
-   public R visit(DivideBody n, A argu);
+   public R visit(DivideBody n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1855,7 +1854,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ UsingArgs() ]
     * </PRE>
     */
-   public R visit(EntryStatement n, A argu);
+   public R visit(EntryStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1867,28 +1866,28 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;END_EVALUATE&gt; ]
     * </PRE>
     */
-   public R visit(EvaluateStatement n, A argu);
+   public R visit(EvaluateStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( Identifier() | Condition() | ArithmeticExpression() | Literal() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public R visit(EvaluateValue n, A argu);
+   public R visit(EvaluateValue n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeChoice -> ( &lt;ANY&gt; | [ &lt;NOT&gt; ] ( Identifier() | Literal() | ArithmeticExpression() ) [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ( Identifier() | Literal() | ArithmeticExpression() ) ] | Condition() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public R visit(EvaluatePhrase n, A argu);
+   public R visit(EvaluatePhrase n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;EXIT&gt;
     * </PRE>
     */
-   public R visit(ExitStatement n, A argu);
+   public R visit(ExitStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1896,14 +1895,14 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;PROGRAM&gt;
     * </PRE>
     */
-   public R visit(ExitProgramStatement n, A argu);
+   public R visit(ExitProgramStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;GOBACK&gt;
     * </PRE>
     */
-   public R visit(GobackStatement n, A argu);
+   public R visit(GobackStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1912,7 +1911,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( ProcedureName() [ ( ProcedureName() )* &lt;DEPENDING&gt; [ &lt;ON&gt; ] Identifier() ] | &lt;MORE_LABELS&gt; )
     * </PRE>
     */
-   public R visit(GotoStatement n, A argu);
+   public R visit(GotoStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1924,7 +1923,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;END_IF&gt; ]
     * </PRE>
     */
-   public R visit(IfStatement n, A argu);
+   public R visit(IfStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1933,7 +1932,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;REPLACING&gt; ( ( &lt;ALPHABETIC&gt; | &lt;ALPHANUMERIC&gt; | &lt;NUMERIC&gt; | &lt;ALPHANUMERIC_EDITED&gt; | &lt;NUMERIC_EDITED&gt; | &lt;DBCS&gt; | &lt;EGCS&gt; ) [ &lt;DATA&gt; ] &lt;BY&gt; ( Identifier() | Literal() [ &lt;COMMACHAR&gt; ] ) )+ ]
     * </PRE>
     */
-   public R visit(InitializeStatement n, A argu);
+   public R visit(InitializeStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1942,7 +1941,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( TallyingPhrase() | ConvertingPhrase() | ReplacingPhrase() )
     * </PRE>
     */
-   public R visit(InspectStatement n, A argu);
+   public R visit(InspectStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1951,7 +1950,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ ReplacingPhrase() ]
     * </PRE>
     */
-   public R visit(TallyingPhrase n, A argu);
+   public R visit(TallyingPhrase n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1962,7 +1961,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( BeforeAfterPhrase() )*
     * </PRE>
     */
-   public R visit(ConvertingPhrase n, A argu);
+   public R visit(ConvertingPhrase n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1970,7 +1969,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;CHARACTERS&gt; &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* | ( &lt;ALL&gt; | &lt;LEADING&gt; | &lt;FIRST&gt; ) ( ( Identifier() | Literal() ) &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* )+ )+
     * </PRE>
     */
-   public R visit(ReplacingPhrase n, A argu);
+   public R visit(ReplacingPhrase n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1979,7 +1978,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public R visit(BeforeAfterPhrase n, A argu);
+   public R visit(BeforeAfterPhrase n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -1993,7 +1992,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] | &lt;GIVING&gt; ( FileName() )+ )
     * </PRE>
     */
-   public R visit(MergeStatement n, A argu);
+   public R visit(MergeStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2001,7 +2000,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( ( Identifier() | Literal() ) &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public R visit(MoveStatement n, A argu);
+   public R visit(MoveStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2012,7 +2011,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;END_MULTIPLY&gt; ]
     * </PRE>
     */
-   public R visit(MultiplyStatement n, A argu);
+   public R visit(MultiplyStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2021,7 +2020,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() | ArithIdentifierList() )
     * </PRE>
     */
-   public R visit(MultiplyBody n, A argu);
+   public R visit(MultiplyBody n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2029,7 +2028,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;INPUT&gt; ( FileName() [ ( &lt;REVERSED&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] [ &lt;COMMACHAR&gt; ] )+ | &lt;OUTPUT&gt; ( FileName() [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ] [ &lt;COMMACHAR&gt; ] )+ | &lt;I_O&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;EXTEND&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ )+
     * </PRE>
     */
-   public R visit(OpenStatement n, A argu);
+   public R visit(OpenStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2037,7 +2036,7 @@ public interface GJVisitor<R,A> {
     * performBody -> PerformBody()
     * </PRE>
     */
-   public R visit(PerformStatement n, A argu);
+   public R visit(PerformStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2045,7 +2044,7 @@ public interface GJVisitor<R,A> {
     *       | PerformProcedure() [ PerformOption() ]
     * </PRE>
     */
-   public R visit(PerformBody n, A argu);
+   public R visit(PerformBody n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2053,7 +2052,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ ( &lt;THRU&gt; | &lt;THROUGH&gt; ) ProcedureName() ]
     * </PRE>
     */
-   public R visit(PerformProcedure n, A argu);
+   public R visit(PerformProcedure n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2061,7 +2060,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;AFTER&gt;
     * </PRE>
     */
-   public R visit(BeforeOrAfter n, A argu);
+   public R visit(BeforeOrAfter n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2070,7 +2069,7 @@ public interface GJVisitor<R,A> {
     *       | [ PerformTest() ] &lt;VARYING&gt; PerformVaryingList()
     * </PRE>
     */
-   public R visit(PerformOption n, A argu);
+   public R visit(PerformOption n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2079,7 +2078,7 @@ public interface GJVisitor<R,A> {
     * beforeOrAfter -> BeforeOrAfter()
     * </PRE>
     */
-   public R visit(PerformTest n, A argu);
+   public R visit(PerformTest n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2087,7 +2086,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;AFTER&gt; PerformVarying() [ &lt;COMMACHAR&gt; ] )*
     * </PRE>
     */
-   public R visit(PerformVaryingList n, A argu);
+   public R visit(PerformVaryingList n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2100,7 +2099,7 @@ public interface GJVisitor<R,A> {
     * condition -> Condition()
     * </PRE>
     */
-   public R visit(PerformVarying n, A argu);
+   public R visit(PerformVarying n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2117,7 +2116,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional8 -> [ &lt;END_READ&gt; ]
     * </PRE>
     */
-   public R visit(ReadStatement n, A argu);
+   public R visit(ReadStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2126,7 +2125,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;FROM&gt; QualifiedDataName() ]
     * </PRE>
     */
-   public R visit(ReleaseStatement n, A argu);
+   public R visit(ReleaseStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2141,7 +2140,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional4 -> [ &lt;END_RETURN&gt; ]
     * </PRE>
     */
-   public R visit(ReturnStatement n, A argu);
+   public R visit(ReturnStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2153,7 +2152,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional3 -> [ &lt;END_REWRITE&gt; ]
     * </PRE>
     */
-   public R visit(RewriteStatement n, A argu);
+   public R visit(RewriteStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2166,7 +2165,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional3 -> [ &lt;END_SEARCH&gt; ]
     * </PRE>
     */
-   public R visit(SearchStatement n, A argu);
+   public R visit(SearchStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2174,7 +2173,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ( Identifier() [ &lt;COMMACHAR&gt; ] )+ ( &lt;TO&gt; ( Identifier() | &lt;TRUE&gt; | &lt;FALSE&gt; | &lt;ON&gt; | &lt;OFF&gt; | Literal() ) | ( &lt;UP&gt; | &lt;DOWN&gt; ) [ &lt;BY&gt; ] ( Identifier() | Literal() ) ) )+
     * </PRE>
     */
-   public R visit(SetStatement n, A argu);
+   public R visit(SetStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2187,7 +2186,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( &lt;GIVING&gt; ( FileName() )+ | &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] )
     * </PRE>
     */
-   public R visit(SortStatement n, A argu);
+   public R visit(SortStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2199,7 +2198,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional3 -> [ &lt;END_START&gt; ]
     * </PRE>
     */
-   public R visit(StartStatement n, A argu);
+   public R visit(StartStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2207,7 +2206,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;RUN&gt; | Literal() )
     * </PRE>
     */
-   public R visit(StopStatement n, A argu);
+   public R visit(StopStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2221,7 +2220,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional3 -> [ &lt;END_STRING&gt; ]
     * </PRE>
     */
-   public R visit(StringStatement n, A argu);
+   public R visit(StringStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2232,7 +2231,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;END_SUBTRACT&gt; ]
     * </PRE>
     */
-   public R visit(SubtractStatement n, A argu);
+   public R visit(SubtractStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2248,7 +2247,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional5 -> [ &lt;END_UNSTRING&gt; ]
     * </PRE>
     */
-   public R visit(UnstringStatement n, A argu);
+   public R visit(UnstringStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2256,7 +2255,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( [ &lt;FOR&gt; ] &lt;DEBUGGING&gt; [ &lt;ON&gt; ] ( ( Identifier() | &lt;ALL&gt; [ &lt;REFERENCES&gt; ] [ &lt;OF&gt; ] Identifier() | FileName() | ProcedureName() )+ | &lt;ALL&gt; &lt;PROCEDURES&gt; ) | [ &lt;GLOBAL&gt; ] &lt;AFTER&gt; [ &lt;STANDARD&gt; ] ( ( &lt;EXCEPTION&gt; | &lt;ERROR&gt; ) | [ ( &lt;BEGINNING&gt; | &lt;ENDING&gt; ) ] [ ( &lt;FILE&gt; | &lt;REEL&gt; | &lt;UNIT&gt; ) ] &lt;LABEL&gt; ) &lt;PROCEDURE&gt; [ &lt;ON&gt; ] ( ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;INPUT&gt; | &lt;OUTPUT&gt; | &lt;I_O&gt; | &lt;EXTEND&gt; ) )
     * </PRE>
     */
-   public R visit(UseStatement n, A argu);
+   public R visit(UseStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2271,7 +2270,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional6 -> [ &lt;END_WRITE&gt; ]
     * </PRE>
     */
-   public R visit(WriteStatement n, A argu);
+   public R visit(WriteStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2280,28 +2279,28 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( &lt;PAGE&gt; | ( Identifier() | IntegerConstant() | FigurativeConstant() ) [ ( &lt;LINE&gt; | &lt;LINES&gt; ) ] | MnemonicName() )
     * </PRE>
     */
-   public R visit(AdvancingPhrase n, A argu);
+   public R visit(AdvancingPhrase n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;S_IDENTIFIER&gt;
     * </PRE>
     */
-   public R visit(S_Identifier n, A argu);
+   public R visit(S_Identifier n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public R visit(S_Quoted_Identifier n, A argu);
+   public R visit(S_Quoted_Identifier n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeToken -> &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public R visit(S_Char_Literal n, A argu);
+   public R visit(S_Char_Literal n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2317,7 +2316,7 @@ public interface GJVisitor<R,A> {
     *       | SQLSetStatement()
     * </PRE>
     */
-   public R visit(SQLStatement n, A argu);
+   public R visit(SQLStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2325,7 +2324,7 @@ public interface GJVisitor<R,A> {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public R visit(SQLCloseStatement n, A argu);
+   public R visit(SQLCloseStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2334,7 +2333,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public R visit(CommitStatement n, A argu);
+   public R visit(CommitStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2346,7 +2345,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; ( RelObjectName() [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ] | IndicatorBind() ) )*
     * </PRE>
     */
-   public R visit(FetchStatement n, A argu);
+   public R visit(FetchStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2354,7 +2353,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ]
     * </PRE>
     */
-   public R visit(IndicatorBind n, A argu);
+   public R visit(IndicatorBind n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2368,7 +2367,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;K_NOWAIT&gt; ]
     * </PRE>
     */
-   public R visit(LockTableStatement n, A argu);
+   public R visit(LockTableStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2377,7 +2376,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;K_USING&gt; Arguments() ]
     * </PRE>
     */
-   public R visit(SQLOpenStatement n, A argu);
+   public R visit(SQLOpenStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2387,7 +2386,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public R visit(RollbackStatement n, A argu);
+   public R visit(RollbackStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2396,7 +2395,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( ( &lt;K_READ&gt; ( &lt;K_ONLY&gt; | &lt;K_WRITE&gt; ) ) | ( &lt;K_USE&gt; &lt;K_ROLLBACK&gt; &lt;K_SEGMENT&gt; RelObjectName() ) )
     * </PRE>
     */
-   public R visit(SetTransactionStatement n, A argu);
+   public R visit(SetTransactionStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2406,7 +2405,7 @@ public interface GJVisitor<R,A> {
     * arguments -> Arguments()
     * </PRE>
     */
-   public R visit(SetVariableStatement n, A argu);
+   public R visit(SetVariableStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2414,7 +2413,7 @@ public interface GJVisitor<R,A> {
     *       | SetVariableStatement()
     * </PRE>
     */
-   public R visit(SQLSetStatement n, A argu);
+   public R visit(SQLSetStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2423,7 +2422,7 @@ public interface GJVisitor<R,A> {
     *       | ( &lt;K_EXCLUSIVE&gt; )
     * </PRE>
     */
-   public R visit(LockMode n, A argu);
+   public R visit(LockMode n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2431,7 +2430,7 @@ public interface GJVisitor<R,A> {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public R visit(SavepointStatement n, A argu);
+   public R visit(SavepointStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2443,7 +2442,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public R visit(UpdateStatement n, A argu);
+   public R visit(UpdateStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2453,7 +2452,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; TableColumn() "=" UpdatedValue() )*
     * </PRE>
     */
-   public R visit(ColumnValues n, A argu);
+   public R visit(ColumnValues n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2461,7 +2460,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlExpression()
     * </PRE>
     */
-   public R visit(UpdatedValue n, A argu);
+   public R visit(UpdatedValue n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2472,7 +2471,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;K_VALUES&gt; &lt;LPARENCHAR&gt; PlSqlExpressionList() &lt;RPARENCHAR&gt; | SelectStatement() )
     * </PRE>
     */
-   public R visit(InsertStatement n, A argu);
+   public R visit(InsertStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2480,7 +2479,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | &lt;S_BIND&gt; )
     * </PRE>
     */
-   public R visit(SQLUsingDMLReturn n, A argu);
+   public R visit(SQLUsingDMLReturn n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2491,21 +2490,21 @@ public interface GJVisitor<R,A> {
     * nodeOptional2 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public R visit(SQLDeleteStatement n, A argu);
+   public R visit(SQLDeleteStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
     * selectStatement -> SelectStatement()
     * </PRE>
     */
-   public R visit(QueryStatement n, A argu);
+   public R visit(QueryStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
     * plSqlExpressions -> PlSqlExpressions()
     * </PRE>
     */
-   public R visit(PlSqlExpression n, A argu);
+   public R visit(PlSqlExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2513,7 +2512,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlAndExpressions()
     * </PRE>
     */
-   public R visit(PlSqlExpressions n, A argu);
+   public R visit(PlSqlExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2521,7 +2520,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;K_OR&gt; PlSqlAndExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlOrExpression n, A argu);
+   public R visit(PlSqlOrExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2529,7 +2528,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlUnaryLogicalExpressions()
     * </PRE>
     */
-   public R visit(PlSqlAndExpressions n, A argu);
+   public R visit(PlSqlAndExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2537,7 +2536,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;K_AND&gt; PlSqlUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlAndExpression n, A argu);
+   public R visit(PlSqlAndExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2545,7 +2544,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlRelationalExpressions()
     * </PRE>
     */
-   public R visit(PlSqlUnaryLogicalExpressions n, A argu);
+   public R visit(PlSqlUnaryLogicalExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2553,7 +2552,7 @@ public interface GJVisitor<R,A> {
     * plSqlRelationalExpressions -> PlSqlRelationalExpressions()
     * </PRE>
     */
-   public R visit(PlSqlUnaryLogicalExpression n, A argu);
+   public R visit(PlSqlUnaryLogicalExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2561,7 +2560,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlRelationalExpressions n, A argu);
+   public R visit(PlSqlRelationalExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2569,7 +2568,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( Relop() PlSqlSimpleExpressions() | PlSqlInClause() | PlSqlBetweenClause() | PlSqlLikeClause() | IsNullClause() )
     * </PRE>
     */
-   public R visit(PlSqlRelationalExpression n, A argu);
+   public R visit(PlSqlRelationalExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2577,7 +2576,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; PlSqlExpression() )*
     * </PRE>
     */
-   public R visit(PlSqlExpressionList n, A argu);
+   public R visit(PlSqlExpressionList n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2588,7 +2587,7 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(PlSqlInClause n, A argu);
+   public R visit(PlSqlInClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2599,7 +2598,7 @@ public interface GJVisitor<R,A> {
     * plSqlSimpleExpressions1 -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlBetweenClause n, A argu);
+   public R visit(PlSqlBetweenClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2608,7 +2607,7 @@ public interface GJVisitor<R,A> {
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlLikeClause n, A argu);
+   public R visit(PlSqlLikeClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2617,14 +2616,14 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;K_NULL&gt;
     * </PRE>
     */
-   public R visit(IsNullClause n, A argu);
+   public R visit(IsNullClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public R visit(PlSqlSimpleExpression n, A argu);
+   public R visit(PlSqlSimpleExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2632,7 +2631,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlMultiplicativeExpressions()
     * </PRE>
     */
-   public R visit(PlSqlSimpleExpressions n, A argu);
+   public R visit(PlSqlSimpleExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2640,7 +2639,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) | "||" ) PlSqlMultiplicativeExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlAdditiveExpression n, A argu);
+   public R visit(PlSqlAdditiveExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2648,7 +2647,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlExpotentExpressions()
     * </PRE>
     */
-   public R visit(PlSqlMultiplicativeExpressions n, A argu);
+   public R visit(PlSqlMultiplicativeExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2656,7 +2655,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ( "*" | "/" ) PlSqlExpotentExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlMultiplicativeExpression n, A argu);
+   public R visit(PlSqlMultiplicativeExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2664,7 +2663,7 @@ public interface GJVisitor<R,A> {
     *       | PlSqlUnaryExpressions()
     * </PRE>
     */
-   public R visit(PlSqlExpotentExpressions n, A argu);
+   public R visit(PlSqlExpotentExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2672,7 +2671,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;POW&gt; PlSqlUnaryExpressions() )+
     * </PRE>
     */
-   public R visit(PlSqlExpotentExpression n, A argu);
+   public R visit(PlSqlExpotentExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2680,14 +2679,14 @@ public interface GJVisitor<R,A> {
     *       | PlSqlPrimaryExpression()
     * </PRE>
     */
-   public R visit(PlSqlUnaryExpressions n, A argu);
+   public R visit(PlSqlUnaryExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) PlSqlPrimaryExpression() )
     * </PRE>
     */
-   public R visit(PlSqlUnaryExpression n, A argu);
+   public R visit(PlSqlUnaryExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2701,7 +2700,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;LPARENCHAR&gt; PlSqlExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(PlSqlPrimaryExpression n, A argu);
+   public R visit(PlSqlPrimaryExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2709,7 +2708,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;DOTCHAR&gt; DotObjectName() [ &lt;DOTCHAR&gt; DotObjectName() ] ]
     * </PRE>
     */
-   public R visit(TableColumn n, A argu);
+   public R visit(TableColumn n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2718,7 +2717,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public R visit(RelObjectName n, A argu);
+   public R visit(RelObjectName n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2727,7 +2726,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public R visit(DotObjectName n, A argu);
+   public R visit(DotObjectName n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2735,7 +2734,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public R visit(OracleObjectName n, A argu);
+   public R visit(OracleObjectName n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2749,7 +2748,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;LESSTHANOREQUAL&gt;
     * </PRE>
     */
-   public R visit(Relop n, A argu);
+   public R visit(Relop n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2757,7 +2756,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ "/" DotObjectName() ]
     * </PRE>
     */
-   public R visit(TableReference n, A argu);
+   public R visit(TableReference n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2765,14 +2764,14 @@ public interface GJVisitor<R,A> {
     *       | ( [ ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) ] &lt;S_NUMBER&gt; )
     * </PRE>
     */
-   public R visit(NumOrID n, A argu);
+   public R visit(NumOrID n, A argu) throws Exception;
 
    /**
     * <PRE>
     * plSqlExpressionList -> PlSqlExpressionList()
     * </PRE>
     */
-   public R visit(Arguments n, A argu);
+   public R visit(Arguments n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2781,7 +2780,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional1 -> [ ForUpdateClause() ]
     * </PRE>
     */
-   public R visit(SelectStatement n, A argu);
+   public R visit(SelectStatement n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2796,7 +2795,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional5 -> [ SetClause() ]
     * </PRE>
     */
-   public R visit(SelectWithoutOrder n, A argu);
+   public R visit(SelectWithoutOrder n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2804,7 +2803,7 @@ public interface GJVisitor<R,A> {
     *       | SelectItem() ( &lt;COMMACHAR&gt; SelectItem() )*
     * </PRE>
     */
-   public R visit(SelectList n, A argu);
+   public R visit(SelectList n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2815,7 +2814,7 @@ public interface GJVisitor<R,A> {
     *       | TableColumn() [ AsObjectName() ]
     * </PRE>
     */
-   public R visit(SelectItem n, A argu);
+   public R visit(SelectItem n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2823,7 +2822,7 @@ public interface GJVisitor<R,A> {
     *       | RelObjectName() &lt;DOTCHAR&gt; DotObjectName() &lt;DOTCHAR&gt; &lt;ASTERISKCHAR&gt;
     * </PRE>
     */
-   public R visit(SelectAllItems n, A argu);
+   public R visit(SelectAllItems n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2831,7 +2830,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;K_AS&gt; DotObjectName()
     * </PRE>
     */
-   public R visit(AsObjectName n, A argu);
+   public R visit(AsObjectName n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2840,7 +2839,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; IntoItem() )*
     * </PRE>
     */
-   public R visit(IntoClause n, A argu);
+   public R visit(IntoClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2848,7 +2847,7 @@ public interface GJVisitor<R,A> {
     *       | ( IndicatorBind() )
     * </PRE>
     */
-   public R visit(IntoItem n, A argu);
+   public R visit(IntoItem n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2857,7 +2856,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; FromItem() )*
     * </PRE>
     */
-   public R visit(FromClause n, A argu);
+   public R visit(FromClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2865,7 +2864,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( JoinerExpression() [ &lt;K_AS&gt; AsObjectName() ] | [ AsObjectName() ] )
     * </PRE>
     */
-   public R visit(FromItem n, A argu);
+   public R visit(FromItem n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2873,7 +2872,7 @@ public interface GJVisitor<R,A> {
     *       | SelectStatement()
     * </PRE>
     */
-   public R visit(FromItemExpression n, A argu);
+   public R visit(FromItemExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2881,7 +2880,7 @@ public interface GJVisitor<R,A> {
     *       | RelObjectName() &lt;K_JOIN&gt; TableReference() [ JoinWhereClause() ]
     * </PRE>
     */
-   public R visit(JoinerExpression n, A argu);
+   public R visit(JoinerExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2889,7 +2888,7 @@ public interface GJVisitor<R,A> {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public R visit(JoinWhereClause n, A argu);
+   public R visit(JoinWhereClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2897,14 +2896,14 @@ public interface GJVisitor<R,A> {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public R visit(WhereClause n, A argu);
+   public R visit(WhereClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * nodeSequence -> ( [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] &lt;K_CONNECT&gt; &lt;K_BY&gt; SQLExpression() [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] )
     * </PRE>
     */
-   public R visit(ConnectClause n, A argu);
+   public R visit(ConnectClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2914,7 +2913,7 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;K_HAVING&gt; SQLExpression() ]
     * </PRE>
     */
-   public R visit(GroupByClause n, A argu);
+   public R visit(GroupByClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2922,7 +2921,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( ( &lt;LPARENCHAR&gt; SelectStatement() &lt;RPARENCHAR&gt; ) | SelectStatement() )
     * </PRE>
     */
-   public R visit(SetClause n, A argu);
+   public R visit(SetClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2933,7 +2932,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() [ &lt;K_ASC&gt; | &lt;K_DESC&gt; ] )*
     * </PRE>
     */
-   public R visit(OrderByClause n, A argu);
+   public R visit(OrderByClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2942,14 +2941,14 @@ public interface GJVisitor<R,A> {
     * nodeOptional -> [ &lt;K_OF&gt; TableColumn() ( &lt;COMMACHAR&gt; TableColumn() )* ]
     * </PRE>
     */
-   public R visit(ForUpdateClause n, A argu);
+   public R visit(ForUpdateClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * sQLOrExpressions -> SQLOrExpressions()
     * </PRE>
     */
-   public R visit(SQLExpression n, A argu);
+   public R visit(SQLExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2957,7 +2956,7 @@ public interface GJVisitor<R,A> {
     *       | SQLAndExpressions()
     * </PRE>
     */
-   public R visit(SQLOrExpressions n, A argu);
+   public R visit(SQLOrExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2965,7 +2964,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;K_OR&gt; SQLAndExpressions() )+
     * </PRE>
     */
-   public R visit(SQLOrExpression n, A argu);
+   public R visit(SQLOrExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2973,7 +2972,7 @@ public interface GJVisitor<R,A> {
     *       | SQLUnaryLogicalExpressions()
     * </PRE>
     */
-   public R visit(SQLAndExpressions n, A argu);
+   public R visit(SQLAndExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2981,7 +2980,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;K_AND&gt; SQLUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public R visit(SQLAndExpression n, A argu);
+   public R visit(SQLAndExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -2989,7 +2988,7 @@ public interface GJVisitor<R,A> {
     *       | SQLRelationalExpressions()
     * </PRE>
     */
-   public R visit(SQLUnaryLogicalExpressions n, A argu);
+   public R visit(SQLUnaryLogicalExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3000,7 +2999,7 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(ExistsClause n, A argu);
+   public R visit(ExistsClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3008,7 +3007,7 @@ public interface GJVisitor<R,A> {
     *       | ( SQLRelopExpression() | &lt;LPARENCHAR&gt; SQLExpressionList() &lt;RPARENCHAR&gt; | ( SQLPriorExpression() | SQLSimpleExpressions() ) )
     * </PRE>
     */
-   public R visit(SQLRelationalExpressions n, A argu);
+   public R visit(SQLRelationalExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3016,7 +3015,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( ( SQLInClause() ) | ( SQLBetweenClause() ) | ( SQLLikeClause() ) | IsNullClause() )
     * </PRE>
     */
-   public R visit(SQLRelationalExpression n, A argu);
+   public R visit(SQLRelationalExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3025,7 +3024,7 @@ public interface GJVisitor<R,A> {
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public R visit(SQLPriorExpression n, A argu);
+   public R visit(SQLPriorExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3033,7 +3032,7 @@ public interface GJVisitor<R,A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() )*
     * </PRE>
     */
-   public R visit(SQLExpressionList n, A argu);
+   public R visit(SQLExpressionList n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3042,7 +3041,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice1 -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpressions() )
     * </PRE>
     */
-   public R visit(SQLRelopExpression n, A argu);
+   public R visit(SQLRelopExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3050,7 +3049,7 @@ public interface GJVisitor<R,A> {
     * nodeChoice -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpression() )
     * </PRE>
     */
-   public R visit(SQLRelationalOperatorExpression n, A argu);
+   public R visit(SQLRelationalOperatorExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3061,7 +3060,7 @@ public interface GJVisitor<R,A> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(SQLInClause n, A argu);
+   public R visit(SQLInClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3072,7 +3071,7 @@ public interface GJVisitor<R,A> {
     * sQLSimpleExpression1 -> SQLSimpleExpression()
     * </PRE>
     */
-   public R visit(SQLBetweenClause n, A argu);
+   public R visit(SQLBetweenClause n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3081,21 +3080,21 @@ public interface GJVisitor<R,A> {
     * sQLSimpleExpression -> SQLSimpleExpression()
     * </PRE>
     */
-   public R visit(SQLLikeClause n, A argu);
+   public R visit(SQLLikeClause n, A argu) throws Exception;
 
    /**
     * <PRE>
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public R visit(SQLSimpleExpression n, A argu);
+   public R visit(SQLSimpleExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
     * sQLAdditiveExpressions -> SQLAdditiveExpressions()
     * </PRE>
     */
-   public R visit(SQLSimpleExpressions n, A argu);
+   public R visit(SQLSimpleExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3103,7 +3102,7 @@ public interface GJVisitor<R,A> {
     *       | SQLMultiplicativeExpressions()
     * </PRE>
     */
-   public R visit(SQLAdditiveExpressions n, A argu);
+   public R visit(SQLAdditiveExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3111,7 +3110,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) | &lt;CONCAT&gt; ) SQLMultiplicativeExpressions() )+
     * </PRE>
     */
-   public R visit(SQLAdditiveExpression n, A argu);
+   public R visit(SQLAdditiveExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3119,7 +3118,7 @@ public interface GJVisitor<R,A> {
     *       | SQLExpotentExpressions()
     * </PRE>
     */
-   public R visit(SQLMultiplicativeExpressions n, A argu);
+   public R visit(SQLMultiplicativeExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3127,7 +3126,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) SQLExpotentExpressions() )+
     * </PRE>
     */
-   public R visit(SQLMultiplicativeExpression n, A argu);
+   public R visit(SQLMultiplicativeExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3135,7 +3134,7 @@ public interface GJVisitor<R,A> {
     *       | SQLUnaryExpressions()
     * </PRE>
     */
-   public R visit(SQLExpotentExpressions n, A argu);
+   public R visit(SQLExpotentExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3143,7 +3142,7 @@ public interface GJVisitor<R,A> {
     * nodeList -> ( &lt;POW&gt; SQLUnaryExpressions() )+
     * </PRE>
     */
-   public R visit(SQLExpotentExpression n, A argu);
+   public R visit(SQLExpotentExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3151,7 +3150,7 @@ public interface GJVisitor<R,A> {
     *       | SQLPrimaryExpression()
     * </PRE>
     */
-   public R visit(SQLUnaryExpressions n, A argu);
+   public R visit(SQLUnaryExpressions n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3159,7 +3158,7 @@ public interface GJVisitor<R,A> {
     * sQLPrimaryExpression -> SQLPrimaryExpression()
     * </PRE>
     */
-   public R visit(SQLUnaryExpression n, A argu);
+   public R visit(SQLUnaryExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3172,7 +3171,7 @@ public interface GJVisitor<R,A> {
     *       | &lt;LPARENCHAR&gt; SQLExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(SQLPrimaryExpression n, A argu);
+   public R visit(SQLPrimaryExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3183,14 +3182,14 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(FunctionCall n, A argu);
+   public R visit(FunctionCall n, A argu) throws Exception;
 
    /**
     * <PRE>
     * sQLExpressionList -> SQLExpressionList()
     * </PRE>
     */
-   public R visit(SQLArguments n, A argu);
+   public R visit(SQLArguments n, A argu) throws Exception;
 
    /**
     * <PRE>
@@ -3201,13 +3200,13 @@ public interface GJVisitor<R,A> {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public R visit(OuterJoinExpression n, A argu);
+   public R visit(OuterJoinExpression n, A argu) throws Exception;
 
    /**
     * <PRE>
     * selectWithoutOrder -> SelectWithoutOrder()
     * </PRE>
     */
-   public R visit(SubQuery n, A argu);
+   public R visit(SubQuery n, A argu) throws Exception;
 
 }

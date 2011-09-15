@@ -4,7 +4,8 @@
 
 package com.res.cobol.syntaxtree;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * Represents a grammar list, e.g. ( A )+
@@ -27,16 +28,16 @@ public class NodeList extends com.res.cobol.RESNode implements NodeListInterface
    public Enumeration<Node> elements() { return nodes.elements(); }
    public Node elementAt(int i)  { return nodes.elementAt(i); }
    public int size()             { return nodes.size(); }
-   public void accept(com.res.cobol.visitor.Visitor v) {
+   public void accept(com.res.cobol.visitor.Visitor v) throws Exception {
       v.visit(this);
    }
-   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) {
+   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) throws Exception {
       return v.visit(this,argu);
    }
-   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) {
+   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) throws Exception {
       return v.visit(this);
    }
-   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) {
+   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) throws Exception {
       v.visit(this,argu);
    }
 

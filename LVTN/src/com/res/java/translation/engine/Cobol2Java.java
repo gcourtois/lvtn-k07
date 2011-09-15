@@ -9,12 +9,18 @@ import java.util.Queue;
 
 import com.res.cobol.syntaxtree.CobolWord;
 import com.res.cobol.syntaxtree.DataDivision;
+import com.res.cobol.syntaxtree.DisplayStatement;
+import com.res.cobol.syntaxtree.Identifier;
+import com.res.cobol.syntaxtree.Literal;
 import com.res.cobol.syntaxtree.NodeToken;
+import com.res.cobol.syntaxtree.NonNumericConstant;
 import com.res.cobol.syntaxtree.Paragraph;
 import com.res.cobol.syntaxtree.ParagraphName;
+import com.res.cobol.syntaxtree.ProcedureBody;
 import com.res.cobol.syntaxtree.ProcedureSection;
 import com.res.cobol.syntaxtree.ProgramIdParagraph;
 import com.res.cobol.syntaxtree.ProgramUnit;
+import com.res.cobol.syntaxtree.Sentence;
 import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
 import com.res.java.lib.EditedVar;
@@ -26,8 +32,10 @@ import com.res.java.util.JavaCodePrinter;
 import com.res.java.util.NameUtil;
 
 public class Cobol2Java extends GJDepthFirst<Object, Object> {
+    private String runMethodName = "_run";
+    
 	@Override
-	public Object visit(ProgramUnit n, Object argu) {
+	public Object visit(ProgramUnit n, Object argu) throws Exception {
 		try {
 			File f = new File(RESConfig.getInstance().getProgramPackage());
 			if (!f.exists()) {
@@ -72,8 +80,12 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 			createListParagraphs(props);
 			super.visit(n, printer);
 
+			printer.println("public static void main(String[] args) {");
+			printer.increaseIndent();
+			printer.println(String.format("new %s().%s();", programName, runMethodName));
 			printer.decreaseIndent();
-			
+			printer.println("}");
+			printer.decreaseIndent();
 			
 			// end class
 			printer.println("}");
@@ -101,7 +113,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
     }
 
     @Override
-	public Object visit(ProgramIdParagraph n, Object o) {
+	public Object visit(ProgramIdParagraph n, Object o) throws Exception {
 		String programName = n.programName.cobolWord.nodeToken.tokenImage;
 		SymbolProperties props = SymbolTable.getInstance().lookup(programName);
 
@@ -119,7 +131,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	@Override
-	public Object visit(DataDivision n, Object o) {
+	public Object visit(DataDivision n, Object o) throws Exception {
         return null;
     }
 	
@@ -128,7 +140,24 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	@Override
-	public Object visit(ProcedureSection n, Object o) {
+	public Object visit(ProcedureBody n, Object o) throws Exception {
+	    JavaCodePrinter printer = (JavaCodePrinter) o;
+	    printer.println(String.format("public void %s() {", runMethodName));
+	    printer.increaseIndent();
+	    n.paragraphs.nodeListOptional.accept(this, o);
+	    if (listParagraphs.size() > 0) {
+	        printer.println(getQualifiedJavaName(listParagraphs.peek()) + "(false);");
+	    }
+	    printer.decreaseIndent();
+	    printer.println("}");
+	    printer.println();
+	    n.paragraphs.nodeListOptional1.accept(this, o);
+	    n.nodeListOptional.accept(this, o);
+	    return null;
+	}
+	
+	@Override
+	public Object visit(ProcedureSection n, Object o) throws Exception {
 	    String sectionName = n.sectionHeader.sectionName.nodeChoice.choice.accept(this, null).toString();
 
 	    SymbolProperties props = SymbolTable.getInstance().lookup(sectionName, SymbolConstants.SECTION);
@@ -154,7 +183,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	@Override
-	public Object visit(Paragraph n, Object o) {
+	public Object visit(Paragraph n, Object o) throws Exception {
 	    String parName = n.nodeChoice.choice.accept(this, o).toString();
 	    
 	    if (listParagraphs.peek().getDataName().equalsIgnoreCase(parName)) {
@@ -183,17 +212,40 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	@Override
-	public Object visit(NodeToken n, Object o) {
+	public Object visit(NodeToken n, Object o) throws Exception {
 	    return n.tokenImage;
 	}
 	
 	@Override
-	public Object visit(CobolWord n, Object o) {
+	public Object visit(CobolWord n, Object o) throws Exception {
 	    return n.nodeToken.tokenImage;
 	}
 	
 	@Override
-	public Object visit(ParagraphName n, Object o) {
+	public Object visit(ParagraphName n, Object o) throws Exception {
 	    return n.nodeChoice.choice.accept(this, o);
+	}
+	
+	@Override
+	public Object visit(Sentence n, Object o) throws Exception {
+	    n.nodeList.accept(this, o);
+	    return null;
+	}
+	
+	@Override
+	public Object visit(DisplayStatement n, Object o) throws Exception {
+	    return super.visit(n, o);
+	}
+	
+	public Object visit(Literal n, Object o) throws Exception {
+	    return n.nodeChoice.choice.accept(this, o);
+	}
+	
+	public Object visit(NonNumericConstant n, Object o) throws Exception {
+	    return n.nodeChoice.choice.accept(this, o);
+	}
+	
+	public Object visit(Identifier n, Object o) throws Exception {
+	    return null;
 	}
 }

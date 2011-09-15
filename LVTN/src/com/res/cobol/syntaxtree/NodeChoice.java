@@ -18,16 +18,16 @@ public class NodeChoice extends com.res.cobol.RESNode implements Node {
       which = whichChoice;
    }
 
-   public void accept(com.res.cobol.visitor.Visitor v) {
+   public void accept(com.res.cobol.visitor.Visitor v) throws Exception {
       choice.accept(v);
    }
-   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) {
+   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) throws Exception {
       return choice.accept(v,argu);
    }
-   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) {
+   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) throws Exception {
       return choice.accept(v);
    }
-   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) {
+   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) throws Exception {
       choice.accept(v,argu);
    }
 

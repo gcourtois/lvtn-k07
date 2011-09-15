@@ -14,9 +14,14 @@ public interface NodeListInterface extends Node {
    public java.util.Enumeration<Node> elements();
    public int size();
 
-   public void accept(com.res.cobol.visitor.Visitor v);
+   /*public void accept(com.res.cobol.visitor.Visitor v);
    public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu);
    public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v);
-   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu);
+   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu);*/
+   
+   public void accept(com.res.cobol.visitor.Visitor v) throws Exception;
+   public <R,A> R accept(com.res.cobol.visitor.GJVisitor<R,A> v, A argu) throws Exception;
+   public <R> R accept(com.res.cobol.visitor.GJNoArguVisitor<R> v) throws Exception;
+   public <A> void accept(com.res.cobol.visitor.GJVoidVisitor<A> v, A argu) throws Exception;
 }
 

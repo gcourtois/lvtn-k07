@@ -3,8 +3,9 @@
 //
 
 package com.res.cobol.visitor;
+import java.util.Enumeration;
+
 import com.res.cobol.syntaxtree.*;
-import java.util.*;
 
 /**
  * Provides default methods which visit each node in the tree in depth-first
@@ -14,7 +15,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
    //
    // Auto class visitors--probably don't need to be overridden.
    //
-   public void visit(NodeList n, A argu) {
+   public void visit(NodeList n, A argu) throws Exception {
       int _count=0;
       for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
          e.nextElement().accept(this,argu);
@@ -22,7 +23,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
       }
    }
 
-   public void visit(NodeListOptional n, A argu) {
+   public void visit(NodeListOptional n, A argu) throws Exception {
       if ( n.present() ) {
          int _count=0;
          for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
@@ -32,12 +33,12 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
       }
    }
 
-   public void visit(NodeOptional n, A argu) {
+   public void visit(NodeOptional n, A argu) throws Exception {
       if ( n.present() )
          n.node.accept(this,argu);
    }
 
-   public void visit(NodeSequence n, A argu) {
+   public void visit(NodeSequence n, A argu) throws Exception {
       int _count=0;
       for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
          e.nextElement().accept(this,argu);
@@ -45,7 +46,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
       }
    }
 
-   public void visit(NodeToken n, A argu) {}
+   public void visit(NodeToken n, A argu) throws Exception {}
 
    //
    // User-generated visitor methods below
@@ -56,7 +57,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;COBOL_WORD&gt;
     * </PRE>
     */
-   public void visit(CobolWord n, A argu) {
+   public void visit(CobolWord n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -71,7 +72,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;COMMA_INTEGER&gt;
     * </PRE>
     */
-   public void visit(IntegerConstant n, A argu) {
+   public void visit(IntegerConstant n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -81,7 +82,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( IntegerConstant() &lt;DOTCHAR&gt; [ IntegerConstant() ] | &lt;DOTCHAR&gt; IntegerConstant() | IntegerConstant() )
     * </PRE>
     */
-   public void visit(NumericConstant n, A argu) {
+   public void visit(NumericConstant n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -91,7 +92,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;LEVEL_NUMBER&gt;
     * </PRE>
     */
-   public void visit(LevelNumber n, A argu) {
+   public void visit(LevelNumber n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -112,7 +113,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;NULLS&gt;
     * </PRE>
     */
-   public void visit(FigurativeConstant n, A argu) {
+   public void visit(FigurativeConstant n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -121,7 +122,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;QUOTEDSTRING&gt; | &lt;HEXNUMBER&gt; )
     * </PRE>
     */
-   public void visit(NonNumericConstant n, A argu) {
+   public void visit(NonNumericConstant n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -131,7 +132,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( NonNumericConstant() | NumericConstant() | FigurativeConstant() | IntrinsicFunction() | SpecialRegister() | &lt;LINAGE_COUNTER&gt; [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public void visit(Literal n, A argu) {
+   public void visit(Literal n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -142,7 +143,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( ( &lt;AND&gt; | &lt;OR&gt; ) ( CombinableCondition() | AbbreviationRest() ) )*
     * </PRE>
     */
-   public void visit(Condition n, A argu) {
+   public void visit(Condition n, A argu) throws Exception {
       n.combinableCondition.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -153,7 +154,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * simpleCondition -> SimpleCondition()
     * </PRE>
     */
-   public void visit(CombinableCondition n, A argu) {
+   public void visit(CombinableCondition n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.simpleCondition.accept(this, argu);
    }
@@ -163,7 +164,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ClassCondition() | RelationCondition() | ConditionNameCondition() | &lt;LPARENCHAR&gt; Condition() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public void visit(SimpleCondition n, A argu) {
+   public void visit(SimpleCondition n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -175,7 +176,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;NUMERIC&gt; | &lt;ALPHABETIC&gt; | &lt;ALPHABETIC_LOWER&gt; | &lt;ALPHABETIC_UPPER&gt; | ClassName() | &lt;DBCS&gt; | &lt;KANJI&gt; )
     * </PRE>
     */
-   public void visit(ClassCondition n, A argu) {
+   public void visit(ClassCondition n, A argu) throws Exception {
       n.identifier.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -187,7 +188,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * conditionNameReference -> ConditionNameReference()
     * </PRE>
     */
-   public void visit(ConditionNameCondition n, A argu) {
+   public void visit(ConditionNameCondition n, A argu) throws Exception {
       n.conditionNameReference.accept(this, argu);
    }
 
@@ -197,7 +198,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( RelationalOperator() ArithmeticExpression() | SignCondition() )
     * </PRE>
     */
-   public void visit(RelationCondition n, A argu) {
+   public void visit(RelationCondition n, A argu) throws Exception {
       n.arithmeticExpression.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -209,7 +210,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;POSITIVE&gt; | &lt;NEGATIVE&gt; | ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; ) )
     * </PRE>
     */
-   public void visit(SignCondition n, A argu) {
+   public void visit(SignCondition n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -222,7 +223,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;GREATER&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;MORETHANOREQUAL&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] &lt;OR&gt; &lt;EQUAL&gt; [ &lt;TO&gt; ] | &lt;LESSTHANOREQUAL&gt; | &lt;GREATER&gt; [ &lt;THAN&gt; ] | &lt;MORETHANCHAR&gt; | &lt;LESS&gt; [ &lt;THAN&gt; ] | &lt;LESSTHANCHAR&gt; | ( &lt;EQUAL&gt; | &lt;EQUALS&gt; ) [ &lt;TO&gt; ] | &lt;EQUALCHAR&gt; [ &lt;TO&gt; ] | &lt;NOTEQUALCHAR&gt; )
     * </PRE>
     */
-   public void visit(RelationalOperator n, A argu) {
+   public void visit(RelationalOperator n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -233,7 +234,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( [ &lt;NOT&gt; ] [ RelationalOperator() ] AbbreviationLeaf() )+
     * </PRE>
     */
-   public void visit(AbbreviationRest n, A argu) {
+   public void visit(AbbreviationRest n, A argu) throws Exception {
       n.nodeList.accept(this, argu);
    }
 
@@ -242,7 +243,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ArithmeticExpression() | &lt;LPARENCHAR&gt; ArithmeticExpression() AbbreviationRest() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public void visit(AbbreviationLeaf n, A argu) {
+   public void visit(AbbreviationLeaf n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -251,7 +252,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ParagraphName() [ ( &lt;IN&gt; | &lt;OF&gt; ) SectionName() ] | SectionName() )
     * </PRE>
     */
-   public void visit(ProcedureName n, A argu) {
+   public void visit(ProcedureName n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -260,7 +261,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( QualifiedDataName() ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* [ &lt;LPARENCHAR&gt; LeftmostCharacterPosition() &lt;COLONCHAR&gt; [ Length() ] &lt;RPARENCHAR&gt; ] | &lt;RETURN_CODE&gt; )
     * </PRE>
     */
-   public void visit(Identifier n, A argu) {
+   public void visit(Identifier n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -269,7 +270,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeSequence -> ( DataName() ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] )
     * </PRE>
     */
-   public void visit(QualifiedDataName n, A argu) {
+   public void visit(QualifiedDataName n, A argu) throws Exception {
       n.nodeSequence.accept(this, argu);
    }
 
@@ -278,7 +279,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeSequence -> ( &lt;FUNCTION&gt; ( &lt;F_ACOS&gt; | &lt;F_ANNUITY&gt; | &lt;F_ASIN&gt; | &lt;F_ATAN&gt; | &lt;F_CHAR&gt; | &lt;F_COS&gt; | &lt;F_CURRENT_DATE&gt; | &lt;F_DATE_OF_INTEGER&gt; | &lt;F_DATE_TO_YYYYMMDD&gt; | &lt;F_DATEVAL&gt; | &lt;F_DAY_OF_INTEGER&gt; | &lt;F_DAY_TO_YYYYDDD&gt; | &lt;F_DISPLAY_OF&gt; | &lt;F_FACTORIAL&gt; | &lt;F_INTEGER&gt; | &lt;F_INTEGER_OF_DATE&gt; | &lt;F_INTEGER_OF_DAY&gt; | &lt;F_INTEGER_PART&gt; | &lt;F_LENGTH&gt; | &lt;F_LOG&gt; | &lt;F_LOG10&gt; | &lt;F_LOWER_CASE&gt; | &lt;F_MAX&gt; | &lt;F_MEAN&gt; | &lt;F_MEDIAN&gt; | &lt;F_MIDRANGE&gt; | &lt;F_MIN&gt; | &lt;F_MOD&gt; | &lt;F_NATIONAL_OF&gt; | &lt;F_NUMVAL&gt; | &lt;F_NUMVAL_C&gt; | &lt;F_ORD&gt; | &lt;F_ORD_MAX&gt; | &lt;F_ORD_MIN&gt; | &lt;F_PRESENT_VALUE&gt; | &lt;F_RANDOM&gt; | &lt;F_RANGE&gt; | &lt;F_REM&gt; | &lt;F_REVERSE&gt; | &lt;F_SIN&gt; | &lt;F_SQRT&gt; | &lt;F_STANDARD_DEVIATION&gt; | &lt;F_SUM&gt; | &lt;F_TAN&gt; | &lt;F_UNDATE&gt; | &lt;F_UPPER_CASE&gt; | &lt;F_VARIANCE&gt; | &lt;F_WHEN_COMPILED&gt; | &lt;F_YEAR_TO_YYYY&gt; | &lt;F_YEARWINDOW&gt; ) [ &lt;LPARENCHAR&gt; [ QualifiedDataName() &lt;LPARENCHAR&gt; ( &lt;ALL&gt; [ &lt;COMMACHAR&gt; ] )+ &lt;RPARENCHAR&gt; | FunctionArgument() ( [ &lt;COMMACHAR&gt; ] FunctionArgument() )* ] &lt;RPARENCHAR&gt; ] )
     * </PRE>
     */
-   public void visit(IntrinsicFunction n, A argu) {
+   public void visit(IntrinsicFunction n, A argu) throws Exception {
       n.nodeSequence.accept(this, argu);
    }
 
@@ -289,7 +290,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | ArithmeticExpression()
     * </PRE>
     */
-   public void visit(FunctionArgument n, A argu) {
+   public void visit(FunctionArgument n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -298,7 +299,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public void visit(Length n, A argu) {
+   public void visit(Length n, A argu) throws Exception {
       n.arithmeticExpression.accept(this, argu);
    }
 
@@ -307,7 +308,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * arithmeticExpression -> ArithmeticExpression()
     * </PRE>
     */
-   public void visit(LeftmostCharacterPosition n, A argu) {
+   public void visit(LeftmostCharacterPosition n, A argu) throws Exception {
       n.arithmeticExpression.accept(this, argu);
    }
 
@@ -317,7 +318,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ( ( &lt;IN&gt; | &lt;OF&gt; ) DataName() )* [ ( &lt;IN&gt; | &lt;OF&gt; ) FileName() ] ( &lt;LPARENCHAR&gt; Subscript() ( [ &lt;COMMACHAR&gt; ] Subscript() )* &lt;RPARENCHAR&gt; )* | ( ( &lt;IN&gt; | &lt;OF&gt; ) MnemonicName() )* )
     * </PRE>
     */
-   public void visit(ConditionNameReference n, A argu) {
+   public void visit(ConditionNameReference n, A argu) throws Exception {
       n.conditionName.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -327,7 +328,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ] IntegerConstant() | QualifiedDataName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] | IndexName() [ ( &lt;PLUSCHAR_SUBS&gt; | &lt;MINUSCHAR_SUBS&gt; ) IntegerConstant() ] )
     * </PRE>
     */
-   public void visit(Subscript n, A argu) {
+   public void visit(Subscript n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -336,7 +337,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(Mode n, A argu) {
+   public void visit(Mode n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -345,7 +346,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(AlphabetName n, A argu) {
+   public void visit(AlphabetName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -354,7 +355,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(ClassName n, A argu) {
+   public void visit(ClassName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -363,7 +364,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(ConditionName n, A argu) {
+   public void visit(ConditionName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -372,7 +373,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(DataName n, A argu) {
+   public void visit(DataName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -381,7 +382,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(FileName n, A argu) {
+   public void visit(FileName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -390,7 +391,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(IndexName n, A argu) {
+   public void visit(IndexName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -399,7 +400,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(MnemonicName n, A argu) {
+   public void visit(MnemonicName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -408,7 +409,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public void visit(RecordName n, A argu) {
+   public void visit(RecordName n, A argu) throws Exception {
       n.qualifiedDataName.accept(this, argu);
    }
 
@@ -417,7 +418,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(RoutineName n, A argu) {
+   public void visit(RoutineName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -426,7 +427,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(SymbolicCharacter n, A argu) {
+   public void visit(SymbolicCharacter n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -435,7 +436,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(LibraryName n, A argu) {
+   public void visit(LibraryName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -444,7 +445,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(ProgramName n, A argu) {
+   public void visit(ProgramName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -453,7 +454,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(CdName n, A argu) {
+   public void visit(CdName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -468,7 +469,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | CobolWord()
     * </PRE>
     */
-   public void visit(SectionName n, A argu) {
+   public void visit(SectionName n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -483,7 +484,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | CobolWord()
     * </PRE>
     */
-   public void visit(ParagraphName n, A argu) {
+   public void visit(ParagraphName n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -492,7 +493,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * cobolWord -> CobolWord()
     * </PRE>
     */
-   public void visit(SystemName n, A argu) {
+   public void visit(SystemName n, A argu) throws Exception {
       n.cobolWord.accept(this, argu);
    }
 
@@ -501,7 +502,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(ComputerName n, A argu) {
+   public void visit(ComputerName n, A argu) throws Exception {
       n.systemName.accept(this, argu);
    }
 
@@ -510,7 +511,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(LanguageName n, A argu) {
+   public void visit(LanguageName n, A argu) throws Exception {
       n.systemName.accept(this, argu);
    }
 
@@ -519,7 +520,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(EnvironmentName n, A argu) {
+   public void visit(EnvironmentName n, A argu) throws Exception {
       n.systemName.accept(this, argu);
    }
 
@@ -528,7 +529,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * systemName -> SystemName()
     * </PRE>
     */
-   public void visit(AssignmentName n, A argu) {
+   public void visit(AssignmentName n, A argu) throws Exception {
       n.systemName.accept(this, argu);
    }
 
@@ -537,7 +538,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * programName -> ProgramName()
     * </PRE>
     */
-   public void visit(BasisName n, A argu) {
+   public void visit(BasisName n, A argu) throws Exception {
       n.programName.accept(this, argu);
    }
 
@@ -546,7 +547,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;ADDRESS&gt; &lt;OF&gt; DataName() | &lt;LENGTH&gt; &lt;OF&gt; Identifier() | &lt;DEBUG_LINE&gt; | &lt;DEBUG_NAME&gt; | &lt;DEBUG_CONTENTS&gt; | &lt;DEBUG_ITEM&gt; | &lt;DEBUG_SUB_1&gt; | &lt;DEBUG_SUB_2&gt; | &lt;DEBUG_SUB_3&gt; | &lt;RETURN_CODE&gt; | &lt;SHIFT_OUT&gt; | &lt;SHIFT_IN&gt; | &lt;SORT_CONTROL&gt; | &lt;SORT_CORE_SIZE&gt; | &lt;SORT_FILE_SIZE&gt; | &lt;SORT_MESSAGE&gt; | &lt;SORT_MODE_SIZE&gt; | &lt;SORT_RETURN&gt; | &lt;TALLY&gt; | &lt;WHEN_COMPILED&gt; )
     * </PRE>
     */
-   public void visit(SpecialRegister n, A argu) {
+   public void visit(SpecialRegister n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -556,7 +557,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) ) TimesDiv() )*
     * </PRE>
     */
-   public void visit(ArithmeticExpression n, A argu) {
+   public void visit(ArithmeticExpression n, A argu) throws Exception {
       n.timesDiv.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -567,7 +568,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) Power() )*
     * </PRE>
     */
-   public void visit(TimesDiv n, A argu) {
+   public void visit(TimesDiv n, A argu) throws Exception {
       n.power.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -579,7 +580,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;POW&gt; Basis() )*
     * </PRE>
     */
-   public void visit(Power n, A argu) {
+   public void visit(Power n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.basis.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
@@ -590,7 +591,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( Identifier() | Literal() | &lt;LPARENCHAR&gt; ArithmeticExpression() &lt;RPARENCHAR&gt; )
     * </PRE>
     */
-   public void visit(Basis n, A argu) {
+   public void visit(Basis n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -599,7 +600,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;COMMENT2&gt; [ &lt;DOT2&gt; ] )+
     * </PRE>
     */
-   public void visit(CommentLine n, A argu) {
+   public void visit(CommentLine n, A argu) throws Exception {
       n.nodeList.accept(this, argu);
    }
 
@@ -609,7 +610,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;EOF&gt;
     * </PRE>
     */
-   public void visit(CompilationUnit n, A argu) {
+   public void visit(CompilationUnit n, A argu) throws Exception {
       n.nodeListOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
    }
@@ -622,7 +623,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ ProcedureDivision() ]
     * </PRE>
     */
-   public void visit(ProgramUnit n, A argu) {
+   public void visit(ProgramUnit n, A argu) throws Exception {
       n.identificationDivision.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -639,7 +640,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * endProgramStatement -> EndProgramStatement()
     * </PRE>
     */
-   public void visit(NestedProgramUnit n, A argu) {
+   public void visit(NestedProgramUnit n, A argu) throws Exception {
       n.nestedIdentificationDivision.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -656,7 +657,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(EndProgramStatement n, A argu) {
+   public void visit(EndProgramStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.programName.accept(this, argu);
@@ -672,7 +673,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public void visit(IdentificationDivision n, A argu) {
+   public void visit(IdentificationDivision n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeToken2.accept(this, argu);
@@ -689,7 +690,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( IdentificationDivisionParagraph() )*
     * </PRE>
     */
-   public void visit(NestedIdentificationDivision n, A argu) {
+   public void visit(NestedIdentificationDivision n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -706,7 +707,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SecurityParagraph()
     * </PRE>
     */
-   public void visit(IdentificationDivisionParagraph n, A argu) {
+   public void visit(IdentificationDivisionParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -719,7 +720,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(ProgramIdParagraph n, A argu) {
+   public void visit(ProgramIdParagraph n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.programName.accept(this, argu);
@@ -736,7 +737,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(NestedProgramIdParagraph n, A argu) {
+   public void visit(NestedProgramIdParagraph n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.programName.accept(this, argu);
@@ -749,7 +750,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;INITIAL&gt; [ &lt;COMMON&gt; ] | &lt;COMMON&gt; [ &lt;INITIAL&gt; ] )
     * </PRE>
     */
-   public void visit(InitialOrCommon n, A argu) {
+   public void visit(InitialOrCommon n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -760,7 +761,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(AuthorParagraph n, A argu) {
+   public void visit(AuthorParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -773,7 +774,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(InstallationParagraph n, A argu) {
+   public void visit(InstallationParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -786,7 +787,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(DateWrittenParagraph n, A argu) {
+   public void visit(DateWrittenParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -799,7 +800,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(DateCompiledParagraph n, A argu) {
+   public void visit(DateCompiledParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -812,7 +813,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ CommentLine() ]
     * </PRE>
     */
-   public void visit(SecurityParagraph n, A argu) {
+   public void visit(SecurityParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -824,7 +825,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( EnvironmentSection() )*
     * </PRE>
     */
-   public void visit(EnvironmentDivision n, A argu) {
+   public void visit(EnvironmentDivision n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -835,7 +836,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | InputOutputSection()
     * </PRE>
     */
-   public void visit(EnvironmentSection n, A argu) {
+   public void visit(EnvironmentSection n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -847,7 +848,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( ConfigurationSectionParagraph() )*
     * </PRE>
     */
-   public void visit(ConfigurationSection n, A argu) {
+   public void visit(ConfigurationSection n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeToken2.accept(this, argu);
@@ -861,7 +862,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SpecialNamesParagraph()
     * </PRE>
     */
-   public void visit(ConfigurationSectionParagraph n, A argu) {
+   public void visit(ConfigurationSectionParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -874,7 +875,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(SourceComputerParagraph n, A argu) {
+   public void visit(SourceComputerParagraph n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.computerName.accept(this, argu);
@@ -891,7 +892,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(ObjectComputerParagraph n, A argu) {
+   public void visit(ObjectComputerParagraph n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.computerName.accept(this, argu);
@@ -907,7 +908,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | CharacterSetClause()
     * </PRE>
     */
-   public void visit(ObjectComputerClause n, A argu) {
+   public void visit(ObjectComputerClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -919,7 +920,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;WORDS&gt; | &lt;CHARACTERS&gt; | &lt;MODULES&gt; ]
     * </PRE>
     */
-   public void visit(MemorySizeClause n, A argu) {
+   public void visit(MemorySizeClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.integerConstant.accept(this, argu);
@@ -935,7 +936,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public void visit(CollatingSequenceClause n, A argu) {
+   public void visit(CollatingSequenceClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
       n.nodeToken.accept(this, argu);
@@ -950,7 +951,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * integerConstant -> IntegerConstant()
     * </PRE>
     */
-   public void visit(SegmentLimitClause n, A argu) {
+   public void visit(SegmentLimitClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.integerConstant.accept(this, argu);
@@ -962,7 +963,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;SET&gt;
     * </PRE>
     */
-   public void visit(CharacterSetClause n, A argu) {
+   public void visit(CharacterSetClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
    }
@@ -974,7 +975,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ SpecialNameClause() ( [ &lt;COMMACHAR&gt; ] SpecialNameClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public void visit(SpecialNamesParagraph n, A argu) {
+   public void visit(SpecialNamesParagraph n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -990,7 +991,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | EnvironmentNameIsMnemonicNameClause()
     * </PRE>
     */
-   public void visit(SpecialNameClause n, A argu) {
+   public void visit(SpecialNameClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1002,7 +1003,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;STANDARD_2&gt; | &lt;NATIVE&gt; | CobolWord() | ( Literal() [ ( ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() | ( &lt;ALSO&gt; Literal() [ &lt;COMMACHAR&gt; ] )+ ) ] [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public void visit(AlphabetClause n, A argu) {
+   public void visit(AlphabetClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.alphabetName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1017,7 +1018,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( Literal() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() ] )+
     * </PRE>
     */
-   public void visit(ClassClause n, A argu) {
+   public void visit(ClassClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.className.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1032,7 +1033,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * literal -> Literal()
     * </PRE>
     */
-   public void visit(CurrencySignClause n, A argu) {
+   public void visit(CurrencySignClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1046,7 +1047,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;COMMA&gt;
     * </PRE>
     */
-   public void visit(DecimalPointClause n, A argu) {
+   public void visit(DecimalPointClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -1060,7 +1061,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;IN&gt; AlphabetName() ]
     * </PRE>
     */
-   public void visit(SymbolicCharactersClause n, A argu) {
+   public void visit(SymbolicCharactersClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeList.accept(this, argu);
@@ -1072,7 +1073,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( EnvironmentName() [ &lt;IS&gt; ] MnemonicName() [ SpecialNamesParagraphStatusPhrase() ] | SpecialNamesParagraphStatusPhrase() )
     * </PRE>
     */
-   public void visit(EnvironmentNameIsMnemonicNameClause n, A argu) {
+   public void visit(EnvironmentNameIsMnemonicNameClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1081,7 +1082,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] | &lt;OFF&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() [ &lt;ON&gt; [ &lt;STATUS&gt; ] [ &lt;IS&gt; ] Condition() ] )
     * </PRE>
     */
-   public void visit(SpecialNamesParagraphStatusPhrase n, A argu) {
+   public void visit(SpecialNamesParagraphStatusPhrase n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1091,7 +1092,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( InputOutputSectionParagraph() )+
     * </PRE>
     */
-   public void visit(InputOutputSection n, A argu) {
+   public void visit(InputOutputSection n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -1102,7 +1103,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | IOControlParagraph()
     * </PRE>
     */
-   public void visit(InputOutputSectionParagraph n, A argu) {
+   public void visit(InputOutputSectionParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1112,7 +1113,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( FileControlEntry() &lt;DOT&gt; )*
     * </PRE>
     */
-   public void visit(FileControlParagraph n, A argu) {
+   public void visit(FileControlParagraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -1123,7 +1124,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( FileControlClause() )*
     * </PRE>
     */
-   public void visit(FileControlEntry n, A argu) {
+   public void visit(FileControlEntry n, A argu) throws Exception {
       n.selectClause.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -1142,7 +1143,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PasswordClause()
     * </PRE>
     */
-   public void visit(FileControlClause n, A argu) {
+   public void visit(FileControlClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1153,7 +1154,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * fileName -> FileName()
     * </PRE>
     */
-   public void visit(SelectClause n, A argu) {
+   public void visit(SelectClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.fileName.accept(this, argu);
@@ -1167,7 +1168,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( AssignmentName() | Literal() )
     * </PRE>
     */
-   public void visit(AssignClause n, A argu) {
+   public void visit(AssignClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1181,7 +1182,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> ( &lt;AREA&gt; | &lt;AREAS&gt; )?
     * </PRE>
     */
-   public void visit(ReserveClause n, A argu) {
+   public void visit(ReserveClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.integerConstant.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1194,7 +1195,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( SequentialOrganizationClause() | IndexedOrganizationClause() | RelativeOrganizationClause() | LineSequentialOrganizationClause() )
     * </PRE>
     */
-   public void visit(OrganizationClause n, A argu) {
+   public void visit(OrganizationClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -1205,7 +1206,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public void visit(SequentialOrganizationClause n, A argu) {
+   public void visit(SequentialOrganizationClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -1215,7 +1216,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public void visit(LineSequentialOrganizationClause n, A argu) {
+   public void visit(LineSequentialOrganizationClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
    }
@@ -1225,7 +1226,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;RELATIVE&gt;
     * </PRE>
     */
-   public void visit(RelativeOrganizationClause n, A argu) {
+   public void visit(RelativeOrganizationClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -1234,7 +1235,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;INDEXED&gt;
     * </PRE>
     */
-   public void visit(IndexedOrganizationClause n, A argu) {
+   public void visit(IndexedOrganizationClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -1246,7 +1247,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( QualifiedDataName() | Literal() )
     * </PRE>
     */
-   public void visit(PaddingCharacterClause n, A argu) {
+   public void visit(PaddingCharacterClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1261,7 +1262,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;STANDARD_1&gt; | &lt;IMPLICIT&gt; | AssignmentName() )
     * </PRE>
     */
-   public void visit(RecordDelimiterClause n, A argu) {
+   public void visit(RecordDelimiterClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1276,7 +1277,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( SequentialAccessMode() | RandomAccessMode() | DynamicAccessMode() )
     * </PRE>
     */
-   public void visit(AccessModeClause n, A argu) {
+   public void visit(AccessModeClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1288,7 +1289,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;SEQUENTIAL&gt;
     * </PRE>
     */
-   public void visit(SequentialAccessMode n, A argu) {
+   public void visit(SequentialAccessMode n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -1297,7 +1298,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;RANDOM&gt;
     * </PRE>
     */
-   public void visit(RandomAccessMode n, A argu) {
+   public void visit(RandomAccessMode n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -1306,7 +1307,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;DYNAMIC&gt;
     * </PRE>
     */
-   public void visit(DynamicAccessMode n, A argu) {
+   public void visit(DynamicAccessMode n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -1318,7 +1319,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * qualifiedDataName -> QualifiedDataName()
     * </PRE>
     */
-   public void visit(KeyClause n, A argu) {
+   public void visit(KeyClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1336,7 +1337,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional3 -> [ [ &lt;WITH&gt; ] &lt;DUPLICATES&gt; ]
     * </PRE>
     */
-   public void visit(AlternateRecordKeyClause n, A argu) {
+   public void visit(AlternateRecordKeyClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1353,7 +1354,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * dataName -> DataName()
     * </PRE>
     */
-   public void visit(PasswordClause n, A argu) {
+   public void visit(PasswordClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.dataName.accept(this, argu);
@@ -1368,7 +1369,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ QualifiedDataName() ]
     * </PRE>
     */
-   public void visit(FileStatusClause n, A argu) {
+   public void visit(FileStatusClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1383,7 +1384,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ IOControlClause() ( [ &lt;DOT&gt; ] IOControlClause() )* &lt;DOT&gt; ]
     * </PRE>
     */
-   public void visit(IOControlParagraph n, A argu) {
+   public void visit(IOControlParagraph n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1396,7 +1397,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public void visit(IOControlClause n, A argu) {
+   public void visit(IOControlClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1410,7 +1411,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( Rerun2() | IntegerConstant() [ &lt;CLOCK_UNITS&gt; ] )
     * </PRE>
     */
-   public void visit(RerunClause n, A argu) {
+   public void visit(RerunClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -1423,7 +1424,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | [ &lt;END&gt; ] [ &lt;OF&gt; ] ( &lt;REEL&gt; | &lt;UNIT&gt; ) &lt;OF&gt; FileName()
     * </PRE>
     */
-   public void visit(Rerun2 n, A argu) {
+   public void visit(Rerun2 n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1436,7 +1437,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( FileName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(SameAreaClause n, A argu) {
+   public void visit(SameAreaClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1453,7 +1454,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( FileName() [ &lt;POSITION&gt; ] [ IntegerConstant() ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(MultipleFileClause n, A argu) {
+   public void visit(MultipleFileClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1467,7 +1468,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( DataDivisionSection() )*
     * </PRE>
     */
-   public void visit(DataDivision n, A argu) {
+   public void visit(DataDivision n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -1480,7 +1481,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | CommunicationSection()
     * </PRE>
     */
-   public void visit(DataDivisionSection n, A argu) {
+   public void visit(DataDivisionSection n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1492,7 +1493,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( CommunicationDescriptionEntry() ( DataDescriptionEntry() )* )*
     * </PRE>
     */
-   public void visit(CommunicationSection n, A argu) {
+   public void visit(CommunicationSection n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeToken2.accept(this, argu);
@@ -1505,7 +1506,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(CommunicationDescriptionEntry n, A argu) {
+   public void visit(CommunicationDescriptionEntry n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeToken.accept(this, argu);
    }
@@ -1521,7 +1522,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public void visit(CommunicationInputEntry n, A argu) {
+   public void visit(CommunicationInputEntry n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.cdName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1540,7 +1541,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( CommunicationOutputClause() )*
     * </PRE>
     */
-   public void visit(CommunicationOutputEntry n, A argu) {
+   public void visit(CommunicationOutputEntry n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.cdName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1559,7 +1560,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional1 -> ( DataName() | &lt;FILLER&gt; )*
     * </PRE>
     */
-   public void visit(CommunicationIOEntry n, A argu) {
+   public void visit(CommunicationIOEntry n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.cdName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -1579,7 +1580,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | [ &lt;SYMBOLIC&gt; ] ( &lt;QUEUE&gt; | &lt;SUB_QUEUE_1&gt; | &lt;SUB_QUEUE_2&gt; | &lt;SUB_QUEUE_3&gt; | &lt;SOURCE&gt; ) [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public void visit(CommunicationInputClause n, A argu) {
+   public void visit(CommunicationInputClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1593,7 +1594,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;ERROR&gt; &lt;KEY&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public void visit(CommunicationOutputClause n, A argu) {
+   public void visit(CommunicationOutputClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1606,7 +1607,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | [ &lt;SYMBOLIC&gt; ] &lt;TERMINAL&gt; [ &lt;IS&gt; ] DataName()
     * </PRE>
     */
-   public void visit(CommunicationIOClause n, A argu) {
+   public void visit(CommunicationIOClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1616,7 +1617,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( FileAndSortDescriptionEntry() ( DataDescriptionEntry() )+ )*
     * </PRE>
     */
-   public void visit(FileSection n, A argu) {
+   public void visit(FileSection n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -1629,7 +1630,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(FileAndSortDescriptionEntry n, A argu) {
+   public void visit(FileAndSortDescriptionEntry n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.fileName.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
@@ -1651,7 +1652,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | RecordingModeClause()
     * </PRE>
     */
-   public void visit(FileAndSortDescriptionEntryClause n, A argu) {
+   public void visit(FileAndSortDescriptionEntryClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1661,7 +1662,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public void visit(ExternalClause n, A argu) {
+   public void visit(ExternalClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
    }
@@ -1672,7 +1673,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public void visit(GlobalClause n, A argu) {
+   public void visit(GlobalClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
    }
@@ -1686,7 +1687,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;RECORDS&gt; | &lt;CHARACTERS&gt; ]
     * </PRE>
     */
-   public void visit(BlockContainsClause n, A argu) {
+   public void visit(BlockContainsClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1701,7 +1702,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( [ IntegerConstant() &lt;TO&gt; ] IntegerConstant() [ &lt;CHARACTERS&gt; ] | [ &lt;IS&gt; ] &lt;VARYING&gt; [ &lt;IN&gt; ] [ &lt;SIZE&gt; ] [ [ &lt;FROM&gt; ] IntegerConstant() [ &lt;TO&gt; IntegerConstant() ] [ &lt;CHARACTERS&gt; ] ] [ &lt;DEPENDING&gt; [ &lt;ON&gt; ] QualifiedDataName() ] )
     * </PRE>
     */
-   public void visit(RecordContainsClause n, A argu) {
+   public void visit(RecordContainsClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -1714,7 +1715,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( &lt;OMITTED&gt; | &lt;STANDARD&gt; | ( DataName() )+ )
     * </PRE>
     */
-   public void visit(LabelRecordsClause n, A argu) {
+   public void visit(LabelRecordsClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -1727,7 +1728,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( SystemName() &lt;IS&gt; ( QualifiedDataName() | Literal() ) )+
     * </PRE>
     */
-   public void visit(ValueOfClause n, A argu) {
+   public void visit(ValueOfClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeList.accept(this, argu);
@@ -1740,7 +1741,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( DataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(DataRecordClause n, A argu) {
+   public void visit(DataRecordClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeList.accept(this, argu);
@@ -1755,7 +1756,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( [ &lt;WITH&gt; ] &lt;FOOTING&gt; [ &lt;AT&gt; ] ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;TOP&gt; ( DataName() | IntegerConstant() ) | [ &lt;LINES&gt; ] [ &lt;AT&gt; ] &lt;BOTTOM&gt; ( DataName() | IntegerConstant() ) )*
     * </PRE>
     */
-   public void visit(LinageClause n, A argu) {
+   public void visit(LinageClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -1771,7 +1772,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * mode -> Mode()
     * </PRE>
     */
-   public void visit(RecordingModeClause n, A argu) {
+   public void visit(RecordingModeClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1785,7 +1786,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * alphabetName -> AlphabetName()
     * </PRE>
     */
-   public void visit(CodeSetClause n, A argu) {
+   public void visit(CodeSetClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.alphabetName.accept(this, argu);
@@ -1797,7 +1798,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( QualifiedDataName() )+
     * </PRE>
     */
-   public void visit(ReportClause n, A argu) {
+   public void visit(ReportClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -1807,7 +1808,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( LevelNumber() ( DataName() | &lt;FILLER&gt; )? ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_66&gt; DataName() RenamesClause() &lt;DOT&gt; | &lt;LEVEL_77&gt; DataName() ( DataDescriptionEntryClause() )* &lt;DOT&gt; | &lt;LEVEL_78&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | &lt;LEVEL_88&gt; ConditionName() ConditionValueClause() &lt;DOT&gt; | ( &lt;EXEC&gt; | &lt;EXECUTE&gt; ) &lt;K_SQL&gt; ( &lt;K_INCLUDE&gt; ( &lt;S_IDENTIFIER&gt; | &lt;S_QUOTED_IDENTIFIER&gt; ) &lt;DOT&gt; | &lt;K_BEGIN&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | &lt;K_END&gt; &lt;K_DECLARE&gt; &lt;K_SECTION&gt; &lt;END_EXEC&gt; &lt;DOT&gt; | DeclareCursorStatement() &lt;END_EXEC&gt; &lt;DOT&gt; ) )
     * </PRE>
     */
-   public void visit(DataDescriptionEntry n, A argu) {
+   public void visit(DataDescriptionEntry n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1818,7 +1819,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public void visit(DataDescriptionEntryClause n, A argu) {
+   public void visit(DataDescriptionEntryClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -1830,7 +1831,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * dataName -> DataName()
     * </PRE>
     */
-   public void visit(DataRedefinesClause n, A argu) {
+   public void visit(DataRedefinesClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.dataName.accept(this, argu);
    }
@@ -1842,7 +1843,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;ZERO&gt; | &lt;ZEROS&gt; | &lt;ZEROES&gt; )
     * </PRE>
     */
-   public void visit(DataBlankWhenZeroClause n, A argu) {
+   public void visit(DataBlankWhenZeroClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -1854,7 +1855,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;RIGHT&gt; ]
     * </PRE>
     */
-   public void visit(DataJustifiedClause n, A argu) {
+   public void visit(DataJustifiedClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -1870,7 +1871,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional3 -> [ &lt;INDEXED&gt; [ &lt;BY&gt; ] ( IndexName() [ &lt;COMMACHAR&gt; ] )+ ]
     * </PRE>
     */
-   public void visit(DataOccursClause n, A argu) {
+   public void visit(DataOccursClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -1888,7 +1889,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;VARYING&gt; ]
     * </PRE>
     */
-   public void visit(DataPictureClause n, A argu) {
+   public void visit(DataPictureClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.pictureString.accept(this, argu);
@@ -1902,7 +1903,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional1 -> ( &lt;DOTCHAR&gt; )*
     * </PRE>
     */
-   public void visit(PictureString n, A argu) {
+   public void visit(PictureString n, A argu) throws Exception {
       n.pictureOccurence.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
       n.nodeListOptional1.accept(this, argu);
@@ -1914,7 +1915,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;DOTCHAR&gt; ( &lt;LPARENCHAR&gt; ( IntegerConstant() | DataName() ) &lt;RPARENCHAR&gt; | NonDotChars() )
     * </PRE>
     */
-   public void visit(PictureOccurence n, A argu) {
+   public void visit(PictureOccurence n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1935,7 +1936,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;NOTEQUALCHAR&gt;
     * </PRE>
     */
-   public void visit(PicturePunctuation n, A argu) {
+   public void visit(PicturePunctuation n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1944,7 +1945,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;DOLLARCHAR&gt;
     * </PRE>
     */
-   public void visit(PictureCurrency n, A argu) {
+   public void visit(PictureCurrency n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -1956,7 +1957,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PictureCurrency()
     * </PRE>
     */
-   public void visit(NonDotChars n, A argu) {
+   public void visit(NonDotChars n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -1966,7 +1967,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;EXTERNAL&gt;
     * </PRE>
     */
-   public void visit(DataExternalClause n, A argu) {
+   public void visit(DataExternalClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
    }
@@ -1977,7 +1978,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;GLOBAL&gt;
     * </PRE>
     */
-   public void visit(DataGlobalClause n, A argu) {
+   public void visit(DataGlobalClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
    }
@@ -1988,7 +1989,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;BINARY&gt; | &lt;COMP&gt; | &lt;COMP_1&gt; | &lt;COMP_2&gt; | &lt;COMP_3&gt; | &lt;COMP_4&gt; | &lt;COMP_5&gt; | &lt;COMPUTATIONAL&gt; | &lt;COMPUTATIONAL_1&gt; | &lt;COMPUTATIONAL_2&gt; | &lt;COMPUTATIONAL_3&gt; | &lt;COMPUTATIONAL_4&gt; | &lt;COMPUTATIONAL_5&gt; | &lt;DISPLAY&gt; | &lt;DISPLAY_1&gt; | &lt;INDEX&gt; | &lt;PACKED_DECIMAL&gt; | &lt;POINTER&gt; | &lt;FUNCTION_POINTER&gt; | &lt;PROCEDURE_POINTER&gt; | &lt;OBJECT&gt; &lt;REFERENCE&gt; DataName() )
     * </PRE>
     */
-   public void visit(DataUsageClause n, A argu) {
+   public void visit(DataUsageClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -2000,7 +2001,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;SEPARATE&gt; [ &lt;CHARACTER&gt; ] ]
     * </PRE>
     */
-   public void visit(DataSignClause n, A argu) {
+   public void visit(DataSignClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -2012,7 +2013,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ ( &lt;LEFT&gt; | &lt;RIGHT&gt; ) ]
     * </PRE>
     */
-   public void visit(DataSynchronizedClause n, A argu) {
+   public void visit(DataSynchronizedClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -2023,7 +2024,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) Literal() [ &lt;COMMACHAR&gt; ] ] )+
     * </PRE>
     */
-   public void visit(DataValueClause n, A argu) {
+   public void visit(DataValueClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -2033,7 +2034,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * dataValueClause -> DataValueClause()
     * </PRE>
     */
-   public void visit(ConditionValueClause n, A argu) {
+   public void visit(ConditionValueClause n, A argu) throws Exception {
       n.dataValueClause.accept(this, argu);
    }
 
@@ -2044,7 +2045,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) QualifiedDataName() ]
     * </PRE>
     */
-   public void visit(RenamesClause n, A argu) {
+   public void visit(RenamesClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.qualifiedDataName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2058,7 +2059,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public void visit(WorkingStorageSection n, A argu) {
+   public void visit(WorkingStorageSection n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeToken2.accept(this, argu);
@@ -2073,7 +2074,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( DataDescriptionEntry() )*
     * </PRE>
     */
-   public void visit(LinkageSection n, A argu) {
+   public void visit(LinkageSection n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeToken2.accept(this, argu);
@@ -2089,7 +2090,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * procedureBody -> ProcedureBody()
     * </PRE>
     */
-   public void visit(ProcedureDivision n, A argu) {
+   public void visit(ProcedureDivision n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
@@ -2103,7 +2104,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( [ [ &lt;BY&gt; ] ( &lt;REFERENCE&gt; | &lt;VALUE&gt; ) ] QualifiedDataName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(UsingArgs n, A argu) {
+   public void visit(UsingArgs n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -2118,7 +2119,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken4 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(Declaratives n, A argu) {
+   public void visit(Declaratives n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeList.accept(this, argu);
@@ -2133,7 +2134,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( ProcedureSection() )*
     * </PRE>
     */
-   public void visit(ProcedureBody n, A argu) {
+   public void visit(ProcedureBody n, A argu) throws Exception {
       n.paragraphs.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -2145,7 +2146,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * paragraphs -> Paragraphs()
     * </PRE>
     */
-   public void visit(ProcedureSection n, A argu) {
+   public void visit(ProcedureSection n, A argu) throws Exception {
       n.sectionHeader.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.paragraphs.accept(this, argu);
@@ -2158,7 +2159,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ IntegerConstant() ]
     * </PRE>
     */
-   public void visit(SectionHeader n, A argu) {
+   public void visit(SectionHeader n, A argu) throws Exception {
       n.sectionName.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2170,7 +2171,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional1 -> ( Paragraph() )*
     * </PRE>
     */
-   public void visit(Paragraphs n, A argu) {
+   public void visit(Paragraphs n, A argu) throws Exception {
       n.nodeListOptional.accept(this, argu);
       n.nodeListOptional1.accept(this, argu);
    }
@@ -2182,7 +2183,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( ExitProgramStatement() &lt;DOT&gt; | ExitStatement() &lt;DOT&gt; | AlteredGoto() | ( Sentence() )* )
     * </PRE>
     */
-   public void visit(Paragraph n, A argu) {
+   public void visit(Paragraph n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -2194,7 +2195,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(Sentence n, A argu) {
+   public void visit(Sentence n, A argu) throws Exception {
       n.nodeList.accept(this, argu);
       n.nodeToken.accept(this, argu);
    }
@@ -2204,7 +2205,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( Statement() )+
     * </PRE>
     */
-   public void visit(StatementList n, A argu) {
+   public void visit(StatementList n, A argu) throws Exception {
       n.nodeList.accept(this, argu);
    }
 
@@ -2214,7 +2215,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;COMMACHAR&gt; ]
     * </PRE>
     */
-   public void visit(Statement n, A argu) {
+   public void visit(Statement n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -2229,7 +2230,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public void visit(EnableStatement n, A argu) {
+   public void visit(EnableStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -2248,7 +2249,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice2 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public void visit(DisableStatement n, A argu) {
+   public void visit(DisableStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -2267,7 +2268,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ ";" | &lt;NO&gt; &lt;DATA&gt; Statement() ]
     * </PRE>
     */
-   public void visit(ReceiveStatement n, A argu) {
+   public void visit(ReceiveStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -2285,7 +2286,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ ( &lt;BEFORE&gt; | &lt;AFTER&gt; ) [ &lt;ADVANCING&gt; ] ( ( ( Identifier() | Literal() ) [ &lt;LINE&gt; | &lt;LINES&gt; ] ) | ( MnemonicName() | &lt;PAGE&gt; ) ) ]
     * </PRE>
     */
-   public void visit(SendStatement n, A argu) {
+   public void visit(SendStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2300,7 +2301,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( &lt;K_WHENEVER&gt; ( &lt;K_NOT&gt; &lt;K_FOUND&gt; | &lt;K_SQLERROR&gt; | &lt;K_SQLWARNING&gt; ) Statement() | ( ( SQLStatement() | DeclareCursorStatement() | &lt;K_PREPARE&gt; &lt;S_IDENTIFIER&gt; &lt;K_FROM&gt; &lt;S_BIND&gt; | &lt;K_ALTER&gt; &lt;K_SESSION&gt; SQLSetStatement() | &lt;K_EXECUTE&gt; SkipToEndExec() | &lt;K_CONNECT&gt; &lt;S_BIND&gt; | SkipToEndExec() ) &lt;END_EXEC&gt; ) )
     * </PRE>
     */
-   public void visit(ExecSqlStatement n, A argu) {
+   public void visit(ExecSqlStatement n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -2315,7 +2316,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | QueryStatement() )
     * </PRE>
     */
-   public void visit(DeclareCursorStatement n, A argu) {
+   public void visit(DeclareCursorStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeToken2.accept(this, argu);
@@ -2330,7 +2331,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;FROM&gt; ( MnemonicName() | EnvironmentName() | &lt;DATE&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY&gt; [ &lt;COBOL_WORD&gt; ] | &lt;DAY_OF_WEEK&gt; | &lt;TIME&gt; ) | [ &lt;MESSAGE&gt; ] &lt;COUNT&gt; ]
     * </PRE>
     */
-   public void visit(AcceptStatement n, A argu) {
+   public void visit(AcceptStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.identifier.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2345,7 +2346,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;END_ADD&gt; ]
     * </PRE>
     */
-   public void visit(AddStatement n, A argu) {
+   public void visit(AddStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.addBody.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2360,7 +2361,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; Identifier() [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public void visit(AddBody n, A argu) {
+   public void visit(AddBody n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2370,7 +2371,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;ROUNDED&gt; ]
     * </PRE>
     */
-   public void visit(ArithIdentifier n, A argu) {
+   public void visit(ArithIdentifier n, A argu) throws Exception {
       n.identifier.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -2380,7 +2381,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ArithIdentifier() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(ArithIdentifierList n, A argu) {
+   public void visit(ArithIdentifierList n, A argu) throws Exception {
       n.nodeList.accept(this, argu);
    }
 
@@ -2390,7 +2391,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | Literal()
     * </PRE>
     */
-   public void visit(IdOrLiteral n, A argu) {
+   public void visit(IdOrLiteral n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2399,7 +2400,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( IdOrLiteral() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(IdOrLiteralList n, A argu) {
+   public void visit(IdOrLiteralList n, A argu) throws Exception {
       n.nodeList.accept(this, argu);
    }
 
@@ -2410,7 +2411,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;DOT&gt;
     * </PRE>
     */
-   public void visit(AlteredGoto n, A argu) {
+   public void visit(AlteredGoto n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -2422,7 +2423,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ProcedureName() &lt;TO&gt; [ &lt;PROCEED&gt; &lt;TO&gt; ] ProcedureName() [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(AlterStatement n, A argu) {
+   public void visit(AlterStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -2438,7 +2439,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional4 -> [ &lt;END_CALL&gt; ]
     * </PRE>
     */
-   public void visit(CallStatement n, A argu) {
+   public void visit(CallStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2455,7 +2456,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | FileName()
     * </PRE>
     */
-   public void visit(CallByReferenceArgs n, A argu) {
+   public void visit(CallByReferenceArgs n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2466,7 +2467,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | Literal()
     * </PRE>
     */
-   public void visit(CallByContentArgs n, A argu) {
+   public void visit(CallByContentArgs n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2476,7 +2477,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ( Identifier() | Literal() ) [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(CancelStatement n, A argu) {
+   public void visit(CancelStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -2487,7 +2488,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( FileName() [ ( ( &lt;REEL&gt; | &lt;UNIT&gt; ) [ ( [ &lt;FOR&gt; ] &lt;REMOVAL&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] | [ &lt;WITH&gt; ] ( &lt;NO&gt; &lt;REWIND&gt; | &lt;LOCK&gt; ) ) ] [ &lt;COMMACHAR&gt; ] )+
     * </PRE>
     */
-   public void visit(CloseStatement n, A argu) {
+   public void visit(CloseStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -2503,7 +2504,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;END_COMPUTE&gt; ]
     * </PRE>
     */
-   public void visit(ComputeStatement n, A argu) {
+   public void visit(ComputeStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -2518,7 +2519,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;CONTINUE&gt;
     * </PRE>
     */
-   public void visit(ContinueStatement n, A argu) {
+   public void visit(ContinueStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -2532,7 +2533,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional3 -> [ &lt;END_DELETE&gt; ]
     * </PRE>
     */
-   public void visit(DeleteStatement n, A argu) {
+   public void visit(DeleteStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.fileName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2549,7 +2550,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;ADVANCING&gt; ]
     * </PRE>
     */
-   public void visit(DisplayStatement n, A argu) {
+   public void visit(DisplayStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2565,7 +2566,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;END_DIVIDE&gt; ]
     * </PRE>
     */
-   public void visit(DivideStatement n, A argu) {
+   public void visit(DivideStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.divideBody.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2578,7 +2579,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( IdOrLiteral() &lt;INTO&gt; ( IdOrLiteral() | ArithIdentifierList() ) [ &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] ] | IdOrLiteral() &lt;BY&gt; IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() [ &lt;REMAINDER&gt; ArithIdentifier() ] )
     * </PRE>
     */
-   public void visit(DivideBody n, A argu) {
+   public void visit(DivideBody n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2589,7 +2590,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ UsingArgs() ]
     * </PRE>
     */
-   public void visit(EntryStatement n, A argu) {
+   public void visit(EntryStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.literal.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2605,7 +2606,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;END_EVALUATE&gt; ]
     * </PRE>
     */
-   public void visit(EvaluateStatement n, A argu) {
+   public void visit(EvaluateStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.evaluateValue.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
@@ -2619,7 +2620,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( Identifier() | Condition() | ArithmeticExpression() | Literal() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public void visit(EvaluateValue n, A argu) {
+   public void visit(EvaluateValue n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2628,7 +2629,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;ANY&gt; | [ &lt;NOT&gt; ] ( Identifier() | Literal() | ArithmeticExpression() ) [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ( Identifier() | Literal() | ArithmeticExpression() ) ] | Condition() | &lt;TRUE&gt; | &lt;FALSE&gt; )
     * </PRE>
     */
-   public void visit(EvaluatePhrase n, A argu) {
+   public void visit(EvaluatePhrase n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2637,7 +2638,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;EXIT&gt;
     * </PRE>
     */
-   public void visit(ExitStatement n, A argu) {
+   public void visit(ExitStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -2647,7 +2648,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;PROGRAM&gt;
     * </PRE>
     */
-   public void visit(ExitProgramStatement n, A argu) {
+   public void visit(ExitProgramStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
    }
@@ -2657,7 +2658,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;GOBACK&gt;
     * </PRE>
     */
-   public void visit(GobackStatement n, A argu) {
+   public void visit(GobackStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -2668,7 +2669,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ProcedureName() [ ( ProcedureName() )* &lt;DEPENDING&gt; [ &lt;ON&gt; ] Identifier() ] | &lt;MORE_LABELS&gt; )
     * </PRE>
     */
-   public void visit(GotoStatement n, A argu) {
+   public void visit(GotoStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -2684,7 +2685,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;END_IF&gt; ]
     * </PRE>
     */
-   public void visit(IfStatement n, A argu) {
+   public void visit(IfStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.condition.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2700,7 +2701,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;REPLACING&gt; ( ( &lt;ALPHABETIC&gt; | &lt;ALPHANUMERIC&gt; | &lt;NUMERIC&gt; | &lt;ALPHANUMERIC_EDITED&gt; | &lt;NUMERIC_EDITED&gt; | &lt;DBCS&gt; | &lt;EGCS&gt; ) [ &lt;DATA&gt; ] &lt;BY&gt; ( Identifier() | Literal() [ &lt;COMMACHAR&gt; ] ) )+ ]
     * </PRE>
     */
-   public void visit(InitializeStatement n, A argu) {
+   public void visit(InitializeStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2713,7 +2714,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( TallyingPhrase() | ConvertingPhrase() | ReplacingPhrase() )
     * </PRE>
     */
-   public void visit(InspectStatement n, A argu) {
+   public void visit(InspectStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.identifier.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -2726,7 +2727,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ ReplacingPhrase() ]
     * </PRE>
     */
-   public void visit(TallyingPhrase n, A argu) {
+   public void visit(TallyingPhrase n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2741,7 +2742,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( BeforeAfterPhrase() )*
     * </PRE>
     */
-   public void visit(ConvertingPhrase n, A argu) {
+   public void visit(ConvertingPhrase n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -2755,7 +2756,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;CHARACTERS&gt; &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* | ( &lt;ALL&gt; | &lt;LEADING&gt; | &lt;FIRST&gt; ) ( ( Identifier() | Literal() ) &lt;BY&gt; ( Identifier() | Literal() ) ( BeforeAfterPhrase() )* )+ )+
     * </PRE>
     */
-   public void visit(ReplacingPhrase n, A argu) {
+   public void visit(ReplacingPhrase n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -2767,7 +2768,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( Identifier() | Literal() )
     * </PRE>
     */
-   public void visit(BeforeAfterPhrase n, A argu) {
+   public void visit(BeforeAfterPhrase n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -2785,7 +2786,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] | &lt;GIVING&gt; ( FileName() )+ )
     * </PRE>
     */
-   public void visit(MergeStatement n, A argu) {
+   public void visit(MergeStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.fileName.accept(this, argu);
       n.nodeList.accept(this, argu);
@@ -2802,7 +2803,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ( Identifier() | Literal() ) &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ | ( &lt;CORRESPONDING&gt; | &lt;CORR&gt; ) Identifier() &lt;TO&gt; ( Identifier() [ &lt;COMMACHAR&gt; ] )+ )
     * </PRE>
     */
-   public void visit(MoveStatement n, A argu) {
+   public void visit(MoveStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -2816,7 +2817,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;END_MULTIPLY&gt; ]
     * </PRE>
     */
-   public void visit(MultiplyStatement n, A argu) {
+   public void visit(MultiplyStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.multiplyBody.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2831,7 +2832,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( IdOrLiteral() &lt;GIVING&gt; ArithIdentifierList() | ArithIdentifierList() )
     * </PRE>
     */
-   public void visit(MultiplyBody n, A argu) {
+   public void visit(MultiplyBody n, A argu) throws Exception {
       n.idOrLiteral.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -2843,7 +2844,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;INPUT&gt; ( FileName() [ ( &lt;REVERSED&gt; | [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ) ] [ &lt;COMMACHAR&gt; ] )+ | &lt;OUTPUT&gt; ( FileName() [ [ &lt;WITH&gt; ] &lt;NO&gt; &lt;REWIND&gt; ] [ &lt;COMMACHAR&gt; ] )+ | &lt;I_O&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;EXTEND&gt; ( FileName() [ &lt;COMMACHAR&gt; ] )+ )+
     * </PRE>
     */
-   public void visit(OpenStatement n, A argu) {
+   public void visit(OpenStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -2854,7 +2855,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * performBody -> PerformBody()
     * </PRE>
     */
-   public void visit(PerformStatement n, A argu) {
+   public void visit(PerformStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.performBody.accept(this, argu);
    }
@@ -2865,7 +2866,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PerformProcedure() [ PerformOption() ]
     * </PRE>
     */
-   public void visit(PerformBody n, A argu) {
+   public void visit(PerformBody n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2875,7 +2876,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ ( &lt;THRU&gt; | &lt;THROUGH&gt; ) ProcedureName() ]
     * </PRE>
     */
-   public void visit(PerformProcedure n, A argu) {
+   public void visit(PerformProcedure n, A argu) throws Exception {
       n.procedureName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -2886,7 +2887,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;AFTER&gt;
     * </PRE>
     */
-   public void visit(BeforeOrAfter n, A argu) {
+   public void visit(BeforeOrAfter n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2897,7 +2898,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | [ PerformTest() ] &lt;VARYING&gt; PerformVaryingList()
     * </PRE>
     */
-   public void visit(PerformOption n, A argu) {
+   public void visit(PerformOption n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -2908,7 +2909,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * beforeOrAfter -> BeforeOrAfter()
     * </PRE>
     */
-   public void visit(PerformTest n, A argu) {
+   public void visit(PerformTest n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.beforeOrAfter.accept(this, argu);
@@ -2920,7 +2921,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;AFTER&gt; PerformVarying() [ &lt;COMMACHAR&gt; ] )*
     * </PRE>
     */
-   public void visit(PerformVaryingList n, A argu) {
+   public void visit(PerformVaryingList n, A argu) throws Exception {
       n.performVarying.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -2936,7 +2937,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * condition -> Condition()
     * </PRE>
     */
-   public void visit(PerformVarying n, A argu) {
+   public void visit(PerformVarying n, A argu) throws Exception {
       n.identifier.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.idOrLiteral.accept(this, argu);
@@ -2961,7 +2962,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional8 -> [ &lt;END_READ&gt; ]
     * </PRE>
     */
-   public void visit(ReadStatement n, A argu) {
+   public void visit(ReadStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.fileName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -2982,7 +2983,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;FROM&gt; QualifiedDataName() ]
     * </PRE>
     */
-   public void visit(ReleaseStatement n, A argu) {
+   public void visit(ReleaseStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.recordName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3001,7 +3002,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional4 -> [ &lt;END_RETURN&gt; ]
     * </PRE>
     */
-   public void visit(ReturnStatement n, A argu) {
+   public void visit(ReturnStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.fileName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3023,7 +3024,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional3 -> [ &lt;END_REWRITE&gt; ]
     * </PRE>
     */
-   public void visit(RewriteStatement n, A argu) {
+   public void visit(RewriteStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.recordName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3043,7 +3044,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional3 -> [ &lt;END_SEARCH&gt; ]
     * </PRE>
     */
-   public void visit(SearchStatement n, A argu) {
+   public void visit(SearchStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.qualifiedDataName.accept(this, argu);
@@ -3059,7 +3060,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ( Identifier() [ &lt;COMMACHAR&gt; ] )+ ( &lt;TO&gt; ( Identifier() | &lt;TRUE&gt; | &lt;FALSE&gt; | &lt;ON&gt; | &lt;OFF&gt; | Literal() ) | ( &lt;UP&gt; | &lt;DOWN&gt; ) [ &lt;BY&gt; ] ( Identifier() | Literal() ) ) )+
     * </PRE>
     */
-   public void visit(SetStatement n, A argu) {
+   public void visit(SetStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -3075,7 +3076,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( &lt;GIVING&gt; ( FileName() )+ | &lt;OUTPUT&gt; &lt;PROCEDURE&gt; [ &lt;IS&gt; ] ProcedureName() [ ( &lt;THROUGH&gt; | &lt;THRU&gt; ) ProcedureName() ] )
     * </PRE>
     */
-   public void visit(SortStatement n, A argu) {
+   public void visit(SortStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.fileName.accept(this, argu);
       n.nodeList.accept(this, argu);
@@ -3095,7 +3096,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional3 -> [ &lt;END_START&gt; ]
     * </PRE>
     */
-   public void visit(StartStatement n, A argu) {
+   public void visit(StartStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.fileName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3110,7 +3111,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;RUN&gt; | Literal() )
     * </PRE>
     */
-   public void visit(StopStatement n, A argu) {
+   public void visit(StopStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -3127,7 +3128,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional3 -> [ &lt;END_STRING&gt; ]
     * </PRE>
     */
-   public void visit(StringStatement n, A argu) {
+   public void visit(StringStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeList.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -3147,7 +3148,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;END_SUBTRACT&gt; ]
     * </PRE>
     */
-   public void visit(SubtractStatement n, A argu) {
+   public void visit(SubtractStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3169,7 +3170,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional5 -> [ &lt;END_UNSTRING&gt; ]
     * </PRE>
     */
-   public void visit(UnstringStatement n, A argu) {
+   public void visit(UnstringStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.identifier.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3188,7 +3189,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( [ &lt;FOR&gt; ] &lt;DEBUGGING&gt; [ &lt;ON&gt; ] ( ( Identifier() | &lt;ALL&gt; [ &lt;REFERENCES&gt; ] [ &lt;OF&gt; ] Identifier() | FileName() | ProcedureName() )+ | &lt;ALL&gt; &lt;PROCEDURES&gt; ) | [ &lt;GLOBAL&gt; ] &lt;AFTER&gt; [ &lt;STANDARD&gt; ] ( ( &lt;EXCEPTION&gt; | &lt;ERROR&gt; ) | [ ( &lt;BEGINNING&gt; | &lt;ENDING&gt; ) ] [ ( &lt;FILE&gt; | &lt;REEL&gt; | &lt;UNIT&gt; ) ] &lt;LABEL&gt; ) &lt;PROCEDURE&gt; [ &lt;ON&gt; ] ( ( FileName() [ &lt;COMMACHAR&gt; ] )+ | &lt;INPUT&gt; | &lt;OUTPUT&gt; | &lt;I_O&gt; | &lt;EXTEND&gt; ) )
     * </PRE>
     */
-   public void visit(UseStatement n, A argu) {
+   public void visit(UseStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -3206,7 +3207,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional6 -> [ &lt;END_WRITE&gt; ]
     * </PRE>
     */
-   public void visit(WriteStatement n, A argu) {
+   public void visit(WriteStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.recordName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3225,7 +3226,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( &lt;PAGE&gt; | ( Identifier() | IntegerConstant() | FigurativeConstant() ) [ ( &lt;LINE&gt; | &lt;LINES&gt; ) ] | MnemonicName() )
     * </PRE>
     */
-   public void visit(AdvancingPhrase n, A argu) {
+   public void visit(AdvancingPhrase n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -3236,7 +3237,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;S_IDENTIFIER&gt;
     * </PRE>
     */
-   public void visit(S_Identifier n, A argu) {
+   public void visit(S_Identifier n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -3245,7 +3246,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public void visit(S_Quoted_Identifier n, A argu) {
+   public void visit(S_Quoted_Identifier n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -3254,7 +3255,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken -> &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public void visit(S_Char_Literal n, A argu) {
+   public void visit(S_Char_Literal n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
    }
 
@@ -3272,7 +3273,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLSetStatement()
     * </PRE>
     */
-   public void visit(SQLStatement n, A argu) {
+   public void visit(SQLStatement n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3282,7 +3283,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public void visit(SQLCloseStatement n, A argu) {
+   public void visit(SQLCloseStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.relObjectName.accept(this, argu);
    }
@@ -3294,7 +3295,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public void visit(CommitStatement n, A argu) {
+   public void visit(CommitStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -3310,7 +3311,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; ( RelObjectName() [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ] | IndicatorBind() ) )*
     * </PRE>
     */
-   public void visit(FetchStatement n, A argu) {
+   public void visit(FetchStatement n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeSequence.accept(this, argu);
@@ -3325,7 +3326,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ [ &lt;K_INDICATOR&gt; ] &lt;S_BIND&gt; ]
     * </PRE>
     */
-   public void visit(IndicatorBind n, A argu) {
+   public void visit(IndicatorBind n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -3342,7 +3343,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;K_NOWAIT&gt; ]
     * </PRE>
     */
-   public void visit(LockTableStatement n, A argu) {
+   public void visit(LockTableStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.tableReference.accept(this, argu);
@@ -3360,7 +3361,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;K_USING&gt; Arguments() ]
     * </PRE>
     */
-   public void visit(SQLOpenStatement n, A argu) {
+   public void visit(SQLOpenStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.relObjectName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3374,7 +3375,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;K_COMMENT&gt; S_Char_Literal() ]
     * </PRE>
     */
-   public void visit(RollbackStatement n, A argu) {
+   public void visit(RollbackStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -3388,7 +3389,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ( &lt;K_READ&gt; ( &lt;K_ONLY&gt; | &lt;K_WRITE&gt; ) ) | ( &lt;K_USE&gt; &lt;K_ROLLBACK&gt; &lt;K_SEGMENT&gt; RelObjectName() ) )
     * </PRE>
     */
-   public void visit(SetTransactionStatement n, A argu) {
+   public void visit(SetTransactionStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -3402,7 +3403,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * arguments -> Arguments()
     * </PRE>
     */
-   public void visit(SetVariableStatement n, A argu) {
+   public void visit(SetVariableStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.relObjectName.accept(this, argu);
       n.nodeChoice.accept(this, argu);
@@ -3415,7 +3416,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SetVariableStatement()
     * </PRE>
     */
-   public void visit(SQLSetStatement n, A argu) {
+   public void visit(SQLSetStatement n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3426,7 +3427,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | ( &lt;K_EXCLUSIVE&gt; )
     * </PRE>
     */
-   public void visit(LockMode n, A argu) {
+   public void visit(LockMode n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3436,7 +3437,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * relObjectName -> RelObjectName()
     * </PRE>
     */
-   public void visit(SavepointStatement n, A argu) {
+   public void visit(SavepointStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.relObjectName.accept(this, argu);
    }
@@ -3451,7 +3452,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public void visit(UpdateStatement n, A argu) {
+   public void visit(UpdateStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.tableReference.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -3468,7 +3469,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; TableColumn() "=" UpdatedValue() )*
     * </PRE>
     */
-   public void visit(ColumnValues n, A argu) {
+   public void visit(ColumnValues n, A argu) throws Exception {
       n.tableColumn.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.updatedValue.accept(this, argu);
@@ -3481,7 +3482,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlExpression()
     * </PRE>
     */
-   public void visit(UpdatedValue n, A argu) {
+   public void visit(UpdatedValue n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3494,7 +3495,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;K_VALUES&gt; &lt;LPARENCHAR&gt; PlSqlExpressionList() &lt;RPARENCHAR&gt; | SelectStatement() )
     * </PRE>
     */
-   public void visit(InsertStatement n, A argu) {
+   public void visit(InsertStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.tableReference.accept(this, argu);
@@ -3508,7 +3509,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( &lt;S_IDENTIFIER&gt; | &lt;S_BIND&gt; )
     * </PRE>
     */
-   public void visit(SQLUsingDMLReturn n, A argu) {
+   public void visit(SQLUsingDMLReturn n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -3522,7 +3523,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional2 -> [ &lt;K_WHERE&gt; ( SQLExpression() | &lt;K_CURRENT&gt; &lt;K_OF&gt; RelObjectName() ) ]
     * </PRE>
     */
-   public void visit(SQLDeleteStatement n, A argu) {
+   public void visit(SQLDeleteStatement n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.tableReference.accept(this, argu);
@@ -3535,7 +3536,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * selectStatement -> SelectStatement()
     * </PRE>
     */
-   public void visit(QueryStatement n, A argu) {
+   public void visit(QueryStatement n, A argu) throws Exception {
       n.selectStatement.accept(this, argu);
    }
 
@@ -3544,7 +3545,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * plSqlExpressions -> PlSqlExpressions()
     * </PRE>
     */
-   public void visit(PlSqlExpression n, A argu) {
+   public void visit(PlSqlExpression n, A argu) throws Exception {
       n.plSqlExpressions.accept(this, argu);
    }
 
@@ -3554,7 +3555,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlAndExpressions()
     * </PRE>
     */
-   public void visit(PlSqlExpressions n, A argu) {
+   public void visit(PlSqlExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3564,7 +3565,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;K_OR&gt; PlSqlAndExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlOrExpression n, A argu) {
+   public void visit(PlSqlOrExpression n, A argu) throws Exception {
       n.plSqlAndExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -3575,7 +3576,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlUnaryLogicalExpressions()
     * </PRE>
     */
-   public void visit(PlSqlAndExpressions n, A argu) {
+   public void visit(PlSqlAndExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3585,7 +3586,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;K_AND&gt; PlSqlUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlAndExpression n, A argu) {
+   public void visit(PlSqlAndExpression n, A argu) throws Exception {
       n.plSqlUnaryLogicalExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -3596,7 +3597,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlRelationalExpressions()
     * </PRE>
     */
-   public void visit(PlSqlUnaryLogicalExpressions n, A argu) {
+   public void visit(PlSqlUnaryLogicalExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3606,7 +3607,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * plSqlRelationalExpressions -> PlSqlRelationalExpressions()
     * </PRE>
     */
-   public void visit(PlSqlUnaryLogicalExpression n, A argu) {
+   public void visit(PlSqlUnaryLogicalExpression n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.plSqlRelationalExpressions.accept(this, argu);
    }
@@ -3617,7 +3618,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlRelationalExpressions n, A argu) {
+   public void visit(PlSqlRelationalExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3627,7 +3628,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( Relop() PlSqlSimpleExpressions() | PlSqlInClause() | PlSqlBetweenClause() | PlSqlLikeClause() | IsNullClause() )
     * </PRE>
     */
-   public void visit(PlSqlRelationalExpression n, A argu) {
+   public void visit(PlSqlRelationalExpression n, A argu) throws Exception {
       n.plSqlSimpleExpressions.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -3638,7 +3639,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; PlSqlExpression() )*
     * </PRE>
     */
-   public void visit(PlSqlExpressionList n, A argu) {
+   public void visit(PlSqlExpressionList n, A argu) throws Exception {
       n.plSqlExpression.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -3652,7 +3653,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(PlSqlInClause n, A argu) {
+   public void visit(PlSqlInClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -3669,7 +3670,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * plSqlSimpleExpressions1 -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlBetweenClause n, A argu) {
+   public void visit(PlSqlBetweenClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.plSqlSimpleExpressions.accept(this, argu);
@@ -3684,7 +3685,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlLikeClause n, A argu) {
+   public void visit(PlSqlLikeClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.plSqlSimpleExpressions.accept(this, argu);
@@ -3697,7 +3698,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;K_NULL&gt;
     * </PRE>
     */
-   public void visit(IsNullClause n, A argu) {
+   public void visit(IsNullClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -3708,7 +3709,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * plSqlSimpleExpressions -> PlSqlSimpleExpressions()
     * </PRE>
     */
-   public void visit(PlSqlSimpleExpression n, A argu) {
+   public void visit(PlSqlSimpleExpression n, A argu) throws Exception {
       n.plSqlSimpleExpressions.accept(this, argu);
    }
 
@@ -3718,7 +3719,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlMultiplicativeExpressions()
     * </PRE>
     */
-   public void visit(PlSqlSimpleExpressions n, A argu) {
+   public void visit(PlSqlSimpleExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3728,7 +3729,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) | "||" ) PlSqlMultiplicativeExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlAdditiveExpression n, A argu) {
+   public void visit(PlSqlAdditiveExpression n, A argu) throws Exception {
       n.plSqlMultiplicativeExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -3739,7 +3740,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlExpotentExpressions()
     * </PRE>
     */
-   public void visit(PlSqlMultiplicativeExpressions n, A argu) {
+   public void visit(PlSqlMultiplicativeExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3749,7 +3750,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ( "*" | "/" ) PlSqlExpotentExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlMultiplicativeExpression n, A argu) {
+   public void visit(PlSqlMultiplicativeExpression n, A argu) throws Exception {
       n.plSqlExpotentExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -3760,7 +3761,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlUnaryExpressions()
     * </PRE>
     */
-   public void visit(PlSqlExpotentExpressions n, A argu) {
+   public void visit(PlSqlExpotentExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3770,7 +3771,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;POW&gt; PlSqlUnaryExpressions() )+
     * </PRE>
     */
-   public void visit(PlSqlExpotentExpression n, A argu) {
+   public void visit(PlSqlExpotentExpression n, A argu) throws Exception {
       n.plSqlUnaryExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -3781,7 +3782,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | PlSqlPrimaryExpression()
     * </PRE>
     */
-   public void visit(PlSqlUnaryExpressions n, A argu) {
+   public void visit(PlSqlUnaryExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3790,7 +3791,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeSequence -> ( ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) PlSqlPrimaryExpression() )
     * </PRE>
     */
-   public void visit(PlSqlUnaryExpression n, A argu) {
+   public void visit(PlSqlUnaryExpression n, A argu) throws Exception {
       n.nodeSequence.accept(this, argu);
    }
 
@@ -3806,7 +3807,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;LPARENCHAR&gt; PlSqlExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(PlSqlPrimaryExpression n, A argu) {
+   public void visit(PlSqlPrimaryExpression n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3816,7 +3817,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;DOTCHAR&gt; DotObjectName() [ &lt;DOTCHAR&gt; DotObjectName() ] ]
     * </PRE>
     */
-   public void visit(TableColumn n, A argu) {
+   public void visit(TableColumn n, A argu) throws Exception {
       n.relObjectName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -3828,7 +3829,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public void visit(RelObjectName n, A argu) {
+   public void visit(RelObjectName n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3839,7 +3840,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;S_CHAR_LITERAL&gt;
     * </PRE>
     */
-   public void visit(DotObjectName n, A argu) {
+   public void visit(DotObjectName n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3849,7 +3850,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;S_QUOTED_IDENTIFIER&gt;
     * </PRE>
     */
-   public void visit(OracleObjectName n, A argu) {
+   public void visit(OracleObjectName n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3865,7 +3866,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;LESSTHANOREQUAL&gt;
     * </PRE>
     */
-   public void visit(Relop n, A argu) {
+   public void visit(Relop n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3875,7 +3876,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ "/" DotObjectName() ]
     * </PRE>
     */
-   public void visit(TableReference n, A argu) {
+   public void visit(TableReference n, A argu) throws Exception {
       n.relObjectName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
    }
@@ -3886,7 +3887,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | ( [ ( ( &lt;PLUSCHAR&gt; | &lt;PLUSCHAR_SUBS&gt; ) | ( &lt;MINUSCHAR&gt; | &lt;MINUSCHAR_SUBS&gt; ) ) ] &lt;S_NUMBER&gt; )
     * </PRE>
     */
-   public void visit(NumOrID n, A argu) {
+   public void visit(NumOrID n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3895,7 +3896,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * plSqlExpressionList -> PlSqlExpressionList()
     * </PRE>
     */
-   public void visit(Arguments n, A argu) {
+   public void visit(Arguments n, A argu) throws Exception {
       n.plSqlExpressionList.accept(this, argu);
    }
 
@@ -3906,7 +3907,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional1 -> [ ForUpdateClause() ]
     * </PRE>
     */
-   public void visit(SelectStatement n, A argu) {
+   public void visit(SelectStatement n, A argu) throws Exception {
       n.selectWithoutOrder.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeOptional1.accept(this, argu);
@@ -3925,7 +3926,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional5 -> [ SetClause() ]
     * </PRE>
     */
-   public void visit(SelectWithoutOrder n, A argu) {
+   public void visit(SelectWithoutOrder n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.selectList.accept(this, argu);
@@ -3943,7 +3944,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SelectItem() ( &lt;COMMACHAR&gt; SelectItem() )*
     * </PRE>
     */
-   public void visit(SelectList n, A argu) {
+   public void visit(SelectList n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3956,7 +3957,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | TableColumn() [ AsObjectName() ]
     * </PRE>
     */
-   public void visit(SelectItem n, A argu) {
+   public void visit(SelectItem n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3966,7 +3967,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | RelObjectName() &lt;DOTCHAR&gt; DotObjectName() &lt;DOTCHAR&gt; &lt;ASTERISKCHAR&gt;
     * </PRE>
     */
-   public void visit(SelectAllItems n, A argu) {
+   public void visit(SelectAllItems n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3976,7 +3977,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;K_AS&gt; DotObjectName()
     * </PRE>
     */
-   public void visit(AsObjectName n, A argu) {
+   public void visit(AsObjectName n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -3987,7 +3988,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; IntoItem() )*
     * </PRE>
     */
-   public void visit(IntoClause n, A argu) {
+   public void visit(IntoClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.intoItem.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
@@ -3999,7 +4000,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | ( IndicatorBind() )
     * </PRE>
     */
-   public void visit(IntoItem n, A argu) {
+   public void visit(IntoItem n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4010,7 +4011,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; FromItem() )*
     * </PRE>
     */
-   public void visit(FromClause n, A argu) {
+   public void visit(FromClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.fromItem.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
@@ -4022,7 +4023,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( JoinerExpression() [ &lt;K_AS&gt; AsObjectName() ] | [ AsObjectName() ] )
     * </PRE>
     */
-   public void visit(FromItem n, A argu) {
+   public void visit(FromItem n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
    }
@@ -4033,7 +4034,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SelectStatement()
     * </PRE>
     */
-   public void visit(FromItemExpression n, A argu) {
+   public void visit(FromItemExpression n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4043,7 +4044,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | RelObjectName() &lt;K_JOIN&gt; TableReference() [ JoinWhereClause() ]
     * </PRE>
     */
-   public void visit(JoinerExpression n, A argu) {
+   public void visit(JoinerExpression n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4053,7 +4054,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public void visit(JoinWhereClause n, A argu) {
+   public void visit(JoinWhereClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.sQLExpression.accept(this, argu);
    }
@@ -4064,7 +4065,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLExpression -> SQLExpression()
     * </PRE>
     */
-   public void visit(WhereClause n, A argu) {
+   public void visit(WhereClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.sQLExpression.accept(this, argu);
    }
@@ -4074,7 +4075,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeSequence -> ( [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] &lt;K_CONNECT&gt; &lt;K_BY&gt; SQLExpression() [ &lt;K_START&gt; &lt;K_WITH&gt; SQLExpression() ] )
     * </PRE>
     */
-   public void visit(ConnectClause n, A argu) {
+   public void visit(ConnectClause n, A argu) throws Exception {
       n.nodeSequence.accept(this, argu);
    }
 
@@ -4086,7 +4087,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;K_HAVING&gt; SQLExpression() ]
     * </PRE>
     */
-   public void visit(GroupByClause n, A argu) {
+   public void visit(GroupByClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.sQLExpressionList.accept(this, argu);
@@ -4099,7 +4100,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( ( &lt;LPARENCHAR&gt; SelectStatement() &lt;RPARENCHAR&gt; ) | SelectStatement() )
     * </PRE>
     */
-   public void visit(SetClause n, A argu) {
+   public void visit(SetClause n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
    }
@@ -4113,7 +4114,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() [ &lt;K_ASC&gt; | &lt;K_DESC&gt; ] )*
     * </PRE>
     */
-   public void visit(OrderByClause n, A argu) {
+   public void visit(OrderByClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.sQLSimpleExpression.accept(this, argu);
@@ -4128,7 +4129,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeOptional -> [ &lt;K_OF&gt; TableColumn() ( &lt;COMMACHAR&gt; TableColumn() )* ]
     * </PRE>
     */
-   public void visit(ForUpdateClause n, A argu) {
+   public void visit(ForUpdateClause n, A argu) throws Exception {
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
       n.nodeOptional.accept(this, argu);
@@ -4139,7 +4140,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLOrExpressions -> SQLOrExpressions()
     * </PRE>
     */
-   public void visit(SQLExpression n, A argu) {
+   public void visit(SQLExpression n, A argu) throws Exception {
       n.sQLOrExpressions.accept(this, argu);
    }
 
@@ -4149,7 +4150,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLAndExpressions()
     * </PRE>
     */
-   public void visit(SQLOrExpressions n, A argu) {
+   public void visit(SQLOrExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4159,7 +4160,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;K_OR&gt; SQLAndExpressions() )+
     * </PRE>
     */
-   public void visit(SQLOrExpression n, A argu) {
+   public void visit(SQLOrExpression n, A argu) throws Exception {
       n.sQLAndExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -4170,7 +4171,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLUnaryLogicalExpressions()
     * </PRE>
     */
-   public void visit(SQLAndExpressions n, A argu) {
+   public void visit(SQLAndExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4180,7 +4181,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;K_AND&gt; SQLUnaryLogicalExpressions() )+
     * </PRE>
     */
-   public void visit(SQLAndExpression n, A argu) {
+   public void visit(SQLAndExpression n, A argu) throws Exception {
       n.sQLUnaryLogicalExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -4191,7 +4192,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLRelationalExpressions()
     * </PRE>
     */
-   public void visit(SQLUnaryLogicalExpressions n, A argu) {
+   public void visit(SQLUnaryLogicalExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4204,7 +4205,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(ExistsClause n, A argu) {
+   public void visit(ExistsClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -4218,7 +4219,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | ( SQLRelopExpression() | &lt;LPARENCHAR&gt; SQLExpressionList() &lt;RPARENCHAR&gt; | ( SQLPriorExpression() | SQLSimpleExpressions() ) )
     * </PRE>
     */
-   public void visit(SQLRelationalExpressions n, A argu) {
+   public void visit(SQLRelationalExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4228,7 +4229,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( ( SQLInClause() ) | ( SQLBetweenClause() ) | ( SQLLikeClause() ) | IsNullClause() )
     * </PRE>
     */
-   public void visit(SQLRelationalExpression n, A argu) {
+   public void visit(SQLRelationalExpression n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
    }
@@ -4240,7 +4241,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public void visit(SQLPriorExpression n, A argu) {
+   public void visit(SQLPriorExpression n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.sQLSimpleExpressions.accept(this, argu);
@@ -4252,7 +4253,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeListOptional -> ( &lt;COMMACHAR&gt; SQLSimpleExpression() )*
     * </PRE>
     */
-   public void visit(SQLExpressionList n, A argu) {
+   public void visit(SQLExpressionList n, A argu) throws Exception {
       n.sQLSimpleExpression.accept(this, argu);
       n.nodeListOptional.accept(this, argu);
    }
@@ -4264,7 +4265,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice1 -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpressions() )
     * </PRE>
     */
-   public void visit(SQLRelopExpression n, A argu) {
+   public void visit(SQLRelopExpression n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.relop.accept(this, argu);
       n.nodeChoice1.accept(this, argu);
@@ -4276,7 +4277,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeChoice -> ( ( [ &lt;K_ALL&gt; | &lt;K_ANY&gt; ] &lt;LPARENCHAR&gt; SubQuery() &lt;RPARENCHAR&gt; ) | SQLPriorExpression() | SQLSimpleExpression() )
     * </PRE>
     */
-   public void visit(SQLRelationalOperatorExpression n, A argu) {
+   public void visit(SQLRelationalOperatorExpression n, A argu) throws Exception {
       n.relop.accept(this, argu);
       n.nodeChoice.accept(this, argu);
    }
@@ -4290,7 +4291,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken2 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(SQLInClause n, A argu) {
+   public void visit(SQLInClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.nodeToken1.accept(this, argu);
@@ -4307,7 +4308,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLSimpleExpression1 -> SQLSimpleExpression()
     * </PRE>
     */
-   public void visit(SQLBetweenClause n, A argu) {
+   public void visit(SQLBetweenClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.sQLSimpleExpression.accept(this, argu);
@@ -4322,7 +4323,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLSimpleExpression -> SQLSimpleExpression()
     * </PRE>
     */
-   public void visit(SQLLikeClause n, A argu) {
+   public void visit(SQLLikeClause n, A argu) throws Exception {
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
       n.sQLSimpleExpression.accept(this, argu);
@@ -4333,7 +4334,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLSimpleExpressions -> SQLSimpleExpressions()
     * </PRE>
     */
-   public void visit(SQLSimpleExpression n, A argu) {
+   public void visit(SQLSimpleExpression n, A argu) throws Exception {
       n.sQLSimpleExpressions.accept(this, argu);
    }
 
@@ -4342,7 +4343,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLAdditiveExpressions -> SQLAdditiveExpressions()
     * </PRE>
     */
-   public void visit(SQLSimpleExpressions n, A argu) {
+   public void visit(SQLSimpleExpressions n, A argu) throws Exception {
       n.sQLAdditiveExpressions.accept(this, argu);
    }
 
@@ -4352,7 +4353,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLMultiplicativeExpressions()
     * </PRE>
     */
-   public void visit(SQLAdditiveExpressions n, A argu) {
+   public void visit(SQLAdditiveExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4362,7 +4363,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ( ( &lt;PLUSCHAR_SUBS&gt; | &lt;PLUSCHAR&gt; ) | ( &lt;MINUSCHAR_SUBS&gt; | &lt;MINUSCHAR&gt; ) | &lt;CONCAT&gt; ) SQLMultiplicativeExpressions() )+
     * </PRE>
     */
-   public void visit(SQLAdditiveExpression n, A argu) {
+   public void visit(SQLAdditiveExpression n, A argu) throws Exception {
       n.sQLMultiplicativeExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -4373,7 +4374,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLExpotentExpressions()
     * </PRE>
     */
-   public void visit(SQLMultiplicativeExpressions n, A argu) {
+   public void visit(SQLMultiplicativeExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4383,7 +4384,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( ( &lt;ASTERISKCHAR&gt; | &lt;SLASHCHAR&gt; ) SQLExpotentExpressions() )+
     * </PRE>
     */
-   public void visit(SQLMultiplicativeExpression n, A argu) {
+   public void visit(SQLMultiplicativeExpression n, A argu) throws Exception {
       n.sQLExpotentExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -4394,7 +4395,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLUnaryExpressions()
     * </PRE>
     */
-   public void visit(SQLExpotentExpressions n, A argu) {
+   public void visit(SQLExpotentExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4404,7 +4405,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeList -> ( &lt;POW&gt; SQLUnaryExpressions() )+
     * </PRE>
     */
-   public void visit(SQLExpotentExpression n, A argu) {
+   public void visit(SQLExpotentExpression n, A argu) throws Exception {
       n.sQLUnaryExpressions.accept(this, argu);
       n.nodeList.accept(this, argu);
    }
@@ -4415,7 +4416,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | SQLPrimaryExpression()
     * </PRE>
     */
-   public void visit(SQLUnaryExpressions n, A argu) {
+   public void visit(SQLUnaryExpressions n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4425,7 +4426,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLPrimaryExpression -> SQLPrimaryExpression()
     * </PRE>
     */
-   public void visit(SQLUnaryExpression n, A argu) {
+   public void visit(SQLUnaryExpression n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
       n.sQLPrimaryExpression.accept(this, argu);
    }
@@ -4441,7 +4442,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     *       | &lt;LPARENCHAR&gt; SQLExpression() &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(SQLPrimaryExpression n, A argu) {
+   public void visit(SQLPrimaryExpression n, A argu) throws Exception {
       n.nodeChoice.accept(this, argu);
    }
 
@@ -4454,7 +4455,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(FunctionCall n, A argu) {
+   public void visit(FunctionCall n, A argu) throws Exception {
       n.relObjectName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
@@ -4467,7 +4468,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * sQLExpressionList -> SQLExpressionList()
     * </PRE>
     */
-   public void visit(SQLArguments n, A argu) {
+   public void visit(SQLArguments n, A argu) throws Exception {
       n.sQLExpressionList.accept(this, argu);
    }
 
@@ -4480,7 +4481,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * nodeToken1 -> &lt;RPARENCHAR&gt;
     * </PRE>
     */
-   public void visit(OuterJoinExpression n, A argu) {
+   public void visit(OuterJoinExpression n, A argu) throws Exception {
       n.relObjectName.accept(this, argu);
       n.nodeOptional.accept(this, argu);
       n.nodeToken.accept(this, argu);
@@ -4493,7 +4494,7 @@ public class GJVoidDepthFirst<A> implements GJVoidVisitor<A> {
     * selectWithoutOrder -> SelectWithoutOrder()
     * </PRE>
     */
-   public void visit(SubQuery n, A argu) {
+   public void visit(SubQuery n, A argu) throws Exception {
       n.selectWithoutOrder.accept(this, argu);
    }
 
