@@ -255,7 +255,7 @@ public class EditedVar {
 			String[] temp = stringInput.split("(\\" + decimalChar + ")");
 			System.out.println(temp[0]);
 			intString.append(temp[0]);
-			if (temp.length == 1) {
+			if (temp.length == 2) {
 				fractionString.append(temp[1]);
 			}
 		} else {

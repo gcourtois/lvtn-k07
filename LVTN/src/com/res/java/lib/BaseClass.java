@@ -539,7 +539,7 @@ public class BaseClass {
 				tempArray[i] = 0x20;
 			} 
 		}
-		return new String(tempArray, offset, length, ascii);
+		return new String(tempArray, ascii);
 	}
 
 	/**
