@@ -20,7 +20,7 @@ along with RES.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
 @SuppressWarnings("serial")
-public class InvalidCobolFormatException extends Exception {
+public class InvalidCobolFormatException extends RuntimeException {
 
 	private String message=null;
 	
