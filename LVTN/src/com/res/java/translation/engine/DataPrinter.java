@@ -10,6 +10,7 @@ import java.util.Queue;
 import com.res.common.RESConfig;
 import com.res.java.lib.BaseClass;
 import com.res.java.lib.Constants;
+import com.res.java.lib.EditedVar;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
@@ -65,6 +66,7 @@ public class DataPrinter {
 
         // print import
         printer.printImport(BaseClass.class);
+        printer.printImport(EditedVar.class);
         printer.printImport(BigDecimal.class);
         printer.println();
 
@@ -316,9 +318,19 @@ public class DataPrinter {
 	private void printElementData(SymbolProperties props,
 			JavaCodePrinter printer) {
 		
-		String type = javaType[props.getCobolDesc().getTypeInJava()];
+	    CobolDataDescription desc = props.getCobolDesc();
+		String type = javaType[desc.getTypeInJava()];
 		String argName = "input";
 		
+		boolean doEdit = false;
+		if (desc.getDataCategory() == Constants.ALPHANUMERIC_EDITED
+                || desc.getDataCategory() == Constants.NUMERIC_EDITED) {
+		    doEdit = true;
+		    printer.println(String.format(
+                    "private EditedVar %s = new EditedVar(\"%s\", (byte) %s, %s);", props
+                            .getJavaName1(), desc.getPic(), desc
+                            .getDataCategory(), desc.isJustifiedRight()));
+		}		
 		if (props.isOccurs()) {
 			if (props.getLength() > 0) {
 				// create getter setter with index
@@ -341,6 +353,9 @@ public class DataPrinter {
 				//setter
 				printer.println(String.format("public void set%s(int %s, %s %s) {", props.getJavaName2(), indexName, type, argName));
 				printer.increaseIndent();
+				if (doEdit) {
+				    printer.println(String.format("%1$s = %2$s.doEdit(%1$s);", argName, props.getJavaName1()));
+				}
 				printer.println(setValueMethodName(props, argName, true, indexName) + ";");
 				printer.decreaseIndent();
 				printer.println("}");
@@ -376,6 +391,9 @@ public class DataPrinter {
 				//setter
 				printer.println(String.format("public void set%s(%s %s) {", props.getJavaName2(), type, argName));
 				printer.increaseIndent();
+				if (doEdit) {
+				    printer.println(String.format("%1$s = %2$s.doEdit(%1$s);", argName, props.getJavaName1()));
+				}
 				printer.println(setValueMethodName(props, argName, false, null) + ";");
 				printer.decreaseIndent();
 				printer.println("}");

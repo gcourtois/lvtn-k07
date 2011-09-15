@@ -17,6 +17,7 @@ import com.res.cobol.syntaxtree.ProgramIdParagraph;
 import com.res.cobol.syntaxtree.ProgramUnit;
 import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
+import com.res.java.lib.EditedVar;
 import com.res.java.lib.Program;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
@@ -58,6 +59,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 
 			// print import
 			printer.printImport(Program.class);
+			printer.printImport(EditedVar.class);
 			printer.printImport(BigDecimal.class);
 			printer.println("import "
 					+ RESConfig.getInstance().getDataPackage() + ".*;");
