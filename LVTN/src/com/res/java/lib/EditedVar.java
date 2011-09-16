@@ -63,38 +63,9 @@ public class EditedVar {
 	}
 
 	private String normalizePicString(String picString) {
-		StringBuilder normalizedString;
+		StringBuilder normalizedString = new StringBuilder(picString.toUpperCase());
 		if (picType == Constants.NUMERIC_EDITED) {
-			// picString.replace('V', '.');
-			int lastPosition = 0;
-			normalizedString = new StringBuilder(picString.toUpperCase());
-			do {
-				int start = normalizedString.indexOf("(", lastPosition);
-				if (start != -1) {
-					lastPosition = normalizedString.indexOf(")", start);
-					if (lastPosition != -1) {
-						int occurence = Integer.parseInt(normalizedString
-								.substring(start + 1, lastPosition));
-						char symbol = normalizedString.charAt(start - 1);
-						normalizedString.delete(start, lastPosition + 1);
-						for (int i = 0; i < occurence - 1; i++) {
-							normalizedString.insert(start, symbol);
-						}
-					} else {
-						throw new InvalidCobolFormatException(
-								"Format of PicString is not right PIC "
-										+ picString);
-					}
-				} else {
-					break;
-				}
-
-			} while (true);
-			// if (RunConfig.getInstance().isDecimalPointAsComma()) {
-			// picString.replace(',', '.');
-			// }
-
-			// TODO: Generate Decimal Information.
+			// Generate Decimal Information.
 			int decimalPosition = normalizedString.indexOf(String
 					.valueOf(decimalChar));
 			if (decimalPosition != -1) {
@@ -122,28 +93,6 @@ public class EditedVar {
 			}
 			return normalizedString.toString();
 		} else if (picType == Constants.ALPHANUMERIC_EDITED) {
-			int lastPosition = 0;
-			normalizedString = new StringBuilder(picString.toUpperCase());
-			do {
-				int start = normalizedString.indexOf("(", lastPosition);
-				if (start != -1) {
-					lastPosition = normalizedString.indexOf(")", start);
-					if (lastPosition != -1) {
-						int occurence = Integer.parseInt(normalizedString
-								.substring(start + 1, lastPosition));
-						char symbol = normalizedString.charAt(start - 1);
-						normalizedString.delete(start, lastPosition + 1);
-						for (int i = 0; i < occurence - 1; i++) {
-							normalizedString.insert(start, symbol);
-						}
-					} else {
-						throw new InvalidCobolFormatException(
-								"Format of PicString is not right " + picString);
-					}
-				} else {
-					break;
-				}
-			} while (true);
 			String temp = normalizedString.toString();
 			// Remove all simple insertion symbol to calculate actualLength
 			this.definedLength = temp.replaceAll("([B0/,.&])+", "").length();
@@ -185,7 +134,6 @@ public class EditedVar {
 		StringBuilder picBuilder = new StringBuilder(normalizedPic);
 		for (int i = 0; i < picBuilder.length(); i++) {
 			char currentChar = charArray[i];
-			if (this.picType == Constants.ALPHANUMERIC_EDITED) {
 				switch (currentChar) {
 				case 'B':
 					inputBuilder.insert(i, ' ');
@@ -199,7 +147,6 @@ public class EditedVar {
 					inputBuilder.insert(i, currentChar);
 					break;
 				}
-			}
 		}
 		normalizedPic = picBuilder.toString();
 		return inputBuilder.toString();
@@ -662,16 +609,16 @@ public class EditedVar {
 		retVal = retVal.replaceAll("[ZB]", " ").replaceAll("D\\ ", "DB");
 		return fixedInsert(retVal, isNegative);
 	}
-
-	public static void main(String[] args) {
-		EditedVar a;
-		try {
-			a = new EditedVar("****.**", Constants.NUMERIC_EDITED, false);
-			System.out.println("|" + a.doEdit("0000.00") + "|");
-		} catch (InvalidCobolFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	
+	public String getNormalizedPic() {
+		return this.normalizedPic;
 	}
-
+	public String getBeforeDecimal() {
+		return this.beforeDecimal;
+	}
+	
+	public static void main(String[] args) {
+		EditedVar a = new EditedVar("99.", Constants.NUMERIC_EDITED);
+		System.out.println(a.doEdit("1234"));
+	}
 }

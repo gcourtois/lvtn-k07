@@ -552,7 +552,6 @@ public class BaseClass {
 	private void convertLongToDisplay(long input, int offset, int length,
 			boolean signed, boolean signLeading, boolean signSeparate) {
 		String inputStr = String.valueOf(Math.abs(input));
-		System.out.println("INPUT " + input);
 		int byteLength = inputStr.length();
 		if (byteLength > 18) {
 			throw new ArithmeticException(
@@ -693,6 +692,25 @@ public class BaseClass {
 	
 	public String toString() {
 		return this.convertDisplayToString(this.offset, this.length);
+	}
+	
+	private BigDecimal getDecimalValue(int offset, int length, EditedVar numericEditedVar) {
+		StringBuilder stringValue = new StringBuilder(convertDisplayToString(offset, length));
+		String picString = numericEditedVar.getNormalizedPic();
+		String beforeDecimal = numericEditedVar.getBeforeDecimal();
+		if (beforeDecimal.length() < picString.length()) {
+			int decimalOffset = picString.length() - beforeDecimal.length();
+			if (picString.indexOf('V') != -1) {
+				stringValue.insert(decimalOffset, '.');
+			}
+		}
+		BigDecimal returnVal = BigDecimal.ZERO;
+		try {
+			returnVal = new BigDecimal(stringValue.toString().replaceAll("[$\\,/]", ""));
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} 
+		return returnVal;
 	}
 
 }
