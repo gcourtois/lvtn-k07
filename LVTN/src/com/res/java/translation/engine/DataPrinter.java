@@ -29,9 +29,6 @@ public class DataPrinter {
 		if (!props.isProgram())
 			return;
 
-
-//		printer.increaseIndent();
-		
 		if (props.getLength() > 0) {
 			printer.println("public " + props.getJavaName2() + "() {");
 			printer.increaseIndent();
@@ -42,8 +39,6 @@ public class DataPrinter {
 		}
 		
 		printDataChildren(props, printer);
-
-//		printer.decreaseIndent();
 
 		while (group01ToCreate.size() > 0) {
 			createGroup01File(group01ToCreate.poll());

@@ -2,7 +2,6 @@ package com.res.java.translation.engine;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -36,68 +35,61 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
     
 	@Override
 	public Object visit(ProgramUnit n, Object argu) throws Exception {
-		try {
-			File f = new File(RESConfig.getInstance().getProgramPackage());
-			if (!f.exists()) {
-				f.mkdir();
-			}
-			f = new File(RESConfig.getInstance().getDataPackage());
-			if (!f.exists()) {
-				f.mkdir();
-			}
+	    File f = new File(RESConfig.getInstance().getProgramPackage());
+        if (!f.exists()) {
+            f.mkdir();
+        }
+        f = new File(RESConfig.getInstance().getDataPackage());
+        if (!f.exists()) {
+            f.mkdir();
+        }
 
-			String programName = n.identificationDivision.programIdParagraph.programName.cobolWord.nodeToken.tokenImage;
+        String programName = n.identificationDivision.programIdParagraph.programName.cobolWord.nodeToken.tokenImage;
 
-			SymbolProperties props = SymbolTable.getInstance().lookup(
-					programName);
-			// create new file
-			String fileName = RESConfig.getInstance().getProgramPackage()
-					+ File.separatorChar + NameUtil.getFileName(props);
-			System.out.println("Create file " + fileName);
+        SymbolProperties props = SymbolTable.getInstance().lookup(programName);
+        // create new file
+        String fileName = RESConfig.getInstance().getProgramPackage()
+                + File.separatorChar + NameUtil.getFileName(props);
+        System.out.println("Create file " + fileName);
 
-			// TODO: create printer associated with fileName
-			JavaCodePrinter printer;
-			//			printer = new JavaCodePrinter(System.out);
-			printer = new JavaCodePrinter(new FileOutputStream(fileName));
+        JavaCodePrinter printer;
+        // printer = new JavaCodePrinter(System.out);
+        printer = new JavaCodePrinter(new FileOutputStream(fileName));
 
-			// print package
-			printer.println("package "
-					+ RESConfig.getInstance().getProgramPackage() + ";");
-			printer.println();
+        // print package
+        printer.println("package "
+                + RESConfig.getInstance().getProgramPackage() + ";");
+        printer.println();
 
-			// print import
-			printer.printImport(Program.class);
-			printer.printImport(EditedVar.class);
-			printer.printImport(BigDecimal.class);
-			printer.println("import "
-					+ RESConfig.getInstance().getDataPackage() + ".*;");
-			printer.println();
+        // print import
+        printer.printImport(Program.class);
+        printer.printImport(EditedVar.class);
+        printer.printImport(BigDecimal.class);
+        printer.println("import " + RESConfig.getInstance().getDataPackage()
+                + ".*;");
+        printer.println();
 
-			// print class definition
-			printer.println("public class " + props.getJavaName2() + " extends Program {");
-			printer.increaseIndent();
-			
-			createListParagraphs(props);
-			super.visit(n, printer);
+        // print class definition
+        printer.println("public class " + props.getJavaName2()
+                + " extends Program {");
+        printer.increaseIndent();
 
-			printer.println("public static void main(String[] args) {");
-			printer.increaseIndent();
-			printer.println(String.format("new %s().%s();", programName, runMethodName));
-			printer.decreaseIndent();
-			printer.println("}");
-			printer.decreaseIndent();
-			
-			// end class
-			printer.println("}");
+        createListParagraphs(props);
+        super.visit(n, printer);
 
-			printer.close();
+        printer.println("public static void main(String[] args) {");
+        printer.increaseIndent();
+        printer.println(String.format("new %s().%s();", programName,
+                runMethodName));
+        printer.decreaseIndent();
+        printer.println("}");
+        printer.decreaseIndent();
 
-			// throw new IOException();
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-		return null;
+        // end class
+        printer.println("}");
+
+        printer.close();
+        return null;
 	}
 
 	private Queue<SymbolProperties> listParagraphs = new LinkedList<SymbolProperties>();
@@ -120,12 +112,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 		JavaCodePrinter printer = (JavaCodePrinter) o;
 
 		// print all data field
-		try {
-			new DataPrinter().printDataForProgram(props, printer);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
+		new DataPrinter().printDataForProgram(props, printer);
 
 		return null;
 	}

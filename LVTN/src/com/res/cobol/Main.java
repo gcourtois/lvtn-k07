@@ -29,7 +29,6 @@ import com.res.cobol.parser.CobolParser;
 import com.res.cobol.parser.CobolParserTokenManager;
 import com.res.cobol.parser.ParseException;
 import com.res.cobol.parser.RESCharStream;
-import com.res.cobol.parser.TokenMgrError;
 import com.res.cobol.syntaxtree.CompilationUnit;
 import com.res.common.RESConfig;
 import com.res.common.RESContext;
@@ -91,79 +90,70 @@ public class Main {
 			 * 
 			 * for (File f : files) { instance.execute(f); }
 			 */
+			
+			System.out
+			.println("Done in "
+			        + Math
+			        .round((System.currentTimeMillis() - instance.startClock) / 1000)
+			        + "s.\r\n");
+			System.exit(0);
 		} catch (Exception e) {
-			System.err.println(args[args.length - 1]);
-			e.printStackTrace();
+			System.err.println("Error while processing " + args[args.length - 1]);
+//			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
-
-		System.out
-				.println("Done in "
-						+ Math
-								.round((System.currentTimeMillis() - instance.startClock) / 1000)
-						+ "s.\r\n");
-		System.exit(0);
 	}
 
-	public void execute(File srcF) {
+	public void execute(File srcF) throws Exception {
 		File destF = null;
-		try {
-			String fileName;
-			System.err.println(fileName = srcF.getCanonicalPath());
+        String fileName;
+        System.err.println(fileName = srcF.getCanonicalPath());
 
-			RESConfig.getInstance().setInError(false);
+        RESConfig.getInstance().setInError(false);
 
-			context.setSourceFileName(fileName.substring(fileName.replace('/',
-					File.separatorChar).lastIndexOf(File.separatorChar) + 1));
+        context.setSourceFileName(fileName.substring(fileName.replace('/',
+                File.separatorChar).lastIndexOf(File.separatorChar) + 1));
 
-			if (!srcF.exists() || !srcF.isFile() || !srcF.canRead()) {
-				System.out.println("Invalid Source File: " + fileName);
-			} else {
-				String dest = "$temporary.file";
-				if (context.isProcessPreprocessOnly()) {
-					preprocessor.preprocess(fileName, null);
-				} else {
-					destF = new File(dest);
-					if (destF.exists()) {
-						destF.delete();
-					}
-					preprocessor.preprocess(fileName, dest);
-					if (!destF.exists()) {
-						return;
-					}
-					System.out.println("Parsing Cobol started for: "
-							+ srcF.getAbsolutePath() + "");
-					context.setSourceFile(new BufferedReader(
-							new InputStreamReader(new FileInputStream(destF))));
-					if (!context.getSourceFile().ready()) {
-						throw new ParseException();
-					}
-					if (context.isProcessParseOnly()) {
-						parse(context);
-					} else {
-						CompilationUnit unit = parse(context);
-						if (RESConfig.getInstance().isInError()) {
-							System.out
-									.println("Errors encountered. Processing terminated.");
-						} else {
-							translate(unit);
-						}
-						unit = null;
-					}
+        if (!srcF.exists() || !srcF.isFile() || !srcF.canRead()) {
+            System.out.println("Invalid Source File: " + fileName);
+        } else {
+            String dest = "$temporary.file";
+            if (context.isProcessPreprocessOnly()) {
+                preprocessor.preprocess(fileName, null);
+            } else {
+                destF = new File(dest);
+                if (destF.exists()) {
+                    destF.delete();
+                }
+                preprocessor.preprocess(fileName, dest);
+                if (!destF.exists()) {
+                    return;
+                }
+                System.out.println("Parsing Cobol started for: "
+                        + srcF.getAbsolutePath() + "");
+                context.setSourceFile(new BufferedReader(new InputStreamReader(
+                        new FileInputStream(destF))));
+                if (!context.getSourceFile().ready()) {
+                    throw new ParseException();
+                }
+                if (context.isProcessParseOnly()) {
+                    parse(context);
+                } else {
+                    CompilationUnit unit = parse(context);
+                    if (RESConfig.getInstance().isInError()) {
+                        System.out
+                                .println("Errors encountered. Processing terminated.");
+                    } else {
+                        translate(unit);
+                    }
+                    unit = null;
+                }
 
-					// destF.delete();
-					destF = null;
-				}
-			}
-		} catch (TokenMgrError pe) {
-			System.err.println(srcF.getAbsolutePath());
-			pe.printStackTrace();
-		} catch (ParseException pe) {
-			System.err.println(srcF.getAbsolutePath());
-			pe.printStackTrace();
-		} catch (IOException eio) {
-			System.err.println(srcF.getAbsolutePath());
-			eio.printStackTrace();
-		}
+                // destF.delete();
+                destF = null;
+            }
+        }
+		
 		if (doListDir && srcF != null) {
 			System.out.println("Done: " + srcF.getAbsolutePath() + "\n");
 		}
@@ -185,82 +175,70 @@ public class Main {
 
 	private CobolParser cobolParser = null;
 
-	public CompilationUnit parse(RESContext context) {
+	public CompilationUnit parse(RESContext context) throws ParseException {
 
-		CompilationUnit unit;
+	    CompilationUnit unit;
 
-		try {
+	    context.setCharStream(new RESCharStream(context.getSourceFile()));
 
-			context.setCharStream(new RESCharStream(context.getSourceFile()));
+	    cobolParser = new CobolParser(new CobolParserTokenManager(context
+	            .getCharStream()));
 
-			cobolParser = new CobolParser(new CobolParserTokenManager(context
-					.getCharStream()));
+	    if (!context.isTraceOn() || context.getTraceLevel() % 2 == 0) {
+	        cobolParser.disable_tracing();
+	    }
 
-			if (!context.isTraceOn() || context.getTraceLevel() % 2 == 0) {
-				cobolParser.disable_tracing();
-			}
+	    unit = cobolParser.CompilationUnit();
+	    if (context.isTraceOn() && context.getTraceLevel() % 2 != 0) {
+	        // System.out.println("************************************************************************");
+	        // TreeDumper dump = new TreeDumper();
+	        // dump.visit(unit);
+	        // return null;
+	    }
 
-			unit = cobolParser.CompilationUnit();
-			if (context.isTraceOn() && context.getTraceLevel() % 2 != 0) {
-				// System.out.println("************************************************************************");
-				// TreeDumper dump = new TreeDumper();
-				// dump.visit(unit);
-				// return null;
-			}
-
-			context.getCharStream().Done();
-			cobolParser = null;
-		} catch (ParseException pe) {
-			pe.printStackTrace();
-			unit = null;
-		}
-		return unit;
+	    context.getCharStream().Done();
+	    cobolParser = null;
+	    return unit;
 	}
 
-	public void translate(CompilationUnit unit) {
+	public void translate(CompilationUnit unit)
+            throws Exception {
 
-		try {
+        // Create Symbol Table
+        // getContext().setTraceLevel(2);
+        unit.accept(context.getCobolFillTable());
 
-			// Create Symbol Table
-//			 getContext().setTraceLevel(2);
-			unit.accept(context.getCobolFillTable());
+        if (RESConfig.getInstance().isInError()) {
+            System.out.println("Errors encountered. Processing terminated.");
+            return;
+        }
+        System.out.println("Translation to Java started.");
+        if (!doListDir) {
+            printPackageHeader();
+        }
 
-			if (RESConfig.getInstance().isInError()) {
-				System.out
-						.println("Errors encountered. Processing terminated.");
-				return;
-			}
-			System.out.println("Translation to Java started.");
-			if (!doListDir) {
-				printPackageHeader();
-			}
+        if (context.isTraceOn()) {
+            System.out.println("Removing Dead Code...");
+        }
 
-			if (context.isTraceOn()) {
-				System.out.println("Removing Dead Code...");
-			}
+        // Do Dead-Code Removal and later Restructuring if any
+        unit.accept(context.getCobolRecode());
+        // System.out.println("************************Symbol
+        // Table****************************************");
+        // SymbolTable.getInstance().display();
+        if (context.isTraceOn()) {
+            System.out
+                    .println("************************************************************************");
+            SymbolTable.getInstance().display();
 
-			// Do Dead-Code Removal and later Restructuring if any
-			unit.accept(context.getCobolRecode());
-			// System.out.println("************************Symbol
-			// Table****************************************");
-//			SymbolTable.getInstance().display();
-			if (context.isTraceOn()) {
-				System.out
-						.println("************************************************************************");
-				SymbolTable.getInstance().display();
+        }
 
-			}
+        unit.accept(new Cobol2Java(), null);
 
-			unit.accept(new Cobol2Java(), null);
+        //			ClassFile.endProgramScope();
+        // SymbolTable.getInstance().endProgram();
 
-//			ClassFile.endProgramScope();
-			// SymbolTable.getInstance().endProgram();
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-	}
+    }
 
 	private static void printPackageHeader() {
 		try {

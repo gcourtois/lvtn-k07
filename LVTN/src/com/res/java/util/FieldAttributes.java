@@ -23,9 +23,8 @@ package com.res.java.util;
 import java.util.regex.Pattern;
 
 import com.res.java.lib.Constants;
-import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.translation.symbol.SymbolProperties;
-import com.res.java.translation.symbol.SymbolUtil;
+import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 
 public class FieldAttributes {
 
@@ -158,9 +157,10 @@ public class FieldAttributes {
 				desc.setMaxStringLength(desc.getPic().length());
 			}
 		} else {
-			SymbolUtil.getInstance().reportError(
-					"Data name:" + props.getDataName()
-							+ " has invalid picture string: " + pic);
+//			SymbolUtil.getInstance().reportError(
+//					"Data name:" + props.getDataName()
+//							+ " has invalid picture string: " + pic);
+		    //TODO: throws exception
 			System.exit(0);
 		}
 	}

@@ -19,10 +19,8 @@ along with RES.  If not, see <http://www.gnu.org/licenses/>.
 
 @author VenkatK mailto: open.cobol.to.java at gmail.com
  ******************************************************************************/
-import com.res.cobol.Main;
 import com.res.common.RESConfig;
 import com.res.java.lib.Constants;
-import com.res.java.lib.exceptions.InvalidCobolFormatException;
 
 public class SymbolUtil {
 
@@ -78,26 +76,5 @@ public class SymbolUtil {
         }
         props.setUsedNativeJavaTypes(true);
         return true;
-    }
-
-    public static void reportError() {
-        try {
-            throw new InvalidCobolFormatException("");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-
-    public void reportError(SymbolProperties props, String msg) {
-        System.out.println("@CobolSourceFile(\"" + props.getDataDescriptionEntry().sourceFile + "\","
-                + props.getDataDescriptionEntry().line
-                + "):" + msg);
-        System.exit(0);
-    }
-
-    public void reportError(String msg) {
-        System.out.println("@CobolSourceFile(\"" + Main.getContext().getSourceFileName() + "):" + msg);
-        System.exit(0);
     }
 }

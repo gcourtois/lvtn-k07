@@ -127,6 +127,7 @@ import com.res.cobol.syntaxtree.WriteStatement;
 import com.res.cobol.visitor.DepthFirstVisitor;
 import com.res.common.RESConfig;
 import com.res.common.RESContext;
+import com.res.common.exceptions.ErrorInCobolSourceException;
 import com.res.java.lib.Constants;
 import com.res.java.lib.FieldFormat;
 import com.res.java.lib.RunTimeUtil;
@@ -190,7 +191,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             if (file.getOtherData2() != null) {
                 //file.setOtherData2(SymbolTable.getScope().lookup((String)file.getOtherData2(),SymbolConstants.DATA));
                 if (file.getOtherData2() == null) {
-                    reportError(n, "Invalid Primary key in file " + file.getDataName() + ".");
+                    throw new ErrorInCobolSourceException((RESNode)n, "Invalid Primary key in file " + file.getDataName() + ".");
                 } else {
                     setRef(((SymbolProperties) file.getOtherData2()));
                 }
@@ -200,7 +201,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 for (Object o : file.getOtherData()) {
                     //o=SymbolTable.getScope().lookup((String)o,SymbolConstants.DATA);
                     if (o == null) {
-                        reportError(n, "Invalid Alternate key in file " + file.getDataName() + ".");
+                        throw new ErrorInCobolSourceException((RESNode)n, "Invalid Alternate key in file " + file.getDataName() + ".");
                     } else {
                         setRef(((SymbolProperties) o));
                         a.add(o);
@@ -215,7 +216,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                     props = null;
                     ((Node) dep.getOtherData2()).accept(this);
                     if (props == null) {
-                        reportError(n, "Unknown symbol in DEPENDING ON clause of " + dep.getDataName() + ".");
+                        throw new ErrorInCobolSourceException((RESNode) n, "Unknown symbol in DEPENDING ON clause of " + dep.getDataName() + ".");
                     } else {
                         dep.setDependingOnOccurs(props);
                         setRef(props);
@@ -327,7 +328,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         n.sectionHeader.accept(this);
 
         if ((props = createSection()) == null) {
-            reportError(n, "Duplicate Section: " + sectionName);
+            throw new ErrorInCobolSourceException(n, "Duplicate Section: " + sectionName);
         }
 
         n.paragraphs.accept(this);
@@ -401,9 +402,8 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
 
             if ((parent == null && firstParagraph) || dataStack == null || dataStack.size() <= 0) {
-                reportError(n, "Fatal Error " + ((parent == null) ? 2 : (dataStack == null) ? 3 : 4)
+                throw new ErrorInCobolSourceException(n, "Fatal Error " + ((parent == null) ? 2 : (dataStack == null) ? 3 : 4)
                         + " Encountered while processing Paragraph: " + paragraphName);
-                return;
             }
 
             paragraphProps = new SymbolProperties();
@@ -433,8 +433,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         parent.getParagraphList().add(props);
         if (SymbolTable.getInstance().lookup(paragraphName, parent.getDataName()) != null) {
-            reportError(n, "Duplicate Paragraph: " + paragraphName);
-            return;
+            throw new ErrorInCobolSourceException(n, "Duplicate Paragraph: " + paragraphName);
         } else {
             SymbolTable.getInstance().insert(paragraphName, props);
             ((RESNode) n).props = props;
@@ -486,10 +485,10 @@ public class CobolFillTable extends DepthFirstVisitor {
             e.nextElement().accept(this);
             if (props != null) {
                 if (!props.isTopLevelData()) {
-                    reportError(n, "Using clause arguments must be 01 or 77 levels only.");
+                    throw new ErrorInCobolSourceException(n, "Using clause arguments must be 01 or 77 levels only.");
                 }
                 if (!props.isLinkageSection()) {
-                    reportError(n, "Using clause arguments must be defined in Linkage Section only.");
+                    throw new ErrorInCobolSourceException(n, "Using clause arguments must be defined in Linkage Section only.");
                 }
                 setRef(props);
                 setMod(props);
@@ -675,7 +674,12 @@ public class CobolFillTable extends DepthFirstVisitor {
                 continue;
             }
             props=props2.getChildren().get(0);
-            doRedefines(par);
+            
+            try {
+                doRedefines(par);
+            } catch (ErrorInCobolSourceException e) {
+                throw new ErrorInCobolSourceException(n, e.getMessage());
+            }
         }
     }
     private boolean doingLinkageSection = false;
@@ -816,7 +820,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         if (props.getLevelNumber() == 78) {
             createIndexSymbol(dataName, SymbolTable.getInstance().getCurrentProgram(), false);
             if (props.getValues() == null || props.getValues().size() <= 0) {
-                reportError(n, "78 level VALUE must not be null.");
+                throw new ErrorInCobolSourceException(n, "78 level VALUE must not be null.");
             }
             return;
         }
@@ -873,7 +877,11 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
             addChild(props, parent);
             props.setIsSuppressed(false);
-            doRedefines(parent);
+            try {
+                doRedefines(parent);
+            } catch (ErrorInCobolSourceException e) {
+                throw new ErrorInCobolSourceException(n, e.getMessage());
+            }
             doVaryingPicture();
         }
 
@@ -1037,7 +1045,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @SuppressWarnings("unused")
-    private void doRedefines(SymbolProperties par) {
+    private void doRedefines(SymbolProperties par) throws ErrorInCobolSourceException {
         SymbolProperties data2;
         if (par.isFile() && par.getChildren().size() > 1) {
             data2 = par.getChildren().get(0);
@@ -1054,8 +1062,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         if (data2 == null);//TODO Semantic error
         else {
         	if (data2.isOccurs()) {
-        		System.out.println("Occurs field cannot be redefined.");
-        		System.exit(0);
+        	    throw new ErrorInCobolSourceException("Occurs field cannot be redefined.");
         	}
             props.setRedefines(data2);
 //            setForceByte(props);
@@ -1188,7 +1195,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
     }
 
-    private void createProgram(String name, boolean isEntry) {
+    private void createProgram(String name, boolean isEntry) throws Exception {
 
         props = new SymbolProperties();
         props.setDataName(name);
@@ -1222,9 +1229,8 @@ public class CobolFillTable extends DepthFirstVisitor {
             symbol =
                     SymbolTable.getInstance().lookup(name, (String) parent.getDataName());
             if (symbol != null) {
-                reportError("*** Error: Duplicate Symbol"
+                throw new ErrorInCobolSourceException("*** Error: Duplicate Symbol"
                         + (String) props.getDataName() + " IN " + parent.getDataName());
-                return;
             } else {
                 props.setParent(parent);
                 addChild(props, parent);
@@ -1232,9 +1238,8 @@ public class CobolFillTable extends DepthFirstVisitor {
         } else {
             symbol = SymbolTable.getInstance().lookup(name, SymbolConstants.DATA);
             if (symbol != null && props.getParent() == null) {
-                reportError("*** Error: Duplicate Symbol"
+                throw new ErrorInCobolSourceException("*** Error: Duplicate Symbol"
                         + (String) props.getDataName());
-                return;
             }
         }
         adjustSetJavaName(props);
@@ -1427,12 +1432,10 @@ public class CobolFillTable extends DepthFirstVisitor {
                 case 1:
                     tempprops = SymbolTable.getInstance().lookup(lastTokenString);
                     if (tempprops == null) {
-                        reportError(n, "Unknown Symbol :" + lastTokenString);
-                        return;
+                        throw new ErrorInCobolSourceException(n, "Unknown Symbol :" + lastTokenString);
                     }
                     if (tempprops.getValues() == null || tempprops.getValues().size() <= 0) {
-                        reportError(n, "May not be used in OCCUSRS. No VALUE in Symbol :" + lastTokenString);
-                        return;
+                        throw new ErrorInCobolSourceException(n, "May not be used in OCCUSRS. No VALUE in Symbol :" + lastTokenString);
                     }
                     integerConstant = Integer.parseInt(tempprops.getValues().get(0).value1.toString());
             }
@@ -1446,12 +1449,10 @@ public class CobolFillTable extends DepthFirstVisitor {
                 case 1:
                     tempprops = SymbolTable.getInstance().lookup(lastTokenString);
                     if (tempprops == null) {
-                        reportError(n, "Unknown Symbol :" + lastTokenString);
-                        return;
+                        throw new ErrorInCobolSourceException(n, "Unknown Symbol :" + lastTokenString);
                     }
                     if (tempprops.getValues() == null || tempprops.getValues().size() <= 0) {
-                        reportError(n, "May not be used in OCCUSRS. No VALUE in Symbol :" + lastTokenString);
-                        return;
+                        throw new ErrorInCobolSourceException(n, "May not be used in OCCUSRS. No VALUE in Symbol :" + lastTokenString);
                     }
                     integerConstant = Integer.parseInt(tempprops.getValues().get(0).value1.toString());
             }
@@ -1467,12 +1468,10 @@ public class CobolFillTable extends DepthFirstVisitor {
                 case 1:
                     tempprops = SymbolTable.getInstance().lookup(lastTokenString);
                     if (tempprops == null) {
-                        reportError(n, "Unknown Symbol :" + lastTokenString);
-                        return;
+                        throw new ErrorInCobolSourceException(n, "Unknown Symbol :" + lastTokenString);
                     }
                     if (tempprops.getValues() == null || tempprops.getValues().size() <= 0) {
-                        reportError(n, "May not be used in OCCURS. No VALUE in Symbol :" + lastTokenString);
-                        return;
+                        throw new ErrorInCobolSourceException(n, "May not be used in OCCURS. No VALUE in Symbol :" + lastTokenString);
                     }
                     integerConstant = Integer.parseInt(tempprops.getValues().get(0).value1.toString());
             }
@@ -1607,8 +1606,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         
         n.qualifiedDataName.accept(this);
         if (props.getLevelNumber() < 2 || props.getLevelNumber() > 50) {
-        	System.out.println("RENAMES cannot reference level 01 or > 50");
-        	System.exit(0);
+            throw new ErrorInCobolSourceException(n, "RENAMES cannot reference level 01 or > 50");
         }
         tempProps.setRedefinedBy(new ArrayList<SymbolProperties>());
         tempProps.getRedefinedBy().add(props);
@@ -1621,17 +1619,20 @@ public class CobolFillTable extends DepthFirstVisitor {
             n.nodeOptional.accept(this);
             
             if (props.getLevelNumber() < 2 || props.getLevelNumber() > 50) {
-            	System.out.println("RENAMES cannot reference level 01 or > 50");
-            	System.exit(0);
+                throw new ErrorInCobolSourceException(n, "RENAMES cannot reference level 01 or > 50");
             }
             
             SymbolProperties to = props;
 
             if (from == to) {
-            	System.out.println("Invalid THROUGH clause, same data name: " + from.getDataName());
+                throw new ErrorInCobolSourceException(n, "Invalid THROUGH clause, same data name: " + from.getDataName());
             }
             
-            setForceByte(from, to);
+            try {
+                setForceByte(from, to);
+            } catch (Exception e) {
+                throw new ErrorInCobolSourceException(n, e.getMessage());
+            }
             
             tempProps.getRedefinedBy().add(props);
             
@@ -1644,7 +1645,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         props = tempProps;
     }
 
-    private void setForceByte(SymbolProperties from, SymbolProperties to) {
+    private void setForceByte(SymbolProperties from, SymbolProperties to) throws Exception {
     	SymbolProperties parFrom, parTo;
     	parFrom = from;
     	while (parFrom.getLevelNumber() != 1) {
@@ -1656,8 +1657,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     	}
     	
     	if (parFrom != parTo) {
-    		System.out.println("Invalid RENAMES clause. Must reference items within level-01 entry: " + to.getDataName());
-    		System.exit(0);
+    	    throw new ErrorInCobolSourceException("Invalid RENAMES clause. Must reference items within level-01 entry: " + to.getDataName());
     	}
     	
     	if (parFrom.isForceCobolBytes())
@@ -1828,14 +1828,12 @@ public class CobolFillTable extends DepthFirstVisitor {
                     props2 = SymbolTable.getInstance().lookup(curr, prev);
                 }
                 if (props2 == null) {
-                    reportError(n, "Unknown Symbol : " + curr + " IN " + prev);
-                    break;
+                    throw new ErrorInCobolSourceException((RESNode)n, "Unknown Symbol : " + curr + " IN " + prev);
                 }
             } else {
                 props2 = SymbolTable.getInstance().lookup(curr);
                 if (props2 == null) {
-                    reportError(n, "Unknown Symbol : " + curr);
-                    break;
+                    throw new ErrorInCobolSourceException((RESNode) n, "Unknown Symbol : " + curr);
                 }
             }
             lastTokenString = curr;
@@ -2250,7 +2248,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             setRef(props);
             n.nodeChoice.accept(this);
         } else {
-            reportError(n, props.getDataName() + " :Inspect Statement Data name must be Group or Alphannumeric.");
+            throw new ErrorInCobolSourceException(n, props.getDataName() + " :Inspect Statement Data name must be Group or Alphannumeric.");
         }
     }
 
@@ -2274,31 +2272,17 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
     }
 
-    public void reportError(Node n, String msg) {
-        isStatementInError = true;
-        RESConfig.getInstance().setInError(true);
-        System.out.println("@CobolSourceFile(\"" + ((RESNode) n).sourceFile + "\"," + String.valueOf(firstTokenInStatement.beginLine) + "):" + msg);
-    }
-
-    public void reportError(String msg) {
-        isStatementInError = true;
-        RESConfig.getInstance().setInError(true);
-        System.out.println("@CobolSourceFile():" + msg);
-    }
-
     private void doInspectPhrase1(Node n) throws Exception {
         props = null;
         literal = null;
         n.accept(this);
         if (props != null) {
             if (!isGroupOrAlphanumeric(props)) {
-                reportError(n, props.getDataName() + " :Inspect pharase must specify a group or alphanumeric");
-                return;
+                throw new ErrorInCobolSourceException((RESNode)n, props.getDataName() + " :Inspect pharase must specify a group or alphanumeric");
             } else if (isStatementInError) {
                 return;
             }
             setRef(props);
-        } else {
         }
     }
 
@@ -2308,8 +2292,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             NodeSequence seq = (NodeSequence) e.nextElement();
             seq.elementAt(0).accept(this);
             if (!isIntegerElement(props)) {
-                reportError(n, props.getDataName() + " :Inspect Statement Tallying Counter must be an Integer element");
-                return;
+                throw new ErrorInCobolSourceException(n, props.getDataName() + " :Inspect Statement Tallying Counter must be an Integer element");
             }
             setMod(props);
             NodeList nodelist = (NodeList) seq.elementAt(2);
@@ -2730,7 +2713,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(OrganizationClause n) throws Exception {
         if (props == null) {
-            reportError(n, "Unknown Symbol: " + lastTokenString);
+            throw new ErrorInCobolSourceException(n, "Unknown Symbol: " + lastTokenString);
         } else {
             props.setDataUsage((byte) n.nodeChoice.which);
         }
@@ -2882,7 +2865,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             if (!doUseStatementsInDeclaratives) {
                 ((SectionHeader) nodeseq.elementAt(0)).accept(this);
                 if ((sectionProps = createSection()) == null) {
-                    reportError(n, "Duplicate Section in Declaratives: " + sectionName);
+                    throw new ErrorInCobolSourceException(n, "Duplicate Section in Declaratives: " + sectionName);
                 }
                 nodeseq.elementAt(4).accept(this);
             } else {
@@ -2895,10 +2878,10 @@ public class CobolFillTable extends DepthFirstVisitor {
     public void visit(SearchStatement n) throws Exception {
         n.qualifiedDataName.accept(this);
         if (!props.isOccurs()) {
-            reportError(n, "Search Statement is valid only on tables with Occurs clause.");
+            throw new ErrorInCobolSourceException(n, "Search Statement is valid only on tables with Occurs clause.");
         }
         if (props.getMajorIndex() == null) {
-            reportError(n, "Search Statement is valid only on tables with INDEXED BY.");
+            throw new ErrorInCobolSourceException(n, "Search Statement is valid only on tables with INDEXED BY.");
         }
         setRef(props);
         props = null;

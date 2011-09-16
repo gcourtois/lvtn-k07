@@ -1,4 +1,7 @@
 package com.res.common.exceptions;
+
+import com.res.cobol.RESNode;
+
 /*****************************************************************************
 Copyright 2009 Venkat Krishnamurthy
 This file is part of RES.
@@ -21,15 +24,12 @@ along with RES.  If not, see <http://www.gnu.org/licenses/>.
 
 @SuppressWarnings("serial")
 public class ErrorInCobolSourceException extends Exception {
-
-	private String message=null;
 	
 	public ErrorInCobolSourceException(String msg) {
-		this.message=msg;
+	    super(msg);
 	}
 	
-	public String getMessage() {
-		return this.message;
+	public ErrorInCobolSourceException(RESNode n, String msg) {
+	    super(String.format("(%s:%s):%s", n.sourceFile, n.line, msg));
 	}
-	
 }
