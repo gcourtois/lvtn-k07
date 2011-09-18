@@ -374,20 +374,12 @@ public class SymbolProperties implements Cloneable {
         this.noOccursSubscripts = noOccursSubscripts;
     }
 
-    public void setMaxMaxLen(int maxMaxLen) {
-        this.maxMaxLen = maxMaxLen;
+    public void setAdjustedOffset(int adjustedOffset) {
+        this.adjustedOffset = adjustedOffset;
     }
 
-    public int getMaxMaxLen() {
-        return maxMaxLen;
-    }
-
-    public void setUnAdjustedOffset(int unAdjustedOffset) {
-        this.unAdjustedOffset = unAdjustedOffset;
-    }
-
-    public int getUnAdjustedOffset() {
-        return unAdjustedOffset;
+    public int getAdjustedOffset() {
+        return adjustedOffset;
     }
 
     public boolean isAParentInOccurs() {
@@ -583,9 +575,8 @@ public class SymbolProperties implements Cloneable {
     private ArrayList<SymbolProperties> indexedByOccurs;
     private ArrayList<SymbolProperties> OccursParents;
     private int noOccursSubscripts;
-    private int maxMaxLen;
     private int otherData1;
-    private int unAdjustedOffset;
+    private int adjustedOffset;
     private String otherName;
     private Object otherData2;
     private ArrayList<Object> otherData;

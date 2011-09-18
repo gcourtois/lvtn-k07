@@ -2,6 +2,7 @@ package com.res.java.translation.symbol;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 import com.res.cobol.syntaxtree.Node;
@@ -223,6 +224,38 @@ public class SymbolTable {
 
 	SymbolProperties ret = null;
 
+	public List<SymbolProperties> findAll(String key) {
+	    List<SymbolProperties> listResult = new ArrayList<SymbolProperties>();
+        key = key.toUpperCase();
+        int loc = hash(key);
+        for (SymbolCell s = symbol_table[loc]; s != null; s = s.next)
+            if (s.name.equalsIgnoreCase(key)) {
+                listResult.add(cloneSymbol(s.binding));
+            }
+        return listResult;
+	}
+	
+	public List<SymbolProperties> findAll(String key, String parentName) {
+	    List<SymbolProperties> listResult = new ArrayList<SymbolProperties>();
+	    if (parentName == null || parentName == "")
+	        return null;
+	    key = key.toUpperCase();
+	    parentName = parentName.toUpperCase();
+	    int loc = hash(key);
+	    for (SymbolCell s = symbol_table[loc]; s != null; s = s.next) {
+	        if (s.name.equalsIgnoreCase(key)) {
+	            SymbolProperties parent = s.binding;
+	            while ((parent = parent.getParent()) != null) {
+	                if (parent.getDataName().equalsIgnoreCase(parentName)) {
+	                    listResult.add(cloneSymbol(s.binding));
+	                }
+	            }
+	        }
+        }
+	    
+	    return listResult;
+	}
+	
 	/* lookup for an item in the symbol table */
 	public SymbolProperties lookup(String key) {
 		if ((getCurrentProgram() != null && (ret = lookup(key,
@@ -343,18 +376,14 @@ public class SymbolTable {
 					System.out.print("DATA=" + c.name);
 					if (o2 != null)
 						System.out.print(" Parent=" + o2.getDataName());
-					System.out.print(" QName= " + o1.getQualifiedName());
-					System.out.print(" TYPE=" + symbolType[o1.getType()]);
-					int i1;
-					i1 = o1.getLevelNumber();
-					System.out.print(" LEVEL=" + i1);
-					i1 = o1.getOffset();
-					System.out.print(" Offset=" + i1);
-					System.out.print(" UOffset=" + o1.getUnAdjustedOffset());
-					i1 = o1.getLength();
-					System.out.print(" Length=" + i1);
-					i1 = o1.getDataUsage();
-					System.out.print(" USAGE=" + usage[i1]);
+//					System.out.print(" QName= " + o1.getQualifiedName());
+//					System.out.print(" TYPE=" + symbolType[o1.getType()]);
+					System.out.print(" LEVEL=" + o1.getLevelNumber());
+					System.out.print(" Offset=" + o1.getOffset());
+					System.out.print(" AdjustOffset=" + o1.getAdjustedOffset());
+					System.out.print(" Length=" + o1.getLength());
+					System.out.print(" AdjustLength=" + o1.getAdjustedLength());
+					System.out.print(" USAGE=" + usage[o1.getDataUsage()]);
 					System.out.print(" DATACAT= " + dataCat[o1.getDataCategory()]);
 					System.out.print(" JavaType = " + javaType[o1.getCobolDesc().getTypeInJava()]);
 					String p1 = null;
@@ -403,7 +432,7 @@ public class SymbolTable {
 			}
 	}
 
-	public static void visit(SymbolProperties props, Visitor visitor) {
+	public static void visit(SymbolProperties props, Visitor visitor) throws Exception {
 		/*if (props.isProgram()
 				&& !SymbolTable.getInstance().isCurrentProgram(props)
 				|| props.getType() == SymbolConstants.PARAGRAPH
@@ -443,7 +472,7 @@ public class SymbolTable {
 	}
 
 	public static void visit(ArrayList<SymbolProperties> children,
-			Visitor visitor) {
+			Visitor visitor) throws Exception {
 		// visit children
 		if (children != null) {
 			for (SymbolProperties child : children) {

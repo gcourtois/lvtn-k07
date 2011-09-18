@@ -118,7 +118,7 @@ public class DataPrinter {
 		if (props.getChildren() == null || props.getChildren().size() == 0)
 			return;
 		for (SymbolProperties p : props.getChildren()) {
-			if (p.getType() != SymbolConstants.DATA || p.isFromRESLibrary() || !(p.getMod() || p.getRef())) {
+			if (p.getType() != SymbolConstants.DATA || p.isFromRESLibrary() ) { //|| !(p.getMod() || p.getRef())) {
 				continue;
 			}
 			short lvNumber = p.getLevelNumber();
@@ -187,6 +187,7 @@ public class DataPrinter {
 			innerGroupToCreate.add(props);
 		}
 		
+		boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
 		String argName = "input";
 		
 		if (props.isOccurs()) {
@@ -196,117 +197,118 @@ public class DataPrinter {
 							.getJavaName2(), props.getJavaName1(),
 					props.getMaxOccursInt()));
 			
-			if (props.getLength() > 0) { // use byte
-				printer.println("{");
-				printer.increaseIndent();
-				
-				// loop to initialize each group
-				printer.println(String.format("for (int i = 0; i < %d; i++) {", props.getMaxOccursInt()));
-				printer.increaseIndent();
-				
-				String offset = "";
-				if (props.getUnAdjustedOffset() == props.getOffset()) {
-					offset = String.format("%s + i * %s", props.getOffset(), props.getLength());
-				} else if (props.getUnAdjustedOffset() == 0) {
-					offset = String.format("this.offset + i * %s", props.getLength());
-				} else {
-					offset = String.format("this.offset + %s + i * %s", props.getUnAdjustedOffset(), props.getLength());
-				}
-				
-				printer.println(String.format("%1$s[i] = new %2$s(this.getBytes(), %4$s, %3$d);",
-									props.getJavaName1(),
-									props.getJavaName2(),
-									props.getLength(),
-									offset));
-				
-				printer.decreaseIndent();
-				printer.println("}");
-				
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				// end loop
-				
-				String indexName = "i";				
-				// getter
-				printer.println(String.format("public %1$s get%1$s(int %2$s) {", props.getJavaName2(), indexName));
-				printer.increaseIndent();
-				printer.println(String.format("return this.%s[%s];", props.getJavaName1(), indexName));
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				
-				// setter
-				printer.println(String.format("public void set%s(int %s, String %s) {", props.getJavaName2(), indexName, argName));
-				printer.increaseIndent();
-				printer.println(setValueMethodName(props, argName, true, indexName) + ";");
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				
-			} else { // use java types
+			if (useJava && props.getAdjustedLength() == 0) {
+			    // use Java type when possible
 			    
 			    // loop to initialize each group
-				printer.println("{");
-				printer.increaseIndent();
-				printer.println(String.format("for (%1$s e_ : %2$s) {",
-						props.getJavaName2(), props.getJavaName1()));
-				printer.increaseIndent();
-				printer.println(String.format("e_ = new %1$s();", props
-						.getJavaName2()));
-				printer.decreaseIndent();
-				printer.println("}");
-				
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				// end loop
-				// create getter, setter with index
-			}
-			
-		} else {
-			if (props.getLength() > 0) { // use byte
-				/*printer.println("//create field for group "
-						+ props.getDataName());
-				printer.println("//Offset = "
-						+ props.getOffset() + " length = "
-						+ props.getLength());*/
+			    printer.println("{");
+			    printer.increaseIndent();
 			    
-			    // create field
-				printer.println(String.format("private %1$s %2$s = new %1$s(this.getBytes(), %3$d, %4$d);",
-										props.getJavaName2(),
-										props.getJavaName1(),
-										props.getOffset(),
-										props.getLength()));
-				
-				printer.println();
-				
-				// create getter
-				printer.println(String.format("public %1$s get%1$s() {",
-						props.getJavaName2()));
-				printer.increaseIndent();
-				printer.println(String.format("return this.%s;", props
-						.getJavaName1()));
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				
-				// create setter
-				printer.println(String.format(
-						"public void set%s(String %s) {", props.getJavaName2(), argName));
-				printer.increaseIndent();
-				printer.println(setValueMethodName(props, argName, false, null) + ";");
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				
-			} else { // use java types
-				printer.println(String.format(
-						"private %1$s %2$s = new %1$s();", props
-								.getJavaName2(), props.getJavaName1()));
-				
-				// create getter, setter
+			    printer.println(String.format("for (%1$s e_ : %2$s) {",
+			            props.getJavaName2(), props.getJavaName1()));
+			    printer.increaseIndent();
+			    printer.println(String.format("e_ = new %1$s();", props
+			            .getJavaName2()));
+			    printer.decreaseIndent();
+			    printer.println("}");
+
+			    printer.decreaseIndent();
+			    printer.println("}");
+			    printer.println();
+			    // end loop
+			    // create getter, setter with index
+			} else { // use byte[]
+			    printer.println("{");
+                printer.increaseIndent();
+                
+                // loop to initialize each group
+                printer.println(String.format("for (int i = 0; i < %d; i++) {", props.getMaxOccursInt()));
+                printer.increaseIndent();
+                
+                String offset = "";
+                if (!props.isAParentInOccurs()) {
+                    if (props.getOffset() == 0) {
+                        offset = String.format("i * %s", props.getLength());
+                    } else {
+                        offset = String.format("%s + i * %s", props.getOffset(), props.getLength());
+                    }
+                } else if (props.getAdjustedOffset() == 0) {
+                    offset = String.format("this.offset + i * %s", props.getLength());
+                } else {
+                    offset = String.format("this.offset + %s + i * %s", props.getAdjustedOffset(), props.getLength());
+                }
+                
+                printer.println(String.format("%1$s[i] = new %2$s(this.getBytes(), %4$s, %3$d);",
+                                    props.getJavaName1(),
+                                    props.getJavaName2(),
+                                    props.getLength(),
+                                    offset));
+                
+                printer.decreaseIndent();
+                printer.println("}");
+                
+                printer.decreaseIndent();
+                printer.println("}");
+                printer.println();
+                // end loop
+                
+                String indexName = "i";             
+                // getter
+                printer.println(String.format("public %1$s get%1$s(int %2$s) {", props.getJavaName2(), indexName));
+                printer.increaseIndent();
+                printer.println(String.format("return this.%s[%s];", props.getJavaName1(), indexName));
+                printer.decreaseIndent();
+                printer.println("}");
+                printer.println();
+                
+                // setter
+                printer.println(String.format("public void set%s(int %s, String %s) {", props.getJavaName2(), indexName, argName));
+                printer.increaseIndent();
+                printer.println(setValueMethodName(props, argName, true, indexName) + ";");
+                printer.decreaseIndent();
+                printer.println("}");
+                printer.println();
 			}
+		} else {
+		    if (useJava && props.getAdjustedLength() == 0) {
+		        // use Java type when possible
+		        
+		        printer.println(String.format(
+                        "private %1$s %2$s = new %1$s();", props
+                                .getJavaName2(), props.getJavaName1()));
+                
+                // create getter, setter
+		    } else {
+		        // use byte array
+
+		        // create field
+		        printer.println(String.format("private %1$s %2$s = new %1$s(this.getBytes(), %3$d, %4$d);",
+		                props.getJavaName2(),
+		                props.getJavaName1(),
+		                props.getOffset(),
+		                props.getLength()));
+
+		        printer.println();
+
+		        // create getter
+		        printer.println(String.format("public %1$s get%1$s() {",
+		                props.getJavaName2()));
+		        printer.increaseIndent();
+		        printer.println(String.format("return this.%s;", props
+		                .getJavaName1()));
+		        printer.decreaseIndent();
+		        printer.println("}");
+		        printer.println();
+
+		        // create setter
+		        printer.println(String.format(
+		                "public void set%s(String %s) {", props.getJavaName2(), argName));
+		        printer.increaseIndent();
+		        printer.println(setValueMethodName(props, argName, false, null) + ";");
+		        printer.decreaseIndent();
+		        printer.println("}");
+		        printer.println();
+		    }
 		}
 	}
 
@@ -314,28 +316,34 @@ public class DataPrinter {
 			JavaCodePrinter printer) {
 		
 	    CobolDataDescription desc = props.getCobolDesc();
-		String type = javaType[desc.getTypeInJava()];
-		String argName = "input";
+        String type = javaType[desc.getTypeInJava()];
+        String argName = "input";
 		
 		boolean doEdit = false;
 		if (desc.getDataCategory() == Constants.ALPHANUMERIC_EDITED
                 || desc.getDataCategory() == Constants.NUMERIC_EDITED) {
-		    doEdit = true;
-		    printer.println(String.format(
-                    "private EditedVar %s = new EditedVar(\"%s\", (byte) %s, %s);", props
-                            .getJavaName1(), desc.getPic(), desc
-                            .getDataCategory(), desc.isJustifiedRight()));
-		}		
+            doEdit = true;
+            printer.println(
+                    String.format("private EditedVar %s = new EditedVar(\"%s\", (byte) %s, %s);",
+                                    props.getJavaName1(), desc.getPic(), desc
+                                            .getDataCategory(), desc
+                                            .isJustifiedRight()));
+        }
+		
+		boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
 		if (props.isOccurs()) {
-			if (props.getLength() > 0) {
-				// create getter setter with index
-				/*printer
-						.println("//Create getter, setter with index for "
-								+ props.getDataName());
-				printer.println("//Each element length: "
-						+ props.getLength());*/
-				
-				String indexName = "i";
+		    if (useJava && props.getAdjustedLength() == 0) {
+		        // use java type when possible
+		        printer.println(String.format(
+						"private %1$s %2$s[] = new %1$s[%3$d];", type,
+						props.getJavaName2(), props.getMaxOccursInt()));
+
+				// create getter, setter with index
+				printer.println("//Create getter, setter for "
+						+ props.getDataName());
+		    } else {
+		        // use byte array
+		        String indexName = "i";
 				
 				//getter
 				printer.println(String.format("public %s get%s(int %s) {", type, props.getJavaName2(), indexName));
@@ -355,27 +363,22 @@ public class DataPrinter {
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
-				
-			} else {
-				// use java type, so create new array field
-				printer.println(String.format(
-						"private %1$s %2$s[] = new %1$s[%3$d];", type,
-						props.getJavaName2(), props.getMaxOccursInt()));
-
-				// create getter, setter with index
-				printer.println("//Create getter, setter for "
-						+ props.getDataName());
-			}
+		    }
+			
 		} else {
+		    if (useJava && props.getAdjustedLength() == 0) {
+		        // use java type when possible
+		        // create field first
+		        printer.println("//Create field for "
+		                + props.getDataName());
 
-			if (props.getLength() > 0) {// use byte
-				/*printer.println("//Create getter, setter for "
-						+ props.getDataName() + " pic = " + props.getPictureString());
-				printer.println("//Offset = "
-						+ props.getOffset() + " length = "
-						+ props.getLength());*/
-				
-				//getter
+		        // create getter, setter
+		        printer.println("//Create getter, setter for"
+		                + props.getDataName());
+		        printer.println("//Use Java type");
+		    } else {
+		        // use byte array
+		        //getter
 				printer.println(String.format("public %s get%s() {", type, props.getJavaName2()));
 				printer.increaseIndent();
 				printer.println("return " + getValueMethodName(props, false, null) + ";");
@@ -393,18 +396,7 @@ public class DataPrinter {
 				printer.decreaseIndent();
 				printer.println("}");
 				printer.println();
-				
-			} else {// use java types
-			    
-				// create field first
-				printer.println("//Create field for "
-						+ props.getDataName());
-				
-				// create getter, setter
-				printer.println("//Create getter, setter for"
-						+ props.getDataName());
-				printer.println("//Use Java type");
-			}
+		    }
 		}
 	}
 	
@@ -433,23 +425,24 @@ public class DataPrinter {
 		byte usage = desc.getUsage();
 		
 		String offsetWithIndex = "";
-		if (props.getUnAdjustedOffset() == props.getOffset()) {
-			if (props.getOffset() == 0) {
+		if (!props.isAParentInOccurs()) {
+		    // child of first 01 group
+			if (props.getOffset() == 0) { // first child
 				offsetWithIndex = String.format("%s * %s", indexArg, props.getLength());
-			} else
+			} else // other childs
 				offsetWithIndex = String.format("%s + %s * %s", props.getOffset(), indexArg, props.getLength());
-		} else if (props.getUnAdjustedOffset() == 0) {
+		} else if (props.getAdjustedOffset() == 0) {
 			offsetWithIndex = String.format("this.offset + %s * %s", indexArg, props.getLength());
 		} else {
-			offsetWithIndex = String.format("this.offset + %s + %s * %s", props.getUnAdjustedOffset(), indexArg, props.getLength());
+			offsetWithIndex = String.format("this.offset + %s + %s * %s", props.getAdjustedOffset(), indexArg, props.getLength());
 		}
 		
 		String offsetWithoutIndex = "";
 		if (props.isAParentInOccurs()) {
-			if (props.getUnAdjustedOffset() == 0) {
+			if (props.getAdjustedOffset() == 0) {
 				offsetWithoutIndex = "this.offset";
 			} else {
-				offsetWithoutIndex = "this.offset + " + props.getUnAdjustedOffset();
+				offsetWithoutIndex = "this.offset + " + props.getAdjustedOffset();
 			}
 		} else {
 			offsetWithoutIndex = "" + props.getOffset();
@@ -547,23 +540,23 @@ public class DataPrinter {
 		byte usage = desc.getUsage();
 		
 		String offsetWithIndex = "";
-		if (props.getUnAdjustedOffset() == props.getOffset()) {
+		if (!props.isAParentInOccurs()) {
 			if (props.getOffset() == 0) {
 				offsetWithIndex = String.format("%s * %s", indexArg, props.getLength());
 			} else
 				offsetWithIndex = String.format("%s + %s * %s", props.getOffset(), indexArg, props.getLength());
-		} else if (props.getUnAdjustedOffset() == 0) {
+		} else if (props.getAdjustedOffset() == 0) {
 			offsetWithIndex = String.format("this.offset + %s * %s", indexArg, props.getLength());
 		} else {
-			offsetWithIndex = String.format("this.offset + %s + %s * %s", props.getUnAdjustedOffset(), indexArg, props.getLength());
+			offsetWithIndex = String.format("this.offset + %s + %s * %s", props.getAdjustedOffset(), indexArg, props.getLength());
 		}
 		
 		String offsetWithoutIndex = "";
 		if (props.isAParentInOccurs()) {
-			if (props.getUnAdjustedOffset() == 0) {
+			if (props.getAdjustedOffset() == 0) {
 				offsetWithoutIndex = "this.offset";
 			} else {
-				offsetWithoutIndex = "this.offset + " + props.getUnAdjustedOffset();
+				offsetWithoutIndex = "this.offset + " + props.getAdjustedOffset();
 			}
 		} else {
 			offsetWithoutIndex = "" + props.getOffset();

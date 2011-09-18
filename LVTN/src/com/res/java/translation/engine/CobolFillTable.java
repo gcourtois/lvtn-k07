@@ -902,8 +902,8 @@ public class CobolFillTable extends DepthFirstVisitor {
         
         if (parent != null) {
         	boolean exist = false;
-        	String name = props.getDataName();
-        	for (String s : parent.getQualifiedName().split(".")) {
+        	String name = props.getJavaName2();
+        	for (String s : parent.getQualifiedName().split("\\.")) {
         		if (s.equalsIgnoreCase(name)) {
         			exist = true;
         			break;
@@ -911,8 +911,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         		continue;
         	}
         	if (exist) {
-        		System.err.println("Duplicate name exist in parent group: " + props.getDataName());
-        		System.exit(0);
+        	    throw new ErrorInCobolSourceException(n, "Duplicate name exist in parent group: " + props.getDataName());
         	}
         }
         
@@ -922,15 +921,13 @@ public class CobolFillTable extends DepthFirstVisitor {
         
         if (tmp != null && tmp.getType() == SymbolConstants.DATA) {
         	if (parent == null) {
-        		System.err.println("Duplicate data name: " + props.getDataName());
-        		System.exit(0);
+        	    throw new ErrorInCobolSourceException(n, "Duplicate data name: " + props.getDataName());
         	} else {
         		String qName = parent.getQualifiedName() + "." + props.getJavaName2();
         		if (qName.equalsIgnoreCase(tmp.getQualifiedName())) {
-        			System.err.println("Duplicate data name: "
+        			throw new ErrorInCobolSourceException(n, "Duplicate data name: "
 							+ props.getDataName() + " in "
 							+ parent.getDataName());
-        			System.exit(0);
         		}
         	}
         }
@@ -1074,6 +1071,10 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
             a.add(props);
             data2.setRedefinedBy(a);
+            SymbolProperties tmp = data2;
+            while ((tmp = tmp.getRedefines()) != null) {
+                tmp.getRedefinedBy().add(props);
+            }
             while (par != null && par.getType() != SymbolConstants.PROGRAM && par.getLevelNumber() != 1 && par.getLevelNumber() != 77) {
                 par = par.getParent();
             }
@@ -1229,7 +1230,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             symbol =
                     SymbolTable.getInstance().lookup(name, (String) parent.getDataName());
             if (symbol != null) {
-                throw new ErrorInCobolSourceException("*** Error: Duplicate Symbol"
+                throw new ErrorInCobolSourceException("Duplicate symbol"
                         + (String) props.getDataName() + " IN " + parent.getDataName());
             } else {
                 props.setParent(parent);
@@ -1238,7 +1239,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         } else {
             symbol = SymbolTable.getInstance().lookup(name, SymbolConstants.DATA);
             if (symbol != null && props.getParent() == null) {
-                throw new ErrorInCobolSourceException("*** Error: Duplicate Symbol"
+                throw new ErrorInCobolSourceException("Duplicate symbol"
                         + (String) props.getDataName());
             }
         }
@@ -1435,7 +1436,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                         throw new ErrorInCobolSourceException(n, "Unknown Symbol :" + lastTokenString);
                     }
                     if (tempprops.getValues() == null || tempprops.getValues().size() <= 0) {
-                        throw new ErrorInCobolSourceException(n, "May not be used in OCCUSRS. No VALUE in Symbol :" + lastTokenString);
+                        throw new ErrorInCobolSourceException(n, "May not be used in OCCURS. No VALUE in Symbol :" + lastTokenString);
                     }
                     integerConstant = Integer.parseInt(tempprops.getValues().get(0).value1.toString());
             }
@@ -1452,7 +1453,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                         throw new ErrorInCobolSourceException(n, "Unknown Symbol :" + lastTokenString);
                     }
                     if (tempprops.getValues() == null || tempprops.getValues().size() <= 0) {
-                        throw new ErrorInCobolSourceException(n, "May not be used in OCCUSRS. No VALUE in Symbol :" + lastTokenString);
+                        throw new ErrorInCobolSourceException(n, "May not be used in OCCURS. No VALUE in Symbol :" + lastTokenString);
                     }
                     integerConstant = Integer.parseInt(tempprops.getValues().get(0).value1.toString());
             }
@@ -2065,19 +2066,19 @@ public class CobolFillTable extends DepthFirstVisitor {
         if (node.getChildren() == null) {
             return;
         }
-        boolean isToBe = node.getLevelNumber() == 1
-                || node.getPictureString() != null
-                || node.getLevelNumber() == 88
-                || node.getLevelNumber() == 66
-                || node.getLevelNumber() == 77;
+//        boolean isToBe = node.getLevelNumber() == 1
+//                || node.getPictureString() != null
+//                || node.getLevelNumber() == 88
+//                || node.getLevelNumber() == 66
+//                || node.getLevelNumber() == 77;
         for (SymbolProperties child : node.getChildren()) {
-            if (isToBe || child.getLevelNumber() == 1
-                    || child.getPictureString() != null
-                    || child.getLevelNumber() == 88
-                    || child.getLevelNumber() == 66
-                    || child.getLevelNumber() == 77) {
+//            if (isToBe || child.getLevelNumber() == 1
+//                    || child.getPictureString() != null
+//                    || child.getLevelNumber() == 88
+//                    || child.getLevelNumber() == 66
+//                    || child.getLevelNumber() == 77) {
                 ref(child);
-            }
+//            }
             propagateRefChildren(child);
         }
     }

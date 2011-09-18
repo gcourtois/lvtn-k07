@@ -66,7 +66,7 @@ public class FieldAttributes {
 		if (isNumber) {
 			switch (desc.getUsage()) {
 			case Constants.BINARY:
-				props.setAdjustedLength(len);
+//				props.setAdjustedLength(len);
 				if (len >= 1 && len <= 4) {
 					len = 2;
 				} else if (len >= 5 && len <= 9) {
@@ -79,7 +79,7 @@ public class FieldAttributes {
 					len = 0;
 				break;
 			case Constants.PACKED_DECIMAL:
-				props.setAdjustedLength(len);
+//				props.setAdjustedLength(len);
 				len = (len + 2) / 2;
 				/*int len2 = len;
 				len = len2 / 2;
@@ -93,7 +93,7 @@ public class FieldAttributes {
 					len = 0;*/
 				break;
 			case Constants.DISPLAY:
-				props.setAdjustedLength(len);
+//				props.setAdjustedLength(len);
 				if (desc.isSigned() && desc.isSignSeparate())
 					len++;
 				//				if (desc.isCurrency())
@@ -107,7 +107,7 @@ public class FieldAttributes {
 					len = 0;*/
 				break;
 			default:
-				props.setAdjustedLength(len);
+//				props.setAdjustedLength(len);
 			}
 		}/* else if (desc.getMaxStringLength() == 1)
 						desc.setTypeInJava(Constants.CHAR);*/

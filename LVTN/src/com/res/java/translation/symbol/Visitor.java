@@ -21,19 +21,19 @@ along with RES.  If not, see <http://www.gnu.org/licenses/>.
 
 public interface Visitor {
 
-	public void visitProgram(SymbolProperties props);
-	public void visitParagraph(SymbolProperties props);
-	public void visitFile(SymbolProperties props);
-	public void visitSection(SymbolProperties props);
-	public void visit01Group(SymbolProperties props);
-	public void visit01Element(SymbolProperties props);
-	public void visit77Element(SymbolProperties props);
-	public void visitInnerGroup(SymbolProperties props);	
-	public void visitInnerElement(SymbolProperties props);	
-	public void visit88Element(SymbolProperties props);	
-	public void visitPreprocess(SymbolProperties props);	
-	public void visitPostprocess(SymbolProperties props);	
-	public void visitChildPreprocess(SymbolProperties props);	
-	public void visitChildPostprocess(SymbolProperties props);	
+	public void visitProgram(SymbolProperties props) throws Exception;
+	public void visitParagraph(SymbolProperties props) throws Exception;
+	public void visitFile(SymbolProperties props) throws Exception;
+	public void visitSection(SymbolProperties props) throws Exception;
+	public void visit01Group(SymbolProperties props) throws Exception;
+	public void visit01Element(SymbolProperties props) throws Exception;
+	public void visit77Element(SymbolProperties props) throws Exception;
+	public void visitInnerGroup(SymbolProperties props) throws Exception;	
+	public void visitInnerElement(SymbolProperties props) throws Exception;	
+	public void visit88Element(SymbolProperties props) throws Exception;	
+	public void visitPreprocess(SymbolProperties props) throws Exception;	
+	public void visitPostprocess(SymbolProperties props) throws Exception;	
+	public void visitChildPreprocess(SymbolProperties props) throws Exception;	
+	public void visitChildPostprocess(SymbolProperties props) throws Exception;	
 	
 }

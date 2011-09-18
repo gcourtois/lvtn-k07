@@ -3,14 +3,21 @@ package com.res.java.translation.engine;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import com.res.cobol.syntaxtree.CobolWord;
 import com.res.cobol.syntaxtree.DataDivision;
+import com.res.cobol.syntaxtree.DataName;
 import com.res.cobol.syntaxtree.DisplayStatement;
 import com.res.cobol.syntaxtree.Identifier;
 import com.res.cobol.syntaxtree.Literal;
+import com.res.cobol.syntaxtree.Node;
+import com.res.cobol.syntaxtree.NodeListOptional;
+import com.res.cobol.syntaxtree.NodeOptional;
+import com.res.cobol.syntaxtree.NodeSequence;
 import com.res.cobol.syntaxtree.NodeToken;
 import com.res.cobol.syntaxtree.NonNumericConstant;
 import com.res.cobol.syntaxtree.Paragraph;
@@ -19,9 +26,11 @@ import com.res.cobol.syntaxtree.ProcedureBody;
 import com.res.cobol.syntaxtree.ProcedureSection;
 import com.res.cobol.syntaxtree.ProgramIdParagraph;
 import com.res.cobol.syntaxtree.ProgramUnit;
+import com.res.cobol.syntaxtree.QualifiedDataName;
 import com.res.cobol.syntaxtree.Sentence;
 import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
+import com.res.common.exceptions.ErrorInCobolSourceException;
 import com.res.java.lib.EditedVar;
 import com.res.java.lib.Program;
 import com.res.java.translation.symbol.SymbolConstants;
@@ -221,7 +230,12 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	
 	@Override
 	public Object visit(DisplayStatement n, Object o) throws Exception {
-	    return super.visit(n, o);
+	    n.nodeList.accept(this, null);
+	    
+	    if (n.nodeOptional1.present()) {
+	        
+	    }
+	    return null;
 	}
 	
 	public Object visit(Literal n, Object o) throws Exception {
@@ -233,6 +247,89 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	public Object visit(Identifier n, Object o) throws Exception {
+	    if (n.nodeChoice.which == 0) {
+	        NodeSequence sequence = (NodeSequence) n.nodeChoice.choice;
+	        
+	        // QualifiedDataName
+	        SymbolProperties props = (SymbolProperties) sequence.nodes.get(0).accept(this, null);
+	        
+	        // Subscript
+	        NodeListOptional subscript = (NodeListOptional) sequence.nodes.get(1);
+	        if (subscript.present()) {
+	            
+	        }
+	        
+	        // Reference modification
+	        NodeOptional refModification = (NodeOptional) sequence.nodes.get(2);
+	        if (refModification.present()) {
+	            
+	        }
+	    }
+	    return "";
+	}
+	
+	private SymbolProperties findParentWithName(SymbolProperties props, String name) {
+	    SymbolProperties parent = props;
+	    while ((parent = parent.getParent()) != null) {
+	        if (parent.getDataName().equalsIgnoreCase(name))
+	            return parent;
+	    }
 	    return null;
+	}
+	
+	@Override
+	public Object visit(QualifiedDataName n, Object o) throws Exception {
+	    String dataName = (String) n.nodeSequence.nodes.get(0).accept(this, null);
+	    SymbolTable symTable = SymbolTable.getInstance();
+	    NodeListOptional qualifiers = (NodeListOptional)n.nodeSequence.nodes.get(1);
+	    if (qualifiers.present()) {
+	        Queue<String> listQualifiers = new LinkedList<String>();
+	        for (Node q : qualifiers.nodes) {
+	            listQualifiers.add((String)((NodeSequence)q).nodes.get(1).accept(this, null));
+	        }
+
+	        List<SymbolProperties> listChild = symTable.findAll(dataName);
+	        List<SymbolProperties> listParent = new ArrayList<SymbolProperties>();
+	        
+	        StringBuilder path = new StringBuilder();
+	        
+	        while (listChild.size() > 0 && listQualifiers.size() > 0) {
+	            String parentName = listQualifiers.poll();
+	            path.append(" IN " + parentName);
+	            
+	            for (SymbolProperties child : listChild) {
+	                SymbolProperties parent = findParentWithName(child, parentName);
+	                if (parent != null) {
+	                    listParent.add(parent);
+	                }
+	            }
+	            
+	            listChild = listParent;
+	            listParent = new ArrayList<SymbolProperties>();
+	        }
+	        
+	        if (listQualifiers.size() == 0) {
+	            if (listChild.size() > 1) {
+	                throw new ErrorInCobolSourceException(n, "Ambiguous name: " + dataName + path.toString());
+	            } else if (listChild.size() == 0) {
+	                throw new ErrorInCobolSourceException(n, "Unknown identifier: " + dataName + path.toString());
+	            } else {
+	                return listChild.get(0);
+	            }
+	        } else {
+	            throw new ErrorInCobolSourceException(n, "Unknown identifier: " + dataName + path.toString());
+	        }
+	    } else {
+	        List<SymbolProperties> l = symTable.findAll(dataName);
+	        if (l.size() > 1) {
+	            throw new ErrorInCobolSourceException(n, "Ambiguous identifier " + dataName);
+	        }
+	        return l.get(0);
+	    }
+	}
+	
+	@Override
+	public Object visit(DataName n, Object o) {
+	    return n.cobolWord.nodeToken.tokenImage;
 	}
 }
