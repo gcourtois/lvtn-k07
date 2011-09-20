@@ -390,10 +390,8 @@ public class SymbolTable {
 					if ((p1 = (String) o1.getPictureString()) != null)
 						System.out.print(" PICTURE=" + p1);
 					System.out.print(" IN OCCURS=" + o1.isAParentInOccurs());
-					boolean b1 = o1.getRef();
-					System.out.print(" Ref=" + b1);
-					b1 = o1.getMod();
-					System.out.print(" Mod=" + b1);
+//					System.out.print(" Ref=" + o1.getRef());
+//					System.out.print(" Mod=" + o1.getMod());
 					/*b1 = o1.getIsSuppressed();
 					System.out.print(" IS_SUPRESSED=" + b1);*/
 					/*b1 = o1.getIsFormat();

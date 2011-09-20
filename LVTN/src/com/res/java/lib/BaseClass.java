@@ -289,7 +289,7 @@ public class BaseClass {
 
 
 	private long convertBCDToLong(int offset, int length, boolean signed) {
-		System.out.println("PREV " + this.printByteArray(data));
+//		System.out.println("PREV " + this.printByteArray(data));
 		boolean negate = false;
 		long result = 0;
 		for (int index = offset; index < offset + length; index++) {
@@ -430,7 +430,7 @@ public class BaseClass {
 		byte[] tempArray = new byte[length];
 		String displayString = "";
 		System.arraycopy(data, offset, tempArray, 0, length);
-		System.out.println("PREV " + this.printByteArray(tempArray));
+//		System.out.println("PREV " + this.printByteArray(tempArray));
 		if (length > 18) {
 			throw new OverflowException(
 					"Length of Bytes array is too Long > 18");
@@ -505,7 +505,7 @@ public class BaseClass {
 		}
 
 		try {
-			System.out.println("After " + this.printByteArray(tempArray));
+//			System.out.println("After " + this.printByteArray(tempArray));
 			displayString = displayString.trim();
 			if (displayString.length() == 0) {
 				result = 0;
@@ -534,7 +534,7 @@ public class BaseClass {
 		Charset ascii = Charset.forName("US-ASCII");
 		byte[] tempArray = new byte[length]; 
 		System.arraycopy(data, offset, tempArray, 0, length);
-		for (int i = offset; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			if (tempArray[i] == 0x00) {
 				tempArray[i] = 0x20;
 			} 

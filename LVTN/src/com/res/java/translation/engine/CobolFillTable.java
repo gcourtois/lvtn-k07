@@ -26,104 +26,7 @@ import java.util.Stack;
 
 import com.res.cobol.RESNode;
 import com.res.cobol.parser.CobolParserConstants;
-import com.res.cobol.syntaxtree.AcceptStatement;
-import com.res.cobol.syntaxtree.AccessModeClause;
-import com.res.cobol.syntaxtree.AddStatement;
-import com.res.cobol.syntaxtree.AlternateRecordKeyClause;
-import com.res.cobol.syntaxtree.ArithIdentifier;
-import com.res.cobol.syntaxtree.ArithmeticExpression;
-import com.res.cobol.syntaxtree.AssignClause;
-import com.res.cobol.syntaxtree.Basis;
-import com.res.cobol.syntaxtree.BeforeAfterPhrase;
-import com.res.cobol.syntaxtree.CallByContentArgs;
-import com.res.cobol.syntaxtree.CallByReferenceArgs;
-import com.res.cobol.syntaxtree.CallStatement;
-import com.res.cobol.syntaxtree.CancelStatement;
-import com.res.cobol.syntaxtree.CdName;
-import com.res.cobol.syntaxtree.ClassCondition;
-import com.res.cobol.syntaxtree.CommunicationIOClause;
-import com.res.cobol.syntaxtree.CommunicationInputClause;
-import com.res.cobol.syntaxtree.CommunicationOutputClause;
-import com.res.cobol.syntaxtree.CompilationUnit;
-import com.res.cobol.syntaxtree.ComputeStatement;
-import com.res.cobol.syntaxtree.ConditionNameReference;
-import com.res.cobol.syntaxtree.ConvertingPhrase;
-import com.res.cobol.syntaxtree.DataBlankWhenZeroClause;
-import com.res.cobol.syntaxtree.DataDescriptionEntry;
-import com.res.cobol.syntaxtree.DataExternalClause;
-import com.res.cobol.syntaxtree.DataJustifiedClause;
-import com.res.cobol.syntaxtree.DataName;
-import com.res.cobol.syntaxtree.DataOccursClause;
-import com.res.cobol.syntaxtree.DataPictureClause;
-import com.res.cobol.syntaxtree.DataRedefinesClause;
-import com.res.cobol.syntaxtree.DataSignClause;
-import com.res.cobol.syntaxtree.DataUsageClause;
-import com.res.cobol.syntaxtree.DataValueClause;
-import com.res.cobol.syntaxtree.Declaratives;
-import com.res.cobol.syntaxtree.DivideStatement;
-import com.res.cobol.syntaxtree.EntryStatement;
-import com.res.cobol.syntaxtree.ExecSqlStatement;
-import com.res.cobol.syntaxtree.ExternalClause;
-import com.res.cobol.syntaxtree.FigurativeConstant;
-import com.res.cobol.syntaxtree.FileAndSortDescriptionEntry;
-import com.res.cobol.syntaxtree.FileName;
-import com.res.cobol.syntaxtree.FileStatusClause;
-import com.res.cobol.syntaxtree.IdOrLiteral;
-import com.res.cobol.syntaxtree.InitializeStatement;
-import com.res.cobol.syntaxtree.InspectStatement;
-import com.res.cobol.syntaxtree.IntegerConstant;
-import com.res.cobol.syntaxtree.KeyClause;
-import com.res.cobol.syntaxtree.LeftmostCharacterPosition;
-import com.res.cobol.syntaxtree.Length;
-import com.res.cobol.syntaxtree.LevelNumber;
-import com.res.cobol.syntaxtree.LinkageSection;
-import com.res.cobol.syntaxtree.Literal;
-import com.res.cobol.syntaxtree.MoveStatement;
-import com.res.cobol.syntaxtree.MultiplyStatement;
-import com.res.cobol.syntaxtree.NestedProgramIdParagraph;
-import com.res.cobol.syntaxtree.NestedProgramUnit;
-import com.res.cobol.syntaxtree.Node;
-import com.res.cobol.syntaxtree.NodeChoice;
-import com.res.cobol.syntaxtree.NodeList;
-import com.res.cobol.syntaxtree.NodeListOptional;
-import com.res.cobol.syntaxtree.NodeOptional;
-import com.res.cobol.syntaxtree.NodeSequence;
-import com.res.cobol.syntaxtree.NodeToken;
-import com.res.cobol.syntaxtree.OpenStatement;
-import com.res.cobol.syntaxtree.OrganizationClause;
-import com.res.cobol.syntaxtree.Paragraph;
-import com.res.cobol.syntaxtree.ParagraphName;
-import com.res.cobol.syntaxtree.PerformOption;
-import com.res.cobol.syntaxtree.PerformVarying;
-import com.res.cobol.syntaxtree.PictureCurrency;
-import com.res.cobol.syntaxtree.PictureString;
-import com.res.cobol.syntaxtree.ProcedureDivision;
-import com.res.cobol.syntaxtree.ProcedureName;
-import com.res.cobol.syntaxtree.ProcedureSection;
-import com.res.cobol.syntaxtree.ProgramIdParagraph;
-import com.res.cobol.syntaxtree.ProgramName;
-import com.res.cobol.syntaxtree.ProgramUnit;
-import com.res.cobol.syntaxtree.QualifiedDataName;
-import com.res.cobol.syntaxtree.ReadStatement;
-import com.res.cobol.syntaxtree.RecordContainsClause;
-import com.res.cobol.syntaxtree.RenamesClause;
-import com.res.cobol.syntaxtree.ReplacingPhrase;
-import com.res.cobol.syntaxtree.RewriteStatement;
-import com.res.cobol.syntaxtree.SameAreaClause;
-import com.res.cobol.syntaxtree.SearchStatement;
-import com.res.cobol.syntaxtree.SectionHeader;
-import com.res.cobol.syntaxtree.SectionName;
-import com.res.cobol.syntaxtree.SelectClause;
-import com.res.cobol.syntaxtree.SetStatement;
-import com.res.cobol.syntaxtree.Statement;
-import com.res.cobol.syntaxtree.StringStatement;
-import com.res.cobol.syntaxtree.Subscript;
-import com.res.cobol.syntaxtree.SubtractStatement;
-import com.res.cobol.syntaxtree.TallyingPhrase;
-import com.res.cobol.syntaxtree.UnstringStatement;
-import com.res.cobol.syntaxtree.UsingArgs;
-import com.res.cobol.syntaxtree.WorkingStorageSection;
-import com.res.cobol.syntaxtree.WriteStatement;
+import com.res.cobol.syntaxtree.*;
 import com.res.cobol.visitor.DepthFirstVisitor;
 import com.res.common.RESConfig;
 import com.res.common.RESContext;
@@ -473,9 +376,9 @@ public class CobolFillTable extends DepthFirstVisitor {
         n.nodeOptional.accept(this);
         doUseStatementsInDeclaratives = true;
         n.nodeOptional1.accept(this);
-        if (!RESConfig.getInstance().isInError()) {
+        /*if (!RESConfig.getInstance().isInError()) {
             SymbolTable.visit(SymbolTable.getInstance().getCurrentProgram(), new CalculateSymbolLength());
-        }
+        }*/
     }
 
     @Override
@@ -696,6 +599,14 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
+    public void visit(DataDivision n) throws Exception {
+        super.visit(n);
+        if (!RESConfig.getInstance().isInError()) {
+            SymbolTable.visit(SymbolTable.getInstance().getCurrentProgram(), new CalculateSymbolLength());
+        }
+    }
+    
+    @Override
     public void visit(WorkingStorageSection n) throws Exception {
 
         //Pop the file name as not parents until we reach the program
@@ -888,7 +799,6 @@ public class CobolFillTable extends DepthFirstVisitor {
 
         //do the symbol table and level stack
 
-        props.setDataUsage(usage);
         if (props.isFloatingPoint()) {
             if (props.getDataUsage() == Constants.COMPUTATIONAL1) {
                 props.setPictureString("-.9(8)E-99");
@@ -899,6 +809,20 @@ public class CobolFillTable extends DepthFirstVisitor {
             props.setPictureString(pictureString);
         }
         adjustSetJavaName(props);
+        
+        if (props.isGroupData()) {
+            props.setDataUsage(usage);
+        } else {
+            if (parent != null && parent.getDataUsage() != Constants.DISPLAY) {
+                if (usage != Constants.DISPLAY && usage != parent.getDataUsage()) {
+                    throw new ErrorInCobolSourceException(n, "Conflict usage with parent");
+                } else {
+                    props.setDataUsage(parent.getDataUsage());
+                }
+            } else {
+                props.setDataUsage(usage);
+            }
+        }
         
         if (parent != null) {
         	boolean exist = false;
@@ -1801,6 +1725,12 @@ public class CobolFillTable extends DepthFirstVisitor {
     }
 
     @Override
+    public void visit(Identifier n) throws Exception {
+        n.accept(new Cobol2Java(), null);
+//        super.visit(n);
+    }
+    
+    @Override
     public void visit(QualifiedDataName n) throws Exception {
         qualified = new Stack<String>();
         doQualified = true;
@@ -1843,8 +1773,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
 
         } while (qualified != null && qualified.size() > 0);
-
-        props = (SymbolProperties) props2;//.clone();
+        props = props2;//.clone();
         if (props2 != null) {
             props.setIndexesWorkSpace(null);//subscripts will fill this
             props.setSubstringWorkSpace(null);//LeftMost... and Length will fill this
