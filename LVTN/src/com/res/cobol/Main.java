@@ -32,6 +32,7 @@ import com.res.cobol.parser.RESCharStream;
 import com.res.cobol.syntaxtree.CompilationUnit;
 import com.res.common.RESConfig;
 import com.res.common.RESContext;
+import com.res.java.translation.engine.Cobol2Java;
 import com.res.java.translation.engine.CobolFillTable;
 import com.res.java.translation.engine.CobolRecode;
 import com.res.java.translation.symbol.SymbolTable;
@@ -99,7 +100,7 @@ public class Main {
 		} catch (Exception e) {
 			System.err.println("Error while processing " + args[args.length - 1]);
 			System.err.println(e.getMessage());
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
@@ -224,7 +225,7 @@ public class Main {
         unit.accept(context.getCobolRecode());
         // System.out.println("************************Symbol
         // Table****************************************");
-         SymbolTable.getInstance().display();
+//         SymbolTable.getInstance().display();
         if (context.isTraceOn()) {
             System.out
                     .println("************************************************************************");
@@ -232,7 +233,7 @@ public class Main {
 
         }
 
-//        unit.accept(new Cobol2Java(), null);
+        unit.accept(new Cobol2Java(), null);
 
         //			ClassFile.endProgramScope();
         // SymbolTable.getInstance().endProgram();

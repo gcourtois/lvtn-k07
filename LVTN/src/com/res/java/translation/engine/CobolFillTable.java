@@ -810,7 +810,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         adjustSetJavaName(props);
         
-        if (props.isGroupData()) {
+        /*if (props.isGroupData()) {
             props.setDataUsage(usage);
         } else {
             if (parent != null && parent.getDataUsage() != Constants.DISPLAY) {
@@ -822,7 +822,8 @@ public class CobolFillTable extends DepthFirstVisitor {
             } else {
                 props.setDataUsage(usage);
             }
-        }
+        }*/
+        props.setDataUsage(usage);
         
         if (parent != null) {
         	boolean exist = false;
