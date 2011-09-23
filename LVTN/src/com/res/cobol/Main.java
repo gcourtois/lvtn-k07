@@ -100,7 +100,7 @@ public class Main {
 		} catch (Exception e) {
 			System.err.println("Error while processing " + args[args.length - 1]);
 			System.err.println(e.getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 
@@ -140,12 +140,12 @@ public class Main {
                     parse(context);
                 } else {
                     CompilationUnit unit = parse(context);
-                    if (RESConfig.getInstance().isInError()) {
+                    /*if (RESConfig.getInstance().isInError()) {
                         System.out
                                 .println("Errors encountered. Processing terminated.");
-                    } else {
+                    } else {*/
                         translate(unit);
-                    }
+//                    }
                     unit = null;
                 }
 
@@ -208,10 +208,10 @@ public class Main {
         // getContext().setTraceLevel(2);
         unit.accept(context.getCobolFillTable());
 
-        if (RESConfig.getInstance().isInError()) {
+        /*if (RESConfig.getInstance().isInError()) {
             System.out.println("Errors encountered. Processing terminated.");
             return;
-        }
+        }*/
         System.out.println("Translation to Java started.");
         if (!doListDir) {
             printPackageHeader();

@@ -601,9 +601,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(DataDivision n) throws Exception {
         super.visit(n);
-        if (!RESConfig.getInstance().isInError()) {
-            SymbolTable.visit(SymbolTable.getInstance().getCurrentProgram(), new CalculateSymbolLength());
-        }
+        SymbolTable.visit(SymbolTable.getInstance().getCurrentProgram(), new CalculateSymbolLength());
     }
     
     @Override
@@ -810,10 +808,10 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
         adjustSetJavaName(props);
         
-        /*if (props.isGroupData()) {
+        if (props.isGroupData()) {
             props.setDataUsage(usage);
         } else {
-            if (parent != null && parent.getDataUsage() != Constants.DISPLAY) {
+            if (parent != null && parent.isGroupData() && parent.getDataUsage() != Constants.DISPLAY) {
                 if (usage != Constants.DISPLAY && usage != parent.getDataUsage()) {
                     throw new ErrorInCobolSourceException(n, "Conflict usage with parent");
                 } else {
@@ -822,8 +820,8 @@ public class CobolFillTable extends DepthFirstVisitor {
             } else {
                 props.setDataUsage(usage);
             }
-        }*/
-        props.setDataUsage(usage);
+        }
+//        props.setDataUsage(usage);
         
         if (parent != null) {
         	boolean exist = false;
@@ -968,24 +966,53 @@ public class CobolFillTable extends DepthFirstVisitor {
 
     @SuppressWarnings("unused")
     private void doRedefines(SymbolProperties par) throws ErrorInCobolSourceException {
-        SymbolProperties data2;
+        SymbolProperties data2 = null;
         if (par.isFile() && par.getChildren().size() > 1) {
             data2 = par.getChildren().get(0);
         } else {
             if (redefinesName == null) {
                 return;
             }
-            if (par == null) {
+            /*if (par == null) {
                 data2 = SymbolTable.getInstance().lookup(redefinesName);
             } else {
                 data2 = SymbolTable.getInstance().lookup(redefinesName, par.getDataName());
+                 
+            }*/
+            if (par != null && par.getChildren() != null && par.getChildren().size() > 0) {
+                for (SymbolProperties child : par.getChildren()) {
+                    if (child.getDataName().equalsIgnoreCase(redefinesName)) {
+                        data2 = child;
+                        break;
+                    } else if (child == props) {
+                        break;
+                    }
+                }
             }
         }
-        if (data2 == null);//TODO Semantic error
-        else {
-        	if (data2.isOccurs()) {
-        	    throw new ErrorInCobolSourceException("Occurs field cannot be redefined.");
-        	}
+        
+        if (data2 == null) {
+            throw new ErrorInCobolSourceException("Invalid redefined identifier: " + redefinesName + " in " + par.getDataName());
+        } else {        
+            if (data2.isOccurs()) {
+                throw new ErrorInCobolSourceException("Occurs field cannot be redefined.");
+            }
+            
+            if (data2.getRedefines() != null) {
+                throw new ErrorInCobolSourceException(redefinesName + " is not an original storage area.");
+            }
+            
+            if (!par.isFile()) {
+                ArrayList<SymbolProperties> children = par.getChildren();
+                int i = children.indexOf(data2) + 1;
+                int j = children.indexOf(props);
+                for (; i < j; i++) {
+                    SymbolProperties tmp = children.get(i);
+                    if (tmp.getRedefines() == null)
+                        throw new ErrorInCobolSourceException("REDEFINE entry must follow immediately the description of redefined area.");
+                }
+            }
+        	
             props.setRedefines(data2);
 //            setForceByte(props);
             props.setForceCobolBytes(true);
@@ -996,10 +1023,10 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
             a.add(props);
             data2.setRedefinedBy(a);
-            SymbolProperties tmp = data2;
+            /*SymbolProperties tmp = data2;
             while ((tmp = tmp.getRedefines()) != null) {
                 tmp.getRedefinedBy().add(props);
-            }
+            }*/
             while (par != null && par.getType() != SymbolConstants.PROGRAM && par.getLevelNumber() != 1 && par.getLevelNumber() != 77) {
                 par = par.getParent();
             }
@@ -1495,7 +1522,12 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(IntegerConstant n) throws Exception {
         super.visit(n);
-        integerConstant = FieldFormat.parseNumber(((NodeToken) n.nodeChoice.choice).tokenImage).longValue();
+        try {
+            integerConstant = Long.valueOf(((NodeToken)n.nodeChoice.choice).tokenImage);
+        } catch (NumberFormatException e) {
+            throw new ErrorInCobolSourceException(n, "Invalid integer literal");
+        }
+//        integerConstant = FieldFormat.parseNumber(((NodeToken) n.nodeChoice.choice).tokenImage).longValue();
         //literal=((NodeToken)n.nodeChoice.choice).tokenImage;
     }
 

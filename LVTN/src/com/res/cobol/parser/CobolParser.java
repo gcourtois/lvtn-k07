@@ -4,7 +4,6 @@ package com.res.cobol.parser;
 import java.util.Vector;
 
 import com.res.cobol.syntaxtree.*;
-import com.res.common.RESConfig;
 
 
 public class CobolParser implements CobolParserConstants {
@@ -23827,10 +23826,10 @@ public class CobolParser implements CobolParserConstants {
     try {
    if ( jj_kind < 0 )
       jj_kind = 0;
-   ParseException e = generateParseException();
-   RESConfig.getInstance().setInError(true);
+//   ParseException e = generateParseException();
+//   RESConfig.getInstance().setInError(true);
    Token t = token_source.getNextToken();
-   System.out.println(e.toString());
+//   System.out.println(e.toString());
    int previousLine = -1,previousColumn = -1;
    do
    {
@@ -23841,6 +23840,7 @@ public class CobolParser implements CobolParserConstants {
       previousColumn = t.beginColumn;
    }
    while ( t.kind != kind );
+   throw generateParseException();
     } finally {
       trace_return("error_skipto");
     }

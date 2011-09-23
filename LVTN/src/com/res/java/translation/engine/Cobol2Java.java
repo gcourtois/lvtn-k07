@@ -8,13 +8,44 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.res.cobol.syntaxtree.AcceptStatement;
+import com.res.cobol.syntaxtree.AddStatement;
+import com.res.cobol.syntaxtree.AlterStatement;
+import com.res.cobol.syntaxtree.CallStatement;
+import com.res.cobol.syntaxtree.CancelStatement;
+import com.res.cobol.syntaxtree.CloseStatement;
 import com.res.cobol.syntaxtree.CobolWord;
+import com.res.cobol.syntaxtree.CommitStatement;
+import com.res.cobol.syntaxtree.ComputeStatement;
+import com.res.cobol.syntaxtree.ContinueStatement;
 import com.res.cobol.syntaxtree.DataDivision;
 import com.res.cobol.syntaxtree.DataName;
+import com.res.cobol.syntaxtree.DeclareCursorStatement;
+import com.res.cobol.syntaxtree.DeleteStatement;
+import com.res.cobol.syntaxtree.DisableStatement;
 import com.res.cobol.syntaxtree.DisplayStatement;
+import com.res.cobol.syntaxtree.DivideStatement;
+import com.res.cobol.syntaxtree.EnableStatement;
+import com.res.cobol.syntaxtree.EndProgramStatement;
+import com.res.cobol.syntaxtree.EntryStatement;
+import com.res.cobol.syntaxtree.EvaluateStatement;
+import com.res.cobol.syntaxtree.ExecSqlStatement;
+import com.res.cobol.syntaxtree.ExitProgramStatement;
+import com.res.cobol.syntaxtree.ExitStatement;
+import com.res.cobol.syntaxtree.FetchStatement;
+import com.res.cobol.syntaxtree.GobackStatement;
+import com.res.cobol.syntaxtree.GotoStatement;
 import com.res.cobol.syntaxtree.Identifier;
+import com.res.cobol.syntaxtree.IfStatement;
+import com.res.cobol.syntaxtree.InitializeStatement;
+import com.res.cobol.syntaxtree.InsertStatement;
+import com.res.cobol.syntaxtree.InspectStatement;
 import com.res.cobol.syntaxtree.IntegerConstant;
 import com.res.cobol.syntaxtree.Literal;
+import com.res.cobol.syntaxtree.LockTableStatement;
+import com.res.cobol.syntaxtree.MergeStatement;
+import com.res.cobol.syntaxtree.MoveStatement;
+import com.res.cobol.syntaxtree.MultiplyStatement;
 import com.res.cobol.syntaxtree.Node;
 import com.res.cobol.syntaxtree.NodeChoice;
 import com.res.cobol.syntaxtree.NodeListOptional;
@@ -23,15 +54,38 @@ import com.res.cobol.syntaxtree.NodeSequence;
 import com.res.cobol.syntaxtree.NodeToken;
 import com.res.cobol.syntaxtree.NonNumericConstant;
 import com.res.cobol.syntaxtree.NumericConstant;
+import com.res.cobol.syntaxtree.OpenStatement;
 import com.res.cobol.syntaxtree.Paragraph;
 import com.res.cobol.syntaxtree.ParagraphName;
+import com.res.cobol.syntaxtree.PerformStatement;
 import com.res.cobol.syntaxtree.ProcedureBody;
 import com.res.cobol.syntaxtree.ProcedureSection;
 import com.res.cobol.syntaxtree.ProgramIdParagraph;
 import com.res.cobol.syntaxtree.ProgramUnit;
 import com.res.cobol.syntaxtree.QualifiedDataName;
+import com.res.cobol.syntaxtree.QueryStatement;
+import com.res.cobol.syntaxtree.ReceiveStatement;
+import com.res.cobol.syntaxtree.ReleaseStatement;
+import com.res.cobol.syntaxtree.ReturnStatement;
+import com.res.cobol.syntaxtree.RewriteStatement;
+import com.res.cobol.syntaxtree.RollbackStatement;
+import com.res.cobol.syntaxtree.SavepointStatement;
+import com.res.cobol.syntaxtree.SearchStatement;
+import com.res.cobol.syntaxtree.SelectStatement;
+import com.res.cobol.syntaxtree.SendStatement;
 import com.res.cobol.syntaxtree.Sentence;
+import com.res.cobol.syntaxtree.SetStatement;
+import com.res.cobol.syntaxtree.SortStatement;
+import com.res.cobol.syntaxtree.StartStatement;
+import com.res.cobol.syntaxtree.Statement;
+import com.res.cobol.syntaxtree.StopStatement;
+import com.res.cobol.syntaxtree.StringStatement;
 import com.res.cobol.syntaxtree.Subscript;
+import com.res.cobol.syntaxtree.SubtractStatement;
+import com.res.cobol.syntaxtree.UnstringStatement;
+import com.res.cobol.syntaxtree.UpdateStatement;
+import com.res.cobol.syntaxtree.UseStatement;
+import com.res.cobol.syntaxtree.WriteStatement;
 import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
 import com.res.common.exceptions.ErrorInCobolSourceException;
@@ -116,7 +170,8 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
             if (p.getType() == SymbolConstants.PARAGRAPH)
                 listParagraphs.add(p);
             else if (p.getType() == SymbolConstants.SECTION) {
-                listParagraphs.addAll(p.getParagraphList());
+                if (p.getParagraphList() != null && p.getParagraphList().size() > 0)
+                    listParagraphs.addAll(p.getParagraphList());
             }
         }
     }
@@ -173,8 +228,10 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	    
 	    n.paragraphs.nodeListOptional.accept(this, o);
 	    
-	    for (SymbolProperties par : props.getParagraphList()) {
-	        printer.println(String.format("%s(true);", getQualifiedJavaName(par)));
+	    if (props.getParagraphList() != null && props.getParagraphList().size() > 0) {
+	        for (SymbolProperties par : props.getParagraphList()) {
+	            printer.println(String.format("%s(true);", getQualifiedJavaName(par)));
+	        }
 	    }
 
 	    printer.decreaseIndent();
@@ -237,6 +294,277 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	@Override
+	public Object visit(Statement n, Object o) throws Exception {
+	    n.nodeChoice.choice.accept(this, o);
+	    return null;
+	}
+	
+	@Override
+	public Object visit(AcceptStatement n, Object o) {
+	    return null;
+	}
+	
+	@Override
+	public Object visit(AddStatement n, Object o) {
+	    return null;
+	}
+	
+	@Override
+    public Object visit(AlterStatement n, Object argu) throws Exception {
+	    return null;
+	}
+
+    @Override
+    public Object visit(CallStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(CancelStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(CloseStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(CommitStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ComputeStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ContinueStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(DeclareCursorStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(DeleteStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(DisableStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(DivideStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(EnableStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(EndProgramStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(EntryStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(EvaluateStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecSqlStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ExitProgramStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ExitStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(FetchStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(GobackStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(GotoStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(IfStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(InitializeStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(InsertStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(InspectStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(LockTableStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(MergeStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(MoveStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(MultiplyStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(OpenStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(PerformStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(QueryStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ReceiveStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ReleaseStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(ReturnStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(RewriteStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(RollbackStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(SavepointStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(SearchStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(SelectStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(SendStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(SetStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(SortStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(StartStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(StopStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(StringStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(SubtractStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(UnstringStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(UpdateStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(UseStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Object visit(WriteStatement n, Object argu) throws Exception {
+        return null;
+    }
+
+    @Override
 	public Object visit(DisplayStatement n, Object o) throws Exception {
 	    JavaCodePrinter printer = (JavaCodePrinter) o;
 	    
