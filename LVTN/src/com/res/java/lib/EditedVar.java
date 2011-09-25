@@ -21,7 +21,8 @@ public class EditedVar {
 	private char decimalChar = '.';
 	private char commaChar = ',';
 	private boolean vAppearance = false;
-
+	private boolean blankWhenZero = false;
+	
 	public EditedVar(String picString, byte picType) {
 		if ((picType != Constants.ALPHANUMERIC_EDITED)
 				&& (picType != Constants.NUMERIC_EDITED)) {
@@ -38,15 +39,21 @@ public class EditedVar {
 			// TODO: ThrowError
 			// System.out.println("ERROR 1");
 		} else {
-			if (picType != Constants.ALPHANUMERIC_EDITED && rightJustified) {
-				System.out.println("ERROR 2");
-			}
 			this.picType = picType;
-			this.rightJustified = rightJustified;
 			this.normalizedPic = normalizePicString(picString);
+			if (picType == Constants.ALPHANUMERIC_EDITED) {
+				this.rightJustified = rightJustified;
+			} else if (picType == Constants.NUMERIC_EDITED) {
+				this.blankWhenZero = rightJustified;
+				if (this.normalizedPic.contains("*") || this.normalizedPic.contains("S")) {
+					this.blankWhenZero = false;
+				}
+			}
+			
+			
 		}
 	}
-
+	
 	public String doEdit(String input) {
 		if (picType == Constants.ALPHANUMERIC_EDITED) {
 			return simpleInsert(input);
@@ -106,7 +113,6 @@ public class EditedVar {
 	private String simpleInsert(String input) {
 		// Apply for Numeric-edited and Alphanumeric-edited
 		// AlphaNum first rightJustified???
-		System.out.println("BEFORE SIMPLE " + input + "|");
 		int definedLength = this.definedLength;
 		int inputLength = input.length();
 		if (picType == Constants.ALPHANUMERIC_EDITED) {
@@ -165,6 +171,9 @@ public class EditedVar {
 
 	private String doNumericEdit(String stringInput) {
 		BigDecimal input = new BigDecimal(stringInput);
+		if (this.blankWhenZero && (input.compareTo(BigDecimal.ZERO) == 0)) {
+			return normalizedPic.replaceAll("(.)", " ");
+		}
 		int replaceZ = normalizedPic.replaceAll(
 				"([^Z" + decimalChar + commaChar + "B0/])", "").length();
 		int replaceAsterix = normalizedPic.replaceAll(
@@ -225,7 +234,7 @@ public class EditedVar {
 		}
 
 		boolean doneFloatingInsert = false;
-		System.out.println("PIC STRING " + normalizedPic);
+		//System.out.println("PIC STRING " + normalizedPic);
 		StringBuilder picBuilder = new StringBuilder(normalizedPic);
 		char currentEditingSymbol = ' ';
 		for (int i = 0; i < intArray.length; i++) {
@@ -526,10 +535,10 @@ public class EditedVar {
 		if (intString.length() > intArray.length) {
 			intString = intString.delete(intArray.length, intString.length());
 		}
-		System.out.println("AFTER EDIT INT STRING " + intString.toString()
-				+ "|");
-
-		System.out.println("FRACTION STRING " + afterDecimal);
+//		System.out.println("AFTER EDIT INT STRING " + intString.toString()
+//				+ "|");
+//
+//		System.out.println("FRACTION STRING " + afterDecimal);
 		if (!fractionString.equals("")) {
 			for (int i = 0; i < fractionArray.length; i++) {
 				char currentChar = fractionArray[i];
@@ -579,8 +588,8 @@ public class EditedVar {
 			fractionString = fractionString.delete(fractionArray.length,
 					fractionString.length());
 		}
-		System.out.println("AFTER EDIT Fraction STRING "
-				+ fractionString.toString());
+//		System.out.println("AFTER EDIT Fraction STRING "
+//				+ fractionString.toString());
 		String retVal = "";
 		if (intArray.length > 0) {
 			if (fractionArray.length > 0) {
@@ -604,8 +613,8 @@ public class EditedVar {
 			}
 		}
 		normalizedPic = picBuilder.toString();
-		System.out.println("END: " + retVal + "|");
-		System.out.println("NORMALIZED PIC " + normalizedPic);
+//		System.out.println("END: " + retVal + "|");
+//		System.out.println("NORMALIZED PIC " + normalizedPic);
 		retVal = retVal.replaceAll("[ZB]", " ").replaceAll("D\\ ", "DB");
 		return fixedInsert(retVal, isNegative);
 	}
