@@ -374,10 +374,18 @@ public class SymbolProperties implements Cloneable {
         this.noOccursSubscripts = noOccursSubscripts;
     }
 
+    /**
+     * when use java types
+     * @param adjustedOffset
+     */
     public void setAdjustedOffset(int adjustedOffset) {
         this.adjustedOffset = adjustedOffset;
     }
 
+    /**
+     * when use java types
+     * @return
+     */
     public int getAdjustedOffset() {
         return adjustedOffset;
     }
@@ -544,8 +552,11 @@ public class SymbolProperties implements Cloneable {
     private byte dataUsage;
     private short dataCategory;
     private short type;
+    private int globalOffset;
     private int offset;
     private int length;
+    private int globalAdjustedOffset;
+    private int adjustedOffset;
     private int adjustedLength;
     private int identifierType;
 
@@ -557,13 +568,40 @@ public class SymbolProperties implements Cloneable {
         this.identifierType = identifierType;
     }
 
+    public int getGlobalOffset() {
+        return globalOffset;
+    }
+
+    public void setGlobalOffset(int globalOffset) {
+        this.globalOffset = globalOffset;
+    }
+
+    public int getGlobalAdjustedOffset() {
+        return globalAdjustedOffset;
+    }
+
+    public void setGlobalAdjustedOffset(int globalAdjustedOffset) {
+        this.globalAdjustedOffset = globalAdjustedOffset;
+    }
+    
+    /**
+     * when use java types
+     * @return
+     */
     public int getAdjustedLength() {
         return adjustedLength;
     }
 
+    /**
+     * when use java types
+     * @param adjustedLength
+     */
     public void setAdjustedLength(int adjustedLength) {
         this.adjustedLength = adjustedLength;
     }
+    
+    
+    
     private int paragraphMark;
     private SymbolProperties majorIndex;
     private ArrayList<String> groupDictionary;
@@ -576,7 +614,6 @@ public class SymbolProperties implements Cloneable {
     private ArrayList<SymbolProperties> OccursParents;
     private int noOccursSubscripts;
     private int otherData1;
-    private int adjustedOffset;
     private String otherName;
     private Object otherData2;
     private ArrayList<Object> otherData;

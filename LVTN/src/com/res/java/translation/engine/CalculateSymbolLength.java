@@ -50,17 +50,25 @@ public class CalculateSymbolLength implements Visitor {
             }
         }
  
+        
         if (props.getRedefines() != null) {
-            if (props.isGroupData()) {
-                offset.push(props.getRedefines().getOffset());
-                adjustedOffset.push(props.getRedefines().getAdjustedOffset());
-            }
+//            if (props.isGroupData()) {
+            offset.pop();
+            offset.push(props.getRedefines().getOffset());
+            adjustedOffset.pop();
+            adjustedOffset.push(props.getRedefines().getAdjustedOffset());
+            globalOffset = props.getRedefines().getGlobalOffset();
+            globalAdjustedOffset = props.getRedefines().getGlobalAdjustedOffset();
+//            }
         } else if (props.getType() == SymbolConstants.PROGRAM
-                /*|| props.is01Group()*/) {
+                /*|| props.isGroupData()*/) {
             offset.push(0);
             adjustedOffset.push(0);
+            globalOffset = 0;
+            globalAdjustedOffset = 0;
         }
 
+        
         if (props.getType() != SymbolConstants.PROGRAM) {
             props.setAParentInOccurs(props.getParent().isOccurs() || props.getParent().isAParentInOccurs());
         }
@@ -101,12 +109,25 @@ public class CalculateSymbolLength implements Visitor {
         }
 
         if (props.getRedefines() != null) {
-            int maxLen = props.getLength();
-            int maxAdjLen = props.getAdjustedLength();
+            // new
+            props.setOffset(props.getRedefines().getOffset());
+            props.setAdjustedOffset(props.getRedefines().getAdjustedOffset());
+            
+            int len = Math.max(props.getLength(), props.getRedefines().getLength());
+            int adjustedLen = Math.max(props.getAdjustedLength(), props.getRedefines().getAdjustedLength());
+            
+            offset.pop();
+            offset.push(props.getOffset() + len);
+            
+            adjustedOffset.pop();
+            adjustedOffset.push(props.getAdjustedOffset() + adjustedLen);
+            
+            globalOffset = props.getRedefines().getGlobalOffset() + len;
+            globalAdjustedOffset = props.getRedefines().getGlobalAdjustedOffset() + adjustedLen;
+            // end new
+            
             SymbolProperties props2 = props;
             while (props2.getRedefines() != null) {
-                maxLen = Math.max(maxLen, props2.getRedefines().getLength());
-                maxAdjLen = Math.max(maxAdjLen, props2.getRedefines().getAdjustedLength());
                 if (props2.getLength() > props2.getRedefines().getLength()) {
                     if (props.getParent().isIndexedFile() && props.getRedefines().getParent().isIndexedFile()) {
                         if (props.getParent().getDataName().equalsIgnoreCase(props.getRedefines().getParent().getDataName())) {
@@ -150,7 +171,7 @@ public class CalculateSymbolLength implements Visitor {
             }*/
 
         } else {
-            if (props.getType() == SymbolConstants.PROGRAM /*|| props.is01Group()*/) {
+            if (props.getType() == SymbolConstants.PROGRAM /*|| props.isGroupData()*/) {
                 offset.pop();
                 adjustedOffset.pop();
             }
@@ -218,10 +239,11 @@ public class CalculateSymbolLength implements Visitor {
     private static Stack<SymbolProperties> subscriptParents = new Stack<SymbolProperties>();
     private static Stack<Integer> offset = new Stack<Integer>();
     private static Stack<Integer> adjustedOffset = new Stack<Integer>();
+    private static int globalOffset = 0;
+    private static int globalAdjustedOffset = 0;
     
     private void calculateGroupLength(SymbolProperties props) throws Exception {
 
-        int leng;
         props.setFormat(false);
 
         if (props.isFromRESLibrary()) {
@@ -242,200 +264,148 @@ public class CalculateSymbolLength implements Visitor {
 
         props.getCobolDesc().setTypeInJava(Constants.GROUP);
 
-//        int prevOffset = unAdjustedOffset.peek();
-        int prevAdjustedOffset = offset.peek();
-        props.setOffset(offset.peek());
-        props.setAdjustedOffset(adjustedOffset.peek());
-
-//        switch (RESConfig.getInstance().getOptimizeAlgorithm()) {
-//            case 0:
-//                SymbolUtil.setCheckUseNativeJavaTypes(props, alwaysCobolBytes);
-//                break;
-//            case 1:
-//                //SymbolUtil.setCheckUseNativeJavaTypes(props,alwaysCobolBytes);
-//                props.setUsedNativeJavaTypes(
-//                        (props.getRef() || props.getMod())
-//                        && (props.getLevelNumber() == 1 || props.getType() == SymbolConstants.PROGRAM));
-//                props.setUsedNativeJavaTypes(props.isUsedNativeJavaTypes() && !alwaysCobolBytes
-//                        && !props.isForceCobolBytes());
-//                break;
-//            case 2:                
-//                SymbolUtil.setCheckUseNativeJavaTypes(props, alwaysCobolBytes);
-//        }
-
-        adjustedOffset.push(0);
-        if (props.hasChildren()) {
-            SymbolTable.visit(props.getChildren(), this);
-        }
-        adjustedOffset.pop();
-
         if (props.isOccurs() || props.isAParentInOccurs()) {
             ArrayList<SymbolProperties> b = new ArrayList<SymbolProperties>();
             b.addAll(subscriptParents);
             props.setOccursParents(b);
             props.setNoOccursSubscripts(b.size());
         }
-
-
-//        leng = unAdjustedOffset.peek() - prevOffset;
-//        int adjustedLength = offset.peek() - prevAdjustedOffset;
-
-        leng = offset.peek() - prevAdjustedOffset;
-//        int adjustedLength = unAdjustedOffset.peek() - prevOffset;
         
-        props.setLength(leng);
+        
+        props.setOffset(offset.peek());
+        props.setAdjustedOffset(adjustedOffset.peek());
+        
+        props.setGlobalOffset(globalOffset);
+        props.setGlobalAdjustedOffset(globalAdjustedOffset);
+        
+        int prevGlobalOffset = globalOffset;
+        int prevGlobalAdjustedOffset = globalAdjustedOffset;
+        
+        offset.push(0);
+        adjustedOffset.push(0);
+        
         if (props.hasChildren()) {
-            int adjustLen = 0;
-            for (SymbolProperties p : props.getChildren()) {
-                int childLen = 0;
-                if (p.getLevelNumber() != 66 && p.getRedefines() == null) {
-                    if (p.isOccurs()) {
-                        childLen = p.getAdjustedLength() * p.getMaxOccursInt();
-                    } else {
-                        childLen = p.getAdjustedLength();
-                    }
-                    if (p.getRedefinedBy() != null) {
-                        for (SymbolProperties redefier : p.getRedefinedBy()) {
-                            childLen = Math.max(childLen, redefier.getAdjustedLength());
-                        }
-                    }
-                    adjustLen += childLen;
-                }
-            }
-            props.setAdjustedLength(adjustLen);
+            SymbolTable.visit(props.getChildren(), this);
         }
+        
 
+        int len = offset.pop();
+        int adjustedLen = adjustedOffset.pop();
+        
+        props.setLength(len);
+        props.setAdjustedLength(adjustedLen);
+        
         if (props.isOccurs() && props.getMaxOccursInt() > 0) {
-            leng *= props.getMaxOccursInt();
-        }/* else {
-            leng = 0;
-        }*/
+            len *= props.getMaxOccursInt();
+            adjustedLen *= props.getMaxOccursInt();
+        }
+        
 
-        if (props.getRedefines() != null) {
+        /*if (props.getRedefines() != null) {
             offset.pop();
             adjustedOffset.pop();
-        } else {
-            adjustedOffset.push(adjustedOffset.pop() + leng);
-            if (!props.isUsedNativeJavaTypes() /*&& adjustedLength > 0*/) {
-//                offset.push(offset.pop() + leng);
-            	offset.pop();
-            	offset.push(prevAdjustedOffset + leng);
-            }
+        } else {*/
+        if (props.getRedefines() == null) {
+            offset.push(offset.pop() + len);
+            adjustedOffset.push(adjustedOffset.pop() + adjustedLen);
+            globalOffset = prevGlobalOffset + len;
+            globalAdjustedOffset = prevGlobalAdjustedOffset + adjustedLen;
         }
     }
 
     private void processRenames(SymbolProperties props) throws Exception {
         SymbolProperties from = props.getRedefinedBy().get(0);
-        if (from == null) {
-            throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "Invalid RENAMES clause in symbol: " + props.getDataName());
-        }
-        SymbolProperties thru = from;
+
+        int len = 0;
+        
         if (props.getRedefinedBy().size() > 1) {
-            thru = props.getRedefinedBy().get(1);
+            // renames ... thru ...
+            SymbolProperties thru = props.getRedefinedBy().get(1);
+            if (thru.getGlobalOffset() - from.getGlobalOffset() - from.getLength() < 0) {
+                throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(),"Invalid RENAMES clause in symbol: " + props.getDataName() + ". Storage area is indeterminate.");
+            }
+            len = thru.getGlobalOffset() - from.getGlobalOffset() + thru.getLength();
+        } else {
+            // renames ...
+            len = from.getLength();
         }
-        if (thru == null) {
-            throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(),"Invalid RENAMES clause in symbol: " + props.getDataName());
-        }
-        /*if (thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength() <= 0) {
-            RunTimeUtil.getInstance().reportError("Invalid RENAMES clause in symbol: " + props.getDataName(), true);
-        }
-        props.setOffset(from.getOffset());
-        props.setUnAdjustedOffset(from.getUnAdjustedOffset());
-        props.setAdjustedLength(thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength());
-        props.setLength(thru.getUnAdjustedOffset() - from.getUnAdjustedOffset() + thru.getLength());*/
-        if (thru.getOffset() - from.getOffset() + thru.getLength() <= 0) {
-            throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(),"Invalid RENAMES clause in symbol: " + props.getDataName());
-        }
+        
         props.setOffset(from.getOffset());
         props.setAdjustedOffset(from.getAdjustedOffset());
-        props.setLength(thru.getOffset() - from.getOffset() + thru.getLength());
-        props.setAdjustedLength(props.getLength());
+        props.setGlobalOffset(from.getGlobalOffset());
+        props.setGlobalAdjustedOffset(from.getGlobalAdjustedOffset());
+        
+        props.setLength(len);
+        props.setAdjustedLength(len);
     }
 
     private void calculateElementLength(SymbolProperties props) throws Exception {
+        if (props.getLevelNumber() == 78) {
+            return;
+        }
     	
     	FieldAttributes.processPicture(props);
 
-        int leng;
 //        boolean isSuppressed = (Boolean) props.getIsSuppressed() || !(props.getRef() || props.getMod()) ;//|| !props.isForceCobolBytes();
 
         if (/*isSuppressed ||*/ props.isFromRESLibrary()) {
             return;
         }
-
-
-       /*// com.res.java.translation.symbol.SymbolProperties.CobolSymbol sym = new com.res.java.translation.symbol.SymbolProperties.CobolSymbol();
-        props.getCobolDesc().setPic((String) props.getPictureString());
-
-        String u = props.getCobolDesc().getPic();
-       // props.getJavaType().setUsage((byte) props.getDataUsage());
-
-        if (FieldFormat.verifyCobolPicture(u) == Constants.BIGDECIMAL) {
-            FieldAttributes.processDecimal(u, props.getCobolDesc(), props.getDataCategory() == Constants.NUMERIC_EDITED);
-            props.setCurrency(props.getCobolDesc().isCurrency());
-            props.setSigned(props.getCobolDesc().isSigned());
-        } else if (FieldFormat.verifyCobolPicture(u) == Constants.INTEGER) {
-            FieldAttributes.processDecimal(u, props.getCobolDesc(), props.getDataCategory() == Constants.NUMERIC_EDITED);
-            props.setSigned(props.getCobolDesc().isSigned());
-            props.setCurrency(props.getCobolDesc().isCurrency());
-        } else {
-            if (FieldFormat.verifyCobolPicture(u) == Constants.STRING) {
-                FieldAttributes.processAlpha(u, props.getCobolDesc());
-            } else {
-                SymbolUtil.getInstance().reportError("Error In Usage or Picture of: " + props.getDataName()
-                        + ((props.getParent() != null) ? " IN " + props.getParent().getDataName() : "")
-                        + ((props.getPictureString() != null) ? " PICTURE " + props.getPictureString() : ""));
-            }
-        }*/
         
         if (props.getDataUsage() == Constants.COMPUTATIONAL1) {
             props.getCobolDesc().setTypeInJava(Constants.FLOAT);
         } else if (props.getDataUsage() == Constants.COMPUTATIONAL2) {
             props.getCobolDesc().setTypeInJava(Constants.DOUBLE);
         }
-
-//        props.setCobolDesc(props.getCobolDesc());
-        leng = FieldAttributes.calculateBytesLength(props);
-        if (props.getLevelNumber() == 78) {
-            return;
-        }
-
+        
         if (props.isOccurs() || props.isAParentInOccurs()) {
             ArrayList<SymbolProperties> b = new ArrayList<SymbolProperties>();
             b.addAll(subscriptParents);
             props.setOccursParents(b);
             props.setNoOccursSubscripts(b.size());
         }
-        props.setLength(leng);
-        if (props.isForceCobolBytes()) {
-            props.setAdjustedLength(leng);
-        } else {
-            props.setAdjustedLength(0);
-        }
-//        boolean b = SymbolUtil.setCheckUseNativeJavaTypes(props, alwaysCobolBytes);
+
+        int len = FieldAttributes.calculateBytesLength(props);
+        int adjustedLen = props.isForceCobolBytes() ? len : 0;
+        
+        props.setLength(len);
+        props.setAdjustedLength(adjustedLen);
+        props.setGlobalOffset(globalOffset);
+        props.setGlobalAdjustedOffset(globalAdjustedOffset);
+        
         if (props.getRedefines() == null) {
             props.setOffset(offset.peek());
             props.setAdjustedOffset(adjustedOffset.peek());
+            
             if (props.isOccurs() && props.getMaxOccursInt() > 1) {
-                leng *= (props.getMaxOccursInt());
+                len *= props.getMaxOccursInt();
+                adjustedLen *= props.getMaxOccursInt();
             }
-//            if (b) {
-//                unAdjustedOffset.push(unAdjustedOffset.pop() + leng);
-//                leng = 0;
-//            } else {
-                offset.push(offset.pop() + leng);
-                adjustedOffset.push(adjustedOffset.pop() + leng);
-//            }
+            
+            offset.push(offset.pop() + len);
+            adjustedOffset.push(adjustedOffset.pop() + adjustedLen);
+            
+            globalOffset += len;
+            globalAdjustedOffset += adjustedLen;
+            
         } else {
-            props.setOffset(props.getRedefines().getOffset());
+            /*props.setOffset(props.getRedefines().getOffset());
             props.setAdjustedOffset(props.getRedefines().getAdjustedOffset());
-            leng = Math.max(leng, props.getRedefines().getLength());
+            
+            len = Math.max(len, props.getRedefines().getLength());
+            adjustedLen = Math.max(adjustedLen, props.getRedefines().getAdjustedLength());
+            
             offset.pop();
-            offset.push(props.getOffset() + leng);
+            offset.push(props.getOffset() + len);
+            
+            adjustedOffset.pop();
+            adjustedOffset.push(props.getAdjustedOffset() + adjustedLen);
+            
+            globalOffset = props.getRedefines().getGlobalOffset() + len;
+            globalAdjustedOffset = props.getRedefines().getGlobalAdjustedOffset() + adjustedLen;*/
         }
 
-
-        SymbolTable.visit(props.getChildren(), this);
+        SymbolTable.visit(props.getChildren(), this); // visit lv-88 entry
 
         return;
     }

@@ -283,7 +283,7 @@ public class FieldAttributes {
 		}
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		SymbolProperties sym = new SymbolProperties();
 		sym.setPictureString("999V");
 		sym.setDataUsage(Constants.DISPLAY);
@@ -293,5 +293,5 @@ public class FieldAttributes {
 		System.out.println(desc.getTypeInJava());
 		System.out.println(desc.getMaxIntLength()+"."+desc.getMaxFractionLength()+":"+desc.getMaxScalingLength());
 		System.out.println(desc.getMaxStringLength());
-	}
+	}*/
 }

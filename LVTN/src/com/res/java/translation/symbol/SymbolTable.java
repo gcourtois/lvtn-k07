@@ -373,19 +373,21 @@ public class SymbolTable {
 				if (o1 == null)
 					System.out.println("***ERROR IN SYMBOL TABLE" + c.name);
 				else {
-					System.out.print("DATA=" + c.name);
+					System.out.print("Name=" + c.name);
 					if (o2 != null)
 						System.out.print(" Parent=" + o2.getDataName());
 //					System.out.print(" QName= " + o1.getQualifiedName());
-//					System.out.print(" TYPE=" + symbolType[o1.getType()]);
+					System.out.print(" TYPE=" + symbolType[o1.getType()]);
 					System.out.print(" LEVEL=" + o1.getLevelNumber());
+					System.out.print(" GlobalOff=" + o1.getGlobalOffset());
+					System.out.print(" GlobalAdjustOff=" + o1.getGlobalAdjustedOffset());
 					System.out.print(" Offset=" + o1.getOffset());
 					System.out.print(" AdjustOffset=" + o1.getAdjustedOffset());
 					System.out.print(" Length=" + o1.getLength());
 					System.out.print(" AdjustLength=" + o1.getAdjustedLength());
 					System.out.print(" USAGE=" + usage[o1.getDataUsage()]);
-					System.out.print(" DATACAT= " + dataCat[o1.getDataCategory()]);
-					System.out.print(" JavaType = " + javaType[o1.getCobolDesc().getTypeInJava()]);
+					System.out.print(" DATACAT=" + dataCat[o1.getCobolDesc().getDataCategory()]);
+					System.out.print(" JavaType=" + javaType[o1.getCobolDesc().getTypeInJava()]);
 					String p1 = null;
 					if ((p1 = (String) o1.getPictureString()) != null)
 						System.out.print(" PICTURE=" + p1);
@@ -414,7 +416,7 @@ public class SymbolTable {
 						System.out.print("}");
 					}
 					
-					System.out.print(" ForceByte = " + o1.isForceCobolBytes());
+					System.out.print(" ForceByte=" + o1.isForceCobolBytes());
 				}
 				System.out.println();
 				if (o1 != null && o1.getChildren() != null) {

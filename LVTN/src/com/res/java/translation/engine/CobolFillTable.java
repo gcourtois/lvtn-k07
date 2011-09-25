@@ -676,10 +676,10 @@ public class CobolFillTable extends DepthFirstVisitor {
         props.setLinkageSection(doingLinkageSection);
         pictureString = null;
         redefinesName = null;
-        if (RESConfig.getInstance().isPrintCobolStatementsAsComments()
-                || RESConfig.getInstance().isRetainCobolComments()) {
-            props.setDataDescriptionEntry(n);
-        }
+        props.setDataDescriptionEntry(n);
+//        if (RESConfig.getInstance().isPrintCobolStatementsAsComments()
+//                || RESConfig.getInstance().isRetainCobolComments()) {
+//        }
 
         //Initialize
         NodeSequence v = (NodeSequence) n.nodeChoice.choice;
@@ -706,11 +706,16 @@ public class CobolFillTable extends DepthFirstVisitor {
         //post-process
 
         if (levelNumber != null && levelNumber.length() > 0) {
-            props.setLevelNumber(Short.parseShort(levelNumber));
+            short lv = Short.valueOf(levelNumber);
+            props.setLevelNumber(lv);
+            if (props.isOccurs() && (lv == 1 || lv == 66 || lv == 77 || lv == 88)) {
+                throw new ErrorInCobolSourceException(n, "OCCURS clause cannot appear in entry with level " + lv);
+            }
         } else {
             //TODO Error processing
             return;
         }
+
         props.setDataCategory(FieldFormat.getDataCategory(pictureString));
         if (props.getLevelNumber() == 1) {
             doNotAddChildrenToSymbolTable = false;
@@ -735,10 +740,10 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
 
 
-        if (props == null || dataName == null) {
-            //TODO Error processing
+        /*if (props == null || dataName == null) {
             return;
-        }
+        }*/
+        
         if (context.getTraceLevel() >= 2) {
             System.out.println("Doing CobolFillTable symbol " + dataName);
         }
