@@ -33,7 +33,7 @@ public class EditedVar {
 		}
 	}
 
-	public EditedVar(String picString, byte picType, boolean rightJustified) {
+	public EditedVar(String picString, byte picType, boolean rightJustified, boolean blankWhenZero) {
 		if ((picType != Constants.ALPHANUMERIC_EDITED)
 				&& (picType != Constants.NUMERIC_EDITED)) {
 			// TODO: ThrowError
@@ -44,7 +44,7 @@ public class EditedVar {
 			if (picType == Constants.ALPHANUMERIC_EDITED) {
 				this.rightJustified = rightJustified;
 			} else if (picType == Constants.NUMERIC_EDITED) {
-				this.blankWhenZero = rightJustified;
+				this.blankWhenZero = blankWhenZero;
 				if (this.normalizedPic.contains("*") || this.normalizedPic.contains("S")) {
 					this.blankWhenZero = false;
 				}
