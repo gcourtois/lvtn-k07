@@ -20,6 +20,49 @@ public class JavaCodePrinter extends CodePrinter {
 	public void printImport(Class c) {
 		println("import " + c.getCanonicalName() + ";");
 	}
+	
+	public void beginMethod(String accessSpecifier, String returnType, String name, String[] params, String[] exceptions) {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(accessSpecifier + " ");
+	    sb.append(returnType + " ");
+	    sb.append(name + "(");
+	    if (params != null && params.length > 0 && params[0] != null) {
+	        sb.append(params[0]);
+	        for (int i = 1; i < params.length; i++) {
+	            if (params[i] != null && params[i] != "")
+	                sb.append(", " + params[i]);
+	        }
+	    }
+	    sb.append(")");
+	    if (exceptions != null && exceptions.length > 0) {
+	        if (exceptions[0] != null && exceptions[0] != "") {
+	            sb.append(" throws " + exceptions[0]);
+	            for (int i = 1; i < exceptions.length; i++) {
+	                if (exceptions[i] != null && exceptions[i] != "") {
+	                    sb.append(", " + exceptions[i]);
+	                }
+                }
+	        }
+	    }
+	    sb.append(" {");
+	    println(sb.toString());
+	    increaseIndent();
+	}
+	
+	public void endMethod() {
+	    decreaseIndent();
+	    println("}");
+	}
+	
+	public void beginBlock() {
+	    println("{");
+	    increaseIndent();
+	}
+	
+	public void endBlock() {
+	    decreaseIndent();
+	    println("}");
+	}
 }
 
 class CodePrinter {

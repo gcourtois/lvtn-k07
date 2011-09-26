@@ -134,9 +134,8 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         // print import
         printer.printImport(Program.class);
         printer.printImport(EditedVar.class);
-        if (props.getImportBigDecimal()) {
-            printer.printImport(BigDecimal.class);
-        }
+        printer.printImport(BigDecimal.class);
+        
         printer.println("import " + RESConfig.getInstance().getDataPackage()
                 + ".*;");
         printer.println();
@@ -150,16 +149,13 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         
         super.visit(n, printer);
 
-        printer.println("public static void main(String[] args) {");
-        printer.increaseIndent();
+        printer.beginMethod("public static", "void", "main", new String[]{"String[] args"}, null);
         printer.println(String.format("new %s().%s();", programName,
                 runMethodName));
-        printer.decreaseIndent();
-        printer.println("}");
-        printer.decreaseIndent();
+        printer.endMethod();
 
         // end class
-        printer.println("}");
+        printer.endBlock();
 
         printer.close();
         return null;
@@ -201,14 +197,12 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	@Override
 	public Object visit(ProcedureBody n, Object o) throws Exception {
 	    JavaCodePrinter printer = (JavaCodePrinter) o;
-	    printer.println(String.format("public void %s() {", runMethodName));
-	    printer.increaseIndent();
+	    printer.beginMethod("public", "void", runMethodName, null, null);
 	    n.paragraphs.nodeListOptional.accept(this, o);
 	    if (listParagraphs.size() > 0) {
 	        printer.println(getQualifiedJavaName(listParagraphs.peek()) + "(false);");
 	    }
-	    printer.decreaseIndent();
-	    printer.println("}");
+	    printer.endMethod();
 	    printer.println();
 	    n.paragraphs.nodeListOptional1.accept(this, o);
 	    n.nodeListOptional.accept(this, o);
@@ -223,8 +217,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	    
 	    JavaCodePrinter printer = (JavaCodePrinter) o;
 	    
-	    printer.println(String.format("public final void %s() {", getQualifiedJavaName(props)));
-	    printer.increaseIndent();
+	    printer.beginMethod("public final", "void", getQualifiedJavaName(props), null, null);
 	    
 	    n.paragraphs.nodeListOptional.accept(this, o);
 	    
@@ -234,8 +227,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	        }
 	    }
 
-	    printer.decreaseIndent();
-	    printer.println("}");
+	    printer.endMethod();
 	    printer.println();
 	    
 	    n.paragraphs.nodeListOptional1.accept(this, o);
@@ -252,9 +244,9 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 
 	        JavaCodePrinter printer = (JavaCodePrinter) o;
 
-	        printer.println(String.format("public final void %s(boolean returned) {", getQualifiedJavaName(props)));
-	        printer.increaseIndent();
+	        printer.beginMethod("public final", "void", getQualifiedJavaName(props), new String[]{"boolean returned"}, null);
 	        n.nodeChoice1.accept(this, o);
+	        
 	        printer.println("if (!returned) {");
 	        printer.increaseIndent();
 	        if (listParagraphs.peek() != null) {
@@ -262,10 +254,9 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	        } else {
 	            printer.println("System.exit(0);");
 	        }
-	        printer.decreaseIndent();
-	        printer.println("}");
-	        printer.decreaseIndent();
-	        printer.println("}");
+	        printer.endBlock(); // end if
+	        
+	        printer.endMethod();
 	        printer.println();
 	    }
 	    

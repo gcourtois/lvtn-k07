@@ -163,20 +163,16 @@ public class DataPrinter {
 		}
 
 		//getter
-		printer.println(String.format("public %s get%s() {", typeStr, props.getJavaName2()));
-		printer.increaseIndent();
+		printer.beginMethod("public", typeStr, "get" + props.getJavaName2(), null, null);
 		printer.println("return " + getValueMethodName(props, getOffsetWithoutIndex(props)) + ";");
-		printer.decreaseIndent();
-		printer.println("}");
+		printer.endMethod();
 		printer.println();
 
 		//setter
 		String argName = "input";
-		printer.println(String.format("public void set%s(%s %s) {", props.getJavaName2(), typeStr, argName));
-		printer.increaseIndent();
+		printer.beginMethod("public", "void", "set" + props.getJavaName2(), new String[]{typeStr + " " + argName}, null);
 		printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
-		printer.decreaseIndent();
-		printer.println("}");
+		printer.endMethod();
 		printer.println();
 	}
 	
@@ -209,8 +205,7 @@ public class DataPrinter {
                     fieldName, props.getMaxOccursInt()));
 			
 			// loop to initialize each group
-            printer.println("{");
-            printer.increaseIndent();
+            printer.beginBlock();
             
             printer.println(String.format("for (int i = 0; i < %d; i++) {", props.getMaxOccursInt()));
             printer.increaseIndent();
@@ -225,81 +220,60 @@ public class DataPrinter {
                         getLength(props)));
             }
             
-            printer.decreaseIndent();
-            printer.println("}");
-            
-            printer.decreaseIndent();
-            printer.println("}");
-            printer.println();
             // end loop
+            printer.endBlock();
+            // end initialize block
+            printer.endBlock();
+            
+            printer.println();
             
             // getter
-            printer.println(String.format("public %1$s get%1$s(int %2$s) {", className, indexName));
-            printer.increaseIndent();
+            printer.beginMethod("public", className, "get" + className, new String[]{"int " + indexName}, null);
             printer.println(String.format("return this.%s[%s];", fieldName, indexName));
-            printer.decreaseIndent();
-            printer.println("}");
+            printer.endMethod();
             printer.println();
             
             // setter
-            printer.println(String.format("public void set%s(int %s, String %s) {", className, indexName, argName));
-            printer.increaseIndent();
+            printer.beginMethod("public", "void", "set" + className, new String[]{"int " + indexName, "String " + argName}, null);
             if (genJava) {
                 // TODO: java types
                 
             } else {
                 printer.println(setValueMethodName(props, argName, getOffsetWithIndex(props, indexName)) + ";");
             }
-            printer.decreaseIndent();
-            printer.println("}");
+            printer.endMethod();
             printer.println();
             
 		} else { // no occurs
 		    
-		    if (genJava) {
-		        // use Java type when possible
-		        
+		    if (genJava) { // java
 		        printer.println(String.format(
                         "private %1$s %2$s = new %1$s();", className, fieldName));
-                
-		        // getter
-		        printer.println(String.format("public %1$s get%1$s() {", className));
-		        printer.increaseIndent();
-		        printer.println(String.format("return this.%s;", fieldName));
-		        printer.decreaseIndent();
-		        printer.println("}");
-		        
-		        // TODO: setter
-		        
 		    } else {
 		        // use byte array
-
-		        // create field
 		        printer.println(String.format("private %1$s %2$s = new %1$s(this.getBytes(), %3$d, %4$d);",
 		                className,
 		                fieldName,
 		                getGlobalOffset(props),
 		                getLength(props)));
-
-		        printer.println();
-
-		        // create getter
-		        printer.println(String.format("public %1$s get%1$s() {", className));
-		        printer.increaseIndent();
-		        printer.println(String.format("return this.%s;", fieldName));
-		        printer.decreaseIndent();
-		        printer.println("}");
-		        printer.println();
-
-		        // create setter
-		        printer.println(String.format(
-		                "public void set%s(String %s) {", className, argName));
-		        printer.increaseIndent();
-		        printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
-		        printer.decreaseIndent();
-		        printer.println("}");
-		        printer.println();
 		    }
+		    printer.println();
+		    
+		    // getter
+		    printer.beginMethod("public", className, "get" + className, null, null);
+		    printer.println(String.format("return this.%s;", fieldName));
+		    printer.endMethod();
+		    printer.println();
+
+		    // setter
+		    printer.beginMethod("public", "void", "set" + className, new String[]{"String " + argName}, null);
+		    if (genJava) {
+		        //TODO: java setter
+		    } else {
+		        printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
+		    }
+		    printer.endMethod();
+		    printer.println();
 		}
 	}
 
@@ -333,93 +307,65 @@ public class DataPrinter {
 		    String indexName = "i";
 		    
 		    if (genJava) {
-		        // use java type when possible
+		        // create Java field
 		        printer.println(String.format(
-                        "private %1$s %2$s[] = new %1$s[%3$d];", type,
-                        fieldName, props.getMaxOccursInt()));
+		                "private %1$s %2$s[] = new %1$s[%3$d];", type,
+		                fieldName, props.getMaxOccursInt()));
+		    } 
 
-				// create getter, setter with index
-				printer.println("//Create getter, setter for "
-						+ props.getDataName());
-				
-				// getter with index
-				printer.println(String.format("public %s get%s(int %s) {", type, className, indexName));
-				printer.increaseIndent();
-				printer.println(String.format("return this.%s[%s];", fieldName, indexName));
-				printer.decreaseIndent();
-				printer.println("}");
-				
-				// setter with index
-				printer.println(String.format("public void set%s(int %s, %s %s) {", className, indexName, type, argName));
-				printer.increaseIndent();
-				// TODO: get normalize method
-				printer.decreaseIndent();
-				printer.println("}");
+		    // getter
+		    printer.beginMethod("public", type, "get" + className, new String[]{"int " + indexName}, null);
+		    if (genJava) {
+		        printer.println(String.format("return this.%s[%s];", fieldName, indexName));
 		    } else {
-		        // use byte array
-				
-				// getter
-				printer.println(String.format("public %s get%s(int %s) {", type, className, indexName));
-				printer.increaseIndent();
-				printer.println("return " + getValueMethodName(props, getOffsetWithIndex(props, indexName)) + ";");
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				
-				// setter
-				printer.println(String.format("public void set%s(int %s, %s %s) {", className, indexName, type, argName));
-				printer.increaseIndent();
-				if (doEdit) {
-				    printer.println(String.format("%1$s = %2$s.doEdit(%1$s);", argName, getEditorName(props)));
-				}
-				printer.println(setValueMethodName(props, argName, getOffsetWithIndex(props, indexName)) + ";");
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
+		        printer.println("return " + getValueMethodName(props, getOffsetWithIndex(props, indexName)) + ";");
 		    }
+		    printer.endMethod();
+		    printer.println();
+
+		    // setter
+		    printer.beginMethod("public", "void", "set" + className, new String[]{"int " + indexName, type + " " + argName}, null);
+		    if (doEdit) {
+		        printer.println(String.format("%1$s = %2$s.doEdit(%1$s);", argName, getEditorName(props)));
+		    }
+		    if (genJava) {
+		        printer.println(String.format("this.%s[%s] = %s;", fieldName,
+                        indexName, getAdjustValueMethodName(props, argName)));
+		    } else {
+		        printer.println(setValueMethodName(props, argName, getOffsetWithIndex(props, indexName)) + ";");
+		    }
+		    printer.endMethod();
+		    printer.println();
 			
 		} else {
 		    if (genJava) {
-		        // use java type when possible
-		        
-		        // create field first
+		        // create Java field
 		        printer.println(String.format("private %s %s;", type, fieldName));
 		        printer.println();
-
-		        // getter
-		        printer.println(String.format("public %s get%s() {", type, className));
-		        printer.increaseIndent();
-		        printer.println(String.format("return this.%s;", fieldName));
-		        printer.decreaseIndent();
-		        printer.println("}");
-		        
-		        // setter
-		        printer.println(String.format("public void set%s(%s %s) {", className, type, argName));
-		        printer.increaseIndent();
-		        // TODO: get normalize method
-		        printer.decreaseIndent();
-		        printer.println("}");
-		    } else {
-		        // use byte array
-		        //getter
-				printer.println(String.format("public %s get%s() {", type, className));
-				printer.increaseIndent();
-				printer.println("return " + getValueMethodName(props, getOffsetWithoutIndex(props)) + ";");
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
-				
-				//setter
-				printer.println(String.format("public void set%s(%s %s) {", className, type, argName));
-				printer.increaseIndent();
-				if (doEdit) {
-				    printer.println(String.format("%1$s = %2$s.doEdit(%1$s);", argName, getEditorName(props)));
-				}
-				printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
-				printer.decreaseIndent();
-				printer.println("}");
-				printer.println();
 		    }
+		    
+		    //getter
+		    printer.beginMethod("public", type, "get" + className, null, null);
+		    if (genJava) {
+		        printer.println(String.format("return this.%s;", fieldName));
+		    } else {
+		        printer.println("return " + getValueMethodName(props, getOffsetWithoutIndex(props)) + ";");
+		    }
+		    printer.endMethod();
+		    printer.println();
+
+		    //setter
+		    printer.beginMethod("public", "void", "set" + className, new String[]{type + " " + argName}, null);
+		    if (doEdit) {
+		        printer.println(String.format("%1$s = %2$s.doEdit(%1$s);", argName, getEditorName(props)));
+		    }
+		    if (genJava) {
+		        printer.println(String.format("this.%s = %s;", fieldName, getAdjustValueMethodName(props, argName)));
+		    } else {
+		        printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
+		    }
+		    printer.endMethod();
+		    printer.println();
 		}
 	}
 	
@@ -474,6 +420,32 @@ public class DataPrinter {
 	    } else {
 	        return getGlobalOffset(props) + "";
 	    }
+	}
+	
+	private String getAdjustValueMethodName(SymbolProperties props, String argName) {
+	    CobolDataDescription desc = props.getCobolDesc();
+	    byte type = desc.getTypeInJava();
+
+	    if (type == Constants.SHORT || type == Constants.INTEGER) {
+	        String typeStr = javaType[type];
+	        return String.format("(%s) getAlgebraicValue(%s, %s, %s, %s)",
+                    typeStr, argName, desc.getMaxIntLength(), desc.isSigned(),
+                    desc.getMaxScalingLength());
+	    } else if (type == Constants.LONG) {
+	        return String.format("getAlgebraicValue(%s, %s, %s, %s)", argName,
+                    desc.getMaxIntLength(), desc.isSigned(),
+                    desc.getMaxScalingLength());
+	    } else if (type == Constants.STRING) {
+	        return String.format("getStringValue(%s, %s, %s)", argName,
+	                desc.getMaxStringLength(), desc.isJustifiedRight());
+	    } else if (type == Constants.BIGDECIMAL) {
+	        return String.format("getAlgebraicValue(%s, %s, %s, %s, %s)",
+                    argName, desc.getMaxIntLength(),
+                    desc.getMaxFractionLength(),
+                    desc.getMaxScalingLength(), desc.isSigned());
+	    }
+	    
+	    return "";
 	}
 	
 	private String getValueMethodName(SymbolProperties props, String offset) {

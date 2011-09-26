@@ -22,6 +22,7 @@ package com.res.java.util;
 
 import java.util.regex.Pattern;
 
+import com.res.common.exceptions.ErrorInCobolSourceException;
 import com.res.java.lib.Constants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
@@ -114,7 +115,7 @@ public class FieldAttributes {
 		return len;
 	}
 
-	public static void processPicture(SymbolProperties props) {
+	public static void processPicture(SymbolProperties props) throws Exception {
 		CobolDataDescription desc = props.new CobolDataDescription();
 	
 		props.setCobolDesc(desc);
@@ -157,11 +158,10 @@ public class FieldAttributes {
 				desc.setMaxStringLength(desc.getPic().length());
 			}
 		} else {
-//			SymbolUtil.getInstance().reportError(
-//					"Data name:" + props.getDataName()
-//							+ " has invalid picture string: " + pic);
-		    //TODO: throws exception
-			System.exit(0);
+		    throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "Invalid picture string: " + pic);
+		}
+		if (desc.getDataCategory() == Constants.NUMERIC && desc.isBlankWhenZero()) {
+		    desc.setDataCategory(Constants.NUMERIC_EDITED);
 		}
 	}
 
@@ -271,7 +271,7 @@ public class FieldAttributes {
 	}
 
 	private static void processIntegralJavaType(CobolDataDescription desc) {
-		short size = desc.getMaxIntLength();
+		int size = desc.getMaxIntLength() + desc.getMaxScalingLength();
 		if (size < 1) {
 			// error
 		} else if (size < 5) {
