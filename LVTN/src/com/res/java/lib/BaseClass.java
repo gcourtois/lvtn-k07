@@ -694,7 +694,7 @@ public class BaseClass {
 		return this.convertDisplayToString(this.offset, this.length);
 	}
 	
-	private BigDecimal getDecimalValue(int offset, int length, EditedVar numericEditedVar) {
+	public BigDecimal getDecimalValue(int offset, int length, EditedVar numericEditedVar) {
 		StringBuilder stringValue = new StringBuilder(convertDisplayToString(offset, length));
 		String picString = numericEditedVar.getNormalizedPic();
 		String beforeDecimal = numericEditedVar.getBeforeDecimal();
