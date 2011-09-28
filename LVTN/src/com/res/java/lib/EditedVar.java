@@ -247,7 +247,7 @@ public class EditedVar {
 			if (currentPos != 0) {
 				prevChar = intArray[prevPos];
 			}
-			System.out.println(i + "%" + currentChar + " |" + intString + "|");
+//			System.out.println(i + "%" + currentChar + " |" + intString + "|");
 			if (currentChar == 'Z' || currentChar == '*') {
 				if (currentPos == 0) {
 					if (currentEditingSymbol == ' '
@@ -310,8 +310,22 @@ public class EditedVar {
 							max = true;
 						}
 					} else {
-						throw new InvalidCobolFormatException("Wrong Format "
-								+ normalizedPic);
+						if (prevChar == currentChar) {
+							throw new InvalidCobolFormatException("Wrong Format "
+									+ normalizedPic);
+						} else {
+							if (prevChar == '$') {
+								throw new InvalidCobolFormatException("Wrong Format "
+										+ normalizedPic);
+							}
+							char addChar = currentChar;
+							if (i >= intString.length()) {
+								intString.append(addChar);
+							} else {
+								intString.setCharAt(i, addChar);
+							}
+							continue;
+						}
 					}
 
 					char addChar = currentChar;
@@ -627,7 +641,5 @@ public class EditedVar {
 	}
 	
 	public static void main(String[] args) {
-		EditedVar a = new EditedVar("99.", Constants.NUMERIC_EDITED);
-		System.out.println(a.doEdit("1234"));
 	}
 }
