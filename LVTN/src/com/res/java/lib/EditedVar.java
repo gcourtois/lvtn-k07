@@ -177,14 +177,14 @@ public class EditedVar {
 		int replaceZ = normalizedPic.replaceAll(
 				"([^Z" + decimalChar + commaChar + "B0/])", "").length();
 		int replaceAsterix = normalizedPic.replaceAll(
-				"([\\*" + decimalChar + "])", "").length();
+				"([\\*" + decimalChar + "B0/])", "").length();
 		if (replaceZ == normalizedPic.length()) { // ZERO
 			if (input.compareTo(BigDecimal.ZERO) == 0) {
 				return normalizedPic.replaceAll("(.)", " ");
 			}
 		} else if (replaceAsterix == 0) {
 			if (input.compareTo(BigDecimal.ZERO) == 0) {
-				return normalizedPic;
+				return normalizedPic.replaceAll("(.)", "*");
 			}
 		} else {
 			char[] floatingSymbols = { '+', '-', '$' };
@@ -408,10 +408,15 @@ public class EditedVar {
 						intString.append('0');
 					}
 				} else if (currentChar == 'P') {
-					if (i >= intString.length()) {
-						intString.append('0');
+					if (currentEditingSymbol != ' ') {
+						throw new InvalidCobolFormatException(
+								"Wrong Format " + normalizedPic);
 					} else {
-						intString.setCharAt(i, '0');
+						if (i >= intString.length()) {
+							intString.append('0');
+						} else {
+							intString.setCharAt(i, '0');
+						}
 					}
 				} else if (currentChar == 'B' || currentChar == '0'
 						|| currentChar == '/' || currentChar == commaChar) {
