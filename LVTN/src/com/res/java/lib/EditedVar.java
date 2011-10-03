@@ -407,6 +407,12 @@ public class EditedVar {
 					if (i >= intString.length()) {
 						intString.append('0');
 					}
+				} else if (currentChar == 'P') {
+					if (i >= intString.length()) {
+						intString.append('0');
+					} else {
+						intString.setCharAt(i, '0');
+					}
 				} else if (currentChar == 'B' || currentChar == '0'
 						|| currentChar == '/' || currentChar == commaChar) {
 					if (currentPos == 0) {
@@ -427,7 +433,6 @@ public class EditedVar {
 									} else {
 										addChar = '*';
 									}
-
 								}
 								if (i >= intString.length()) {
 									intString.append(addChar);
@@ -503,14 +508,17 @@ public class EditedVar {
 										currentEditingSymbol = symbol;
 										break;
 									} else {
-										// One Symbol detect
-										if (symbolIndex == currentPos - 1) {
-											// Immediate right
-											currentEditingSymbol = symbol;
-											doneFloatingInsert = true;
-											break;
-										}
+										break;
 									}
+//									else {
+//										// One Symbol detect
+//										if (symbolIndex == currentPos - 1) {
+//											// Immediate right
+//											currentEditingSymbol = symbol;
+//											doneFloatingInsert = true;
+//											break;
+//										}
+//									}
 								}
 							}
 							if (currentEditingSymbol == ' ') {
@@ -574,8 +582,9 @@ public class EditedVar {
 					break;
 				case 'P':
 					if (i >= fractionString.length()) {
+						fractionString.append('0');
 					} else {
-						fractionString.deleteCharAt(i);
+						fractionString.setCharAt(i, '0');
 					}
 					break;
 				case 'B':
@@ -627,9 +636,9 @@ public class EditedVar {
 			}
 		}
 		normalizedPic = picBuilder.toString();
-//		System.out.println("END: " + retVal + "|");
 //		System.out.println("NORMALIZED PIC " + normalizedPic);
 		retVal = retVal.replaceAll("[ZB]", " ").replaceAll("D\\ ", "DB");
+//		System.out.println("END: " + retVal + "|");
 		return fixedInsert(retVal, isNegative);
 	}
 	
