@@ -81,6 +81,15 @@ public class BaseClass {
 	    setLongBCD(input.longValue(), offset, length, signed, intLength, pscale);
 	}
 	
+	protected void setLongBCD(String input, int offset, int length,
+            boolean signed, int intLength, int pscale) {
+	    try {
+	        setLongBCD(literalToLong(input), offset, length, signed, intLength, pscale);
+	    } catch (NumberFormatException e) {
+	        setStringDisplay(input, offset, length, false);
+	    }
+	}
+	
 	protected void setBigDecimalBCD(BigDecimal input, int offset, int length,
 			boolean signed, int intLength, int fractionLength, int pscale) {
 		long longVal = adjustDecimalValue(input, intLength, fractionLength,
@@ -93,6 +102,15 @@ public class BaseClass {
 	    setBigDecimalBCD(BigDecimal.valueOf(input), offset, length, signed, intLength, fractionLength, pscale);
 	}
 
+	protected void setBigDecimalBCD(String input, int offset, int length,
+	        boolean signed, int intLength, int fractionLength, int pscale) {
+	    try {
+	        setBigDecimalBCD(literalToBigDecimal(input), offset, length, signed, intLength, fractionLength, pscale);
+	    } catch (NumberFormatException e) {
+	        setStringDisplay(input, offset, length, false);
+	    }
+	}
+	
 	protected long getLongDisplay(int offset, int length, boolean signed,
 			boolean signLeading, boolean signSeparate, int pscale) {
 		long tempValue = convertDisplayToLong(offset, length, signed,
@@ -128,6 +146,16 @@ public class BaseClass {
 	    setLongDisplay(input.longValue(), offset, length, signed, signLeading, signSeparate, intLength, pscale);
 	}
 	
+	protected void setLongDisplay(String input, int offset, int length,
+            boolean signed, boolean signLeading, boolean signSeparate,
+            int intLength, int pscale) {
+	    try {
+	        setLongDisplay(literalToLong(input), offset, length, signed, signLeading, signSeparate, intLength, pscale);
+	    } catch (NumberFormatException e) {
+	        setStringDisplay(input, offset, length, false);
+	    }
+	}
+	
 	protected void setBigDecimalDisplay(BigDecimal input, int offset,
 			int length, boolean signed, boolean signLeading,
 			boolean signSeparate, int intLength, int fractionLength, int pscale) {
@@ -142,6 +170,16 @@ public class BaseClass {
             int length, boolean signed, boolean signLeading,
             boolean signSeparate, int intLength, int fractionLength, int pscale) {
 	    setBigDecimalDisplay(BigDecimal.valueOf(input), offset, length, signed, signLeading, signSeparate, intLength, fractionLength, pscale);
+	}
+	
+	protected void setBigDecimalDisplay(String input, int offset,
+	        int length, boolean signed, boolean signLeading,
+	        boolean signSeparate, int intLength, int fractionLength, int pscale) {
+	    try {
+	        setBigDecimalDisplay(literalToBigDecimal(input), offset, length, signed, signLeading, signSeparate, intLength, fractionLength, pscale);
+	    } catch (NumberFormatException e) {
+	        setStringDisplay(input, offset, length, false);
+	    }
 	}
 	
 	protected String getStringDisplay(int offset, int length) {
@@ -190,6 +228,15 @@ public class BaseClass {
 	    setLongBytes(input.longValue(), offset, length, signed, intLength, pscale);
 	}
 
+	protected void setLongBytes(String input, int offset, int length,
+	        boolean signed, int intLength, int pscale) {
+	    try {
+	        setLongBytes(literalToLong(input), offset, length, signed, intLength, pscale);
+	    } catch (NumberFormatException e) {
+	        setStringDisplay(input, offset, length, false);
+	    }
+	}
+	
 	protected void setBigDecimalBytes(BigDecimal input, int offset, int length,
 			boolean signed, int intLength, int fractionLength, int pscale) {
 		long tempValue = adjustDecimalValue(input, intLength, fractionLength,
@@ -200,6 +247,11 @@ public class BaseClass {
 	protected void setBigDecimalBytes(long input, int offset, int length,
             boolean signed, int intLength, int fractionLength, int pscale) {
 	    setBigDecimalBytes(BigDecimal.valueOf(input), offset, length, signed, intLength, fractionLength, pscale);
+	}
+	
+	protected void setBigDecimalBytes(String input, int offset, int length,
+            boolean signed, int intLength, int fractionLength, int pscale) {
+	    setBigDecimalBytes(literalToBigDecimal(input), offset, length, signed, intLength, fractionLength, pscale);
 	}
 	
 	private static long[] powerBase10 = new long[] { 1, 10, 100, 1000, 10000,
@@ -308,6 +360,15 @@ public class BaseClass {
 		}
 	}
 
+	private long literalToLong(String input) {
+	    long tmp = Long.valueOf(input);
+	    return tmp < 0 ? -tmp : tmp;
+	}
+	
+	private BigDecimal literalToBigDecimal(String input) {
+	    return new BigDecimal(input).abs();
+	}
+	
 	private long doPscaling(long input, int pscale) {
 		return input * powerBase10[pscale];
 	}
