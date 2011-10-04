@@ -190,8 +190,15 @@ public class BaseClass {
 			boolean rightJustified) {
 		convertStringToDisplay(input, offset, length, rightJustified);
 	}
-
-	protected long getLongBytes(int offset, int length, boolean signed,
+    
+    protected String unsignedValue(long input) {
+        if (input < 0) {
+            input = -input;
+        }
+        return String.valueOf(input);
+    }
+    
+    protected long getLongBytes(int offset, int length, boolean signed,
 			int intLength, int pscale) {
 		if (length > 8) {
 			throw new ArithmeticException(
@@ -832,7 +839,7 @@ public class BaseClass {
 	        outputFormat = String.format("%%%s0%s.%sf", isSigned ? "+" : "", len, fractionLength + scaleLength);
 	    }
 	    
-	    private BigDecimal value;
+	    private BigDecimal value = BigDecimal.ZERO;
 	    
 	    public void setValue(long input) {
 	        setValue(BigDecimal.valueOf(input));
@@ -869,7 +876,7 @@ public class BaseClass {
 	        }
 	    }
 	    
-	    public final BigDecimal getValue() {
+	    public BigDecimal getValue() {
             if (isNum)
                 return this.value;
             else
@@ -915,9 +922,9 @@ public class BaseClass {
             this.outputFormat = String.format("%%%s0%sd", isSigned ? "+" : "", len);
         }
 	    
-        private long value;
+        private long value = 0;
 
-        public long getLongValue() {
+        public long getValue() {
             if (isNum)
                 return this.value;
             else
@@ -968,6 +975,37 @@ public class BaseClass {
                 setStringDisplay(input, offset, length, false);
                 isNum = false;
             }
+        }
+	}
+
+	protected class StringField {
+	    private int offset;
+        private int length;
+        private boolean rightJustified;
+
+        public StringField(int offset, int length, boolean rightJustified) {
+	        this.offset = offset;
+	        this.length = length;
+	        this.rightJustified = rightJustified;
+	        StringBuilder sb = new StringBuilder();
+	        for (int i = 0; i < length; i++) {
+	            sb.append(" ");
+	        }
+	        this.value = sb.toString();
+	    }
+        
+        private String value;
+        
+        public void setValue(String input) {
+            this.value = getStringValue(input, length, rightJustified);
+        }
+        
+        public String getValue() {
+            return this.value;
+        }
+        
+        public void setCurrentValueToBytes() {
+            setStringDisplay(this.value, offset, length, rightJustified);
         }
 	}
 }

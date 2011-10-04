@@ -77,13 +77,23 @@ public class SymbolProperties implements Cloneable {
     }
 
     public CobolDataDescription getCobolDesc() {
-        if (cobolDesc == null)
-			cobolDesc = new CobolDataDescription();
+        if (cobolDesc == null) {
+            cobolDesc = new CobolDataDescription();
+            cobolDesc.setDataCategory((byte) dataCategory);
+            cobolDesc.setUsage(dataUsage);
+            cobolDesc.setBlankWhenZero(this.isBlankWhenZero);
+            cobolDesc.setSignLeading(this.isSignLeading);
+            cobolDesc.setSignSeparate(this.isSignSeparate);
+            cobolDesc.setJustifiedRight(this.isJustifiedRight);
+            cobolDesc.setGlobal(this.isGlobal);
+            cobolDesc.setExternal(this.isExternal);
+        }
 		return cobolDesc;
     }
 
     public void setCobolDesc(CobolDataDescription cobolDesc) {
         if (cobolDesc != null) {
+            cobolDesc.setDataCategory((byte) dataCategory);
             cobolDesc.setUsage(dataUsage);
             cobolDesc.setBlankWhenZero(this.isBlankWhenZero);
             cobolDesc.setSignLeading(this.isSignLeading);

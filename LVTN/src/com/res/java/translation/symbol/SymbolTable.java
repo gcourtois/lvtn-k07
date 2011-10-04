@@ -386,7 +386,9 @@ public class SymbolTable {
 					System.out.print(" Length=" + o1.getLength());
 					System.out.print(" AdjustLength=" + o1.getAdjustedLength());
 					System.out.print(" USAGE=" + usage[o1.getDataUsage()]);
-					System.out.print(" DATACAT=" + dataCat[o1.getCobolDesc().getDataCategory()]);
+					if (o1.getCobolDesc() != null) {
+					    System.out.print(" DATACAT=" + dataCat[o1.getCobolDesc().getDataCategory()]);
+					}
 					System.out.print(" JavaType=" + javaType[o1.getCobolDesc().getTypeInJava()]);
 					String p1 = null;
 					if ((p1 = (String) o1.getPictureString()) != null)

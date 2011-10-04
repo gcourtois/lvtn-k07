@@ -26,22 +26,31 @@ public class JavaCodePrinter extends CodePrinter {
 	    sb.append(accessSpecifier + " ");
 	    sb.append(returnType + " ");
 	    sb.append(name + "(");
-	    if (params != null && params.length > 0 && params[0] != null) {
-	        sb.append(params[0]);
-	        for (int i = 1; i < params.length; i++) {
-	            if (params[i] != null && params[i] != "")
-	                sb.append(", " + params[i]);
+	    if (params != null && params.length > 0) {
+	        boolean exist = false;
+	        for (int i = 0; i < params.length; i++) {
+	            if (params[i] != null && params[i] != "") {
+	                if (exist) {
+	                    sb.append(", " + params[i]);
+	                } else {
+	                    sb.append(params[i]);
+	                    exist = true;
+	                }
+	            }
 	        }
 	    }
 	    sb.append(")");
 	    if (exceptions != null && exceptions.length > 0) {
-	        if (exceptions[0] != null && exceptions[0] != "") {
-	            sb.append(" throws " + exceptions[0]);
-	            for (int i = 1; i < exceptions.length; i++) {
-	                if (exceptions[i] != null && exceptions[i] != "") {
+	        boolean exist = false;
+	        for (int i = 0; i < exceptions.length; i++) {
+	            if (exceptions[i] != null && exceptions[i] != "") {
+	                if (exist) {
 	                    sb.append(", " + exceptions[i]);
+	                } else {
+	                    sb.append(" throws " + exceptions[i]);
+	                    exist = true;
 	                }
-                }
+	            }
 	        }
 	    }
 	    sb.append(" {");

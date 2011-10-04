@@ -252,12 +252,9 @@ public class CalculateSymbolLength implements Visitor {
 
 
         if (props.getLevelNumber() == 66) {
-        	if (props.getRedefinedBy().size() == 1) {
-        		byte type = props.getRedefinedBy().get(0).getCobolDesc().getTypeInJava();
-        		props.getCobolDesc().setTypeInJava(type);
-        	} else {
-        		props.getCobolDesc().setTypeInJava(Constants.GROUP);
-        	}
+//        		byte type = props.getRedefinedBy().get(0).getCobolDesc().getTypeInJava();
+//        		props.getCobolDesc().setTypeInJava(type);
+        	props.getCobolDesc().setTypeInJava(Constants.GROUP);
             processRenames(props);
             return;
         }
@@ -346,6 +343,11 @@ public class CalculateSymbolLength implements Visitor {
     	
     	FieldAttributes.processPicture(props);
 
+    	if (props.getLevelNumber() == 66) {
+    	    processRenames(props);
+    	    return;
+    	}
+    	
 //        boolean isSuppressed = (Boolean) props.getIsSuppressed() || !(props.getRef() || props.getMod()) ;//|| !props.isForceCobolBytes();
 
         if (/*isSuppressed ||*/ props.isFromRESLibrary()) {

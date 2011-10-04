@@ -1601,7 +1601,8 @@ public class CobolFillTable extends DepthFirstVisitor {
             
         } else {
         	// if renames another group/element, the renaming field has same data description as redefined field
-            tempProps.setPictureString(props.getPictureString());
+//            tempProps.setPictureString(props.getPictureString());
+            pictureString = props.getPictureString();
             props.setForceCobolBytes(true);
         }
         tempProps.setForceCobolBytes(true);
