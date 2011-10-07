@@ -23,35 +23,49 @@ public class DataPrinter {
 	private static String[] javaTypeStr = new String[] { "byte", "char", "short", "int",
             "long", "float", "double", "BigDecimal", "String" };
 	
-	private static String setValueGroupName = "setValue";
+	private static String setGroupMethodName = "_setValue";
+	private static String getFromBytesMethodName = "_getFromBytes";
+	private static String setToBytesMethodName = "_setToBytes";
 	
-	private final boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
+	private static boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
 	
-	private String className(SymbolProperties props) {
+	private static String className(SymbolProperties props) {
         return props.getJavaName2();
     }
 
-    private String fieldName(SymbolProperties props) {
+    private static String fieldName(SymbolProperties props) {
         return props.getJavaName1();
     }
 
-    private String editorName(SymbolProperties props) {
+    private static String editorName(SymbolProperties props) {
         return "_" + props.getJavaName1() + "_editor";
     }
 
-    private String getMethodName(SymbolProperties props) {
-        return "get" + className(props);
+    public static final String getMethodName(String name) {
+        return "get" + name;
     }
     
-    private String setMethodName(SymbolProperties props) {
-        return "set" + className(props);
+    private static String getMethodName(SymbolProperties props) {
+        return getMethodName(className(props));
     }
     
-    private String getAsStringName(SymbolProperties props) {
-        return getMethodName(props) + "AsString";
+    public static final String setMethodName(String name) {
+        return "set" + name;
     }
     
-    private boolean genJava(SymbolProperties props) {
+    private static String setMethodName(SymbolProperties props) {
+        return setMethodName(className(props));
+    }
+    
+    public static final String getAsStringName(String name) {
+        return getMethodName(name) + "AsString";
+    }
+    
+    private static String getAsStringName(SymbolProperties props) {
+        return getAsStringName(className(props));
+    }
+    
+    private static boolean genJava(SymbolProperties props) {
         return (useJava && (props.getAdjustedLength() != props.getLength()));
     }
     
@@ -108,6 +122,12 @@ public class DataPrinter {
         
         // print all children of this group
         printDataChildren(props, printer);
+        
+        if (genJava(props)) {
+            printSetToBytesMethod(props, printer);
+            printGetFromBytesMethod(props, printer);
+            overrideToStringForGroup(props, printer);
+        }
 
         // print other inner groups
         while (innerGroupToCreate.size() > 0) {
@@ -136,7 +156,13 @@ public class DataPrinter {
         
         // print all children of this group
         printDataChildren(props, printer);
-
+        
+        if (genJava(props)) {
+            printSetToBytesMethod(props, printer);
+            printGetFromBytesMethod(props, printer);
+            overrideToStringForGroup(props, printer);
+        }
+        
         printer.decreaseIndent();
 
         // end class
@@ -252,20 +278,20 @@ public class DataPrinter {
 		printer.println();
 		
 		// getter
-        printer.beginMethod("public", "String", getMethodName(props), new String[]{indexName == null ? null : "int " + indexName}, null);
-        printer.println(String.format("return this.%s%s.toString();", fieldName(props), arraySpecifier));
+        printer.beginMethod("public", className(props), getMethodName(props), new String[]{indexName == null ? null : "int " + indexName}, null);
+        printer.println(String.format("return this.%s%s;", fieldName(props), arraySpecifier));
         printer.endMethod();
         printer.println();
         
         // set String
         printer.beginMethod("public", "void", setMethodName(props), new String[]{indexName == null ? null : "int " + indexName, "String " + argName}, null);
-        printer.println(String.format("this.%s%s.%s(%s);", fieldName(props), arraySpecifier, setValueGroupName, argName));
+        printer.println(String.format("this.%s%s.%s(%s);", fieldName(props), arraySpecifier, setGroupMethodName, argName));
         printer.endMethod();
         printer.println();
         
         // set long
         printer.beginMethod("public", "void", setMethodName(props), new String[]{indexName == null ? null : "int " + indexName, "long " + argName}, null);
-        printer.println(String.format("this.%s%s.%s(%s(%s));", fieldName(props), arraySpecifier, setValueGroupName, "unsignedValue", argName));
+        printer.println(String.format("this.%s%s.%s(%s(%s));", fieldName(props), arraySpecifier, setGroupMethodName, "unsignedValue", argName));
         printer.endMethod();
         printer.println();
 	}
@@ -514,17 +540,53 @@ public class DataPrinter {
 	
 	private void printSetValueForGroup(SymbolProperties props, JavaCodePrinter printer) {
 	    String argName = "input";
-	    boolean genJava = useJava && (props.getLength() != props.getAdjustedLength());
-	    printer.beginMethod("public", "void", setValueGroupName, new String[]{"String " + argName}, null);
+	    printer.beginMethod("public", "void", setGroupMethodName, new String[]{"String " + argName}, null);
 	    
-	    if (genJava) {
-	        // TODO: split then set
-	    } else {
-	        printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
+	    printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
+	    if (genJava(props)) {
+	        printer.println(getFromBytesMethodName + "();");
 	    }
 	    
 	    printer.endMethod();
 	    printer.println();
+	}
+	
+	// call for group, java types
+	private void overrideToStringForGroup(SymbolProperties props, JavaCodePrinter printer) {
+	    printer.beginMethod("public", "String", "toString", null, null);
+	    printer.println(setToBytesMethodName + "();");
+	    printer.println("return " + getValueMethodName(props, getOffsetWithoutIndex(props)) + ";");
+	    printer.endMethod();
+	}
+	
+	private void printGetFromBytesMethod(SymbolProperties props, JavaCodePrinter printer) {
+	    printer.beginMethod("public", "void", getFromBytesMethodName, null, null);
+	    for (SymbolProperties child : props.getChildren()) {
+	        if (genJava(child)) {
+	            if (child.isGroupData()) {
+	                printer.println(String.format("%s.%s();", fieldName(child), getFromBytesMethodName));
+	            } else {
+	                printer.println(String.format("%s.%s();", fieldName(child), "getCurrentValueFromBytes"));
+	            }
+	        }
+	    }
+	    printer.endMethod();
+	    printer.println();
+	}
+	
+	private void printSetToBytesMethod(SymbolProperties props, JavaCodePrinter printer) {
+	    printer.beginMethod("public", "void", setToBytesMethodName, null, null);
+        for (SymbolProperties child : props.getChildren()) {
+            if (genJava(child)) {
+                if (child.isGroupData()) {
+                    printer.println(String.format("%s.%s();", fieldName(child), setToBytesMethodName));
+                } else {
+                    printer.println(String.format("%s.%s();", fieldName(child), "setCurrentValueToBytes"));
+                }
+            }
+        }
+        printer.endMethod();
+        printer.println();
 	}
 	
 	private String getOffsetWithIndex(SymbolProperties props, String indexArg) { // props have occurs

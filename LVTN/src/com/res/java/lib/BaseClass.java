@@ -50,7 +50,7 @@ public class BaseClass {
 	 * @return
 	 */
 	protected BigDecimal getBigDecimalBCD(int offset, int length,
-			boolean signed, int intLength, int fractionLength, int pscale) {
+			boolean signed, int intLength, int fractionLength, int pscale) throws InvalidDataFormatException {
 		long longValue = convertBCDToLong(offset, length, signed);
 //		System.out.println(longValue);
 		longValue = adjustIntegralValue(longValue, intLength + fractionLength, signed, pscale);
@@ -59,7 +59,7 @@ public class BaseClass {
 	}
 
 	protected long getLongBCD(int offset, int length, boolean signed,
-			int intLength, int pscale) {
+			int intLength, int pscale) throws InvalidDataFormatException {
 		if (length > 10) {
 			throw new ArithmeticException(
 					"Bytes array is too long for Long type");
@@ -112,7 +112,7 @@ public class BaseClass {
 	}
 	
 	protected long getLongDisplay(int offset, int length, boolean signed,
-			boolean signLeading, boolean signSeparate, int pscale) {
+			boolean signLeading, boolean signSeparate, int pscale) throws InvalidDataFormatException {
 		long tempValue = convertDisplayToLong(offset, length, signed,
 				signLeading, signSeparate);
 		if (pscale > 0) {
@@ -122,7 +122,7 @@ public class BaseClass {
 	}
 
 	protected BigDecimal getBigDecimalDisplay(int offset, int length,
-			boolean signed, boolean signLeading, boolean signSeparate, int scale) {
+			boolean signed, boolean signLeading, boolean signSeparate, int scale) throws InvalidDataFormatException {
 		long tempValue = convertDisplayToLong(offset, length, signed,
 				signLeading, signSeparate);
 		BigDecimal returnValue = new BigDecimal(tempValue);
@@ -199,7 +199,7 @@ public class BaseClass {
     }
     
     protected long getLongBytes(int offset, int length, boolean signed,
-			int intLength, int pscale) {
+			int intLength, int pscale) throws InvalidDataFormatException {
 		if (length > 8) {
 			throw new ArithmeticException(
 					"Bytes array is too long for Long type");
@@ -213,7 +213,7 @@ public class BaseClass {
 	}
 
 	protected BigDecimal getBigDecimalBytes(int offset, int length,
-			boolean signed, int intLength, int fractionLength, int pscale) {
+			boolean signed, int intLength, int fractionLength, int pscale) throws InvalidDataFormatException {
 		if (length > 8) {
 			throw new ArithmeticException(
 					"Bytes array is too long for BigDec type");
@@ -876,6 +876,25 @@ public class BaseClass {
 	        }
 	    }
 	    
+	    public void getCurrentValueFromBytes() {
+	        try {
+	            switch (usage) {
+	            case Constants.DISPLAY:
+	                this.value = getBigDecimalDisplay(offset, length, isSigned, isSignLeading, isSignSeparate, scaleLength);
+	                break;
+	            case Constants.BINARY:
+	                this.value = getBigDecimalBytes(offset, length, isSigned, intLength, fractionLength, scaleLength);
+	                break;
+	            case Constants.PACKED_DECIMAL:
+	                this.value = getBigDecimalBCD(offset, length, isSigned, intLength, fractionLength, scaleLength);
+	                break;
+	            }
+	            isNum = true;
+	        } catch (InvalidDataFormatException e) {
+	            isNum = false;
+	        }
+	    }
+	    
 	    public BigDecimal getValue() {
             if (isNum)
                 return this.value;
@@ -954,6 +973,25 @@ public class BaseClass {
                 }
             }
         }
+        
+        public void getCurrentValueFromBytes() {
+            try {
+                switch (usage) {
+                case Constants.DISPLAY:
+                    this.value = getLongDisplay(offset, length, isSigned, isSignLeading, isSignSeparate, scaleLength);
+                    break;
+                case Constants.BINARY:
+                    this.value = getLongBytes(offset, length, isSigned, intLength, scaleLength);
+                    break;
+                case Constants.PACKED_DECIMAL:
+                    this.value = getLongBCD(offset, length, isSigned, intLength, scaleLength);
+                    break;
+                }
+                isNum = true;
+            } catch (InvalidDataFormatException e) {
+                isNum = false;
+            }
+        }
 
         public void setValue(BigDecimal input) {
             setValue(input.longValue());
@@ -1006,6 +1044,10 @@ public class BaseClass {
         
         public void setCurrentValueToBytes() {
             setStringDisplay(this.value, offset, length, rightJustified);
+        }
+        
+        public void getCurrentValueFromBytes() {
+            this.value = getStringDisplay(offset, length);
         }
 	}
 }

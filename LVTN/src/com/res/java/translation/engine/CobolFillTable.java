@@ -488,7 +488,8 @@ public class CobolFillTable extends DepthFirstVisitor {
                 break;
             case 9:
             case 10:
-                lit = "\"\\\"\"";
+//                lit = "\"\\\"\"";
+                lit = "\"";
                 break;
             case 11:
             case 12:

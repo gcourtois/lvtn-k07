@@ -411,7 +411,7 @@ public class SymbolTable {
 						}
 					}
 					if (o1.getValues() != null) {
-						System.out.print("VALUES = {");
+						System.out.print(" VALUES = {");
 						for (CoupleValue v : o1.getValues()) {
 							System.out.print("[" + v.value1 + "," + v.value2 + "]");
 						}

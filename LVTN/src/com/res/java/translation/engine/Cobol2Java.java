@@ -574,7 +574,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	        sb.append(", ");
 	        if (arg instanceof IdentifierInfo) {
 	            IdentifierInfo info = (IdentifierInfo) arg;
-	            sb.append(callMethodPath(info.getQualifiedName(), info.getListSubscripts(), true, null));
+	            sb.append(callMethodPath(info.getQualifiedName(), info.getListSubscripts(), true, true, null));
 	        } else if (arg instanceof Long) {
 	            sb.append(arg);
 	            if ((Long)arg > Integer.MAX_VALUE) {
@@ -780,7 +780,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	        if (props.getCobolDesc().getDataCategory() != Constants.NUMERIC || props.getCobolDesc().getTypeInJava() == Constants.BIGDECIMAL) {
 	            throw new ErrorInCobolSourceException(n, "Subscript must be integer: " + props.getDataName());
 	        }
-	        sb.append(callMethodPath(props, null, true, null));
+	        sb.append(callMethodPath(props, null, true, false, null));
 	        NodeOptional optional = (NodeOptional) sequence.nodes.get(1);
 	        if (optional.present()) {
 	            sb.append(((NodeToken)((NodeChoice)((NodeSequence)optional.node).nodes.get(0)).choice).tokenImage);
@@ -796,57 +796,72 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	/*
 	 * full path to get/set the identifier
 	 */
-	private String callMethodPath(SymbolProperties props, List<Object> listSubscript, boolean isGetMethod, String inputToSet) {
+	private String callMethodPath(SymbolProperties props, List<Object> listSubscript, boolean isGetMethod, boolean getAsString, String inputToSet) {
+	    String[] path = props.getQualifiedName().split("\\.");
+	    StringBuilder rs = new StringBuilder();
+
 	    if (listSubscript == null || listSubscript.size() == 0) {
-	        String[] path = props.getQualifiedName().split("\\.");
-	        StringBuilder rs = new StringBuilder();
 	        int i = 0;
 	        for (; i < path.length - 1; i++) {
-	            rs.append("get" + path[i] + "()");
+	            rs.append(DataPrinter.getMethodName(path[i]) + "()");
 	            rs.append(".");
 	        }
 	        if (isGetMethod) {
-	            rs.append("get" + path[i] + "()");
+	            if (getAsString) {
+	                if (props.isGroupData()) {
+	                    rs.append(DataPrinter.getMethodName(path[i]) + "().toString()");
+	                } else {
+	                    rs.append(DataPrinter.getAsStringName(path[i]) + "()");
+	                }
+	            } else {
+	                rs.append(DataPrinter.getMethodName(path[i]) + "()");
+	            }
 	        } else {
-	            rs.append(String.format("set%s(%s)", path[i], inputToSet));
+	            rs.append(String.format("%s(%s)", DataPrinter.setMethodName(path[i]), inputToSet));
 	        }
-	        return rs.toString();
 	    } else {
-	        String[] path = props.getQualifiedName().split("\\.");
-	        StringBuilder rs = new StringBuilder();
 	        Queue<Object> subscripts = new LinkedList<Object>(listSubscript);
 	        Queue<SymbolProperties> occurParents = new LinkedList<SymbolProperties>(props.getOccursParents());
 	        for (int i = 0; i < path.length; i++) {
 	            String s = path[i];
 	            if (i == path.length - 1) {
 	                if (isGetMethod) {
+	                    String methodName = (getAsString && !props.isGroupData())
+	                                        ? DataPrinter.getAsStringName(s)
+	                                        : DataPrinter.getMethodName(s);
 	                    if (s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
 	                        occurParents.poll();
-	                        rs.append(String.format("get%s(%s)", s, adjustSubscript(subscripts.poll())));
+	                        rs.append(String.format("%s(%s)", methodName, adjustSubscript(subscripts.poll())));
 	                    } else {
-	                        rs.append("get" + s + "()");
+	                        rs.append(methodName + "()");
+	                    }
+	                    if (getAsString && props.isGroupData()) {
+	                        rs.append("toString()");
 	                    }
 	                } else {
 	                    // set method
 	                    if (s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
 	                        occurParents.poll();
-	                        rs.append(String.format("set%s(%s, %s)", s, adjustSubscript(subscripts.poll()), inputToSet));
+	                        rs.append(String.format("%s(%s, %s)",
+	                                DataPrinter.setMethodName(s),
+	                                adjustSubscript(subscripts.poll()), inputToSet));
 	                    } else {
-	                        rs.append(String.format("set%s(%s)", s, inputToSet));
+	                        rs.append(String.format("%s(%s)", DataPrinter.setMethodName(s), inputToSet));
 	                    }
 	                }
 	            } else {
 	                if (s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
 	                    occurParents.poll();
-	                    rs.append(String.format("get%s(%s)", s, adjustSubscript(subscripts.poll())));
+	                    rs.append(String.format("%s(%s)", DataPrinter.getMethodName(s), adjustSubscript(subscripts.poll())));
 	                } else {
-	                    rs.append("get" + s + "()");
+	                    rs.append(DataPrinter.getMethodName(s) + "()");
 	                }
 	                rs.append(".");
 	            }
 	        }
-	        return rs.toString();
 	    }
+	    
+	    return rs.toString();
 	}
 	
 	private Object adjustSubscript(Object subscript) {
