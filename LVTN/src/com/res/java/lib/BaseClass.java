@@ -1151,9 +1151,8 @@ public class BaseClass {
 	 * @param length
 	 */
 	private void fillWithSpace(byte[] input, int offset, int length) {
-		ByteBuffer buffer = ByteBuffer.wrap(input, offset, length);
 		for (int i = 0; i < length; i++) {
-			buffer.put(TranslateConstants.asciiSpace);
+			input[i] = TranslateConstants.asciiSpace;
 		}
 	}
 
