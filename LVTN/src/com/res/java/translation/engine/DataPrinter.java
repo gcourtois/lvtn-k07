@@ -398,8 +398,13 @@ public class DataPrinter {
 	        offset = getOffsetWithoutIndex(props);
 	    }
 	    
-        // set long
-	    printer.beginMethod("public", "void", methodName, new String[]{indexName == null ? null : "int " + indexName, "long " + argName }, null);
+        // set by correct type
+	    String argType = "long ";
+	    if (props.getCobolDesc().getTypeInJava() == Constants.SHORT
+	            || props.getCobolDesc().getTypeInJava() == Constants.INTEGER) {
+	        argType = javaTypeStr[props.getCobolDesc().getTypeInJava()] + " ";
+	    }
+	    printer.beginMethod("public", "void", methodName, new String[]{indexName == null ? null : "int " + indexName, argType + argName }, null);
 	    if (genJava(props)) {
 	        printer.println(setValueJavaField(props, argName, indexName) + ";");
 	    } else {
@@ -651,9 +656,11 @@ public class DataPrinter {
 		byte usage = desc.getUsage();
 								
 		if (type == Constants.SHORT || type == Constants.INTEGER) {
-			String typeStr = javaTypeStr[type];
+			String typeStr = "";
+			if (type == Constants.SHORT)
+			    typeStr = "(short) ";
 			if (usage == Constants.DISPLAY) {
-				return String.format("(%s) getLongDisplay(%s, %s, %s, %s, %s, %s)",
+				return String.format("%sgetIntDisplay(%s, %s, %s, %s, %s, %s)",
 										typeStr,
 										offset,
 										props.getLength(),
@@ -662,7 +669,7 @@ public class DataPrinter {
 										desc.isSignSeparate(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.BINARY) {
-				return String.format("(%s) getLongBytes(%s, %s, %s, %s, %s)",
+				return String.format("%sgetIntBytes(%s, %s, %s, %s, %s)",
 										typeStr,
 										offset,
 										props.getLength(),
@@ -670,7 +677,7 @@ public class DataPrinter {
 										desc.getMaxIntLength(),
 										desc.getMaxScalingLength());
 			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("(%s) getLongBCD(%s, %s, %s, %s, %s)",
+				return String.format("%sgetIntBCD(%s, %s, %s, %s, %s)",
 										typeStr,
 										offset,
 										props.getLength(),
@@ -739,7 +746,35 @@ public class DataPrinter {
 		byte type = desc.getTypeInJava();
 		byte usage = desc.getUsage();
 		
-		if (type == Constants.SHORT || type == Constants.INTEGER || type == Constants.LONG) {
+		if (type == Constants.SHORT || type == Constants.INTEGER) {
+		    if (usage == Constants.DISPLAY) {
+                return String.format("setIntDisplay(%s, %s, %s, %s, %s, %s, %s, %s)",
+                                        argName,
+                                        offset,
+                                        props.getLength(),
+                                        desc.isSigned(),
+                                        desc.isSignLeading(),
+                                        desc.isSignSeparate(),
+                                        desc.getMaxIntLength(),
+                                        desc.getMaxScalingLength());
+            } else if (usage == Constants.BINARY) {
+                return String.format("setIntBytes(%s, %s, %s, %s, %s, %s)",
+                                        argName,
+                                        offset,
+                                        props.getLength(),
+                                        desc.isSigned(),
+                                        desc.getMaxIntLength(),
+                                        desc.getMaxScalingLength());
+            } else if (usage == Constants.PACKED_DECIMAL) {
+                return String.format("setIntBCD(%s, %s, %s, %s, %s, %s)",
+                                        argName,
+                                        offset,
+                                        props.getLength(),
+                                        desc.isSigned(),
+                                        desc.getMaxIntLength(),
+                                        desc.getMaxScalingLength());
+            }
+		} else if (type == Constants.LONG) {
 			if (usage == Constants.DISPLAY) {
 				return String.format("setLongDisplay(%s, %s, %s, %s, %s, %s, %s, %s)",
 										argName,

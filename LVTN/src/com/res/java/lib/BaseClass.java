@@ -8,7 +8,6 @@ package com.res.java.lib;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import com.res.java.lib.exceptions.InvalidDataFormatException;
 import com.res.java.lib.exceptions.OverflowException;
@@ -267,6 +266,16 @@ public class BaseClass {
         return String.valueOf(input);
     }
     
+    protected int getIntBytes(int offset, int length, boolean signed,
+            int intLength, int pscale) throws InvalidDataFormatException {
+        int tempValue = convertBytesToInt(offset, length, signed);
+        tempValue = adjustIntegralValue(tempValue, intLength, signed, pscale);
+        if (pscale > 0) {
+            return doPscaling(tempValue, pscale);
+        }
+        return tempValue;
+    }    
+    
     protected long getLongBytes(int offset, int length, boolean signed,
 			int intLength, int pscale) throws InvalidDataFormatException {
 		if (length > 8) {
@@ -293,6 +302,26 @@ public class BaseClass {
 		return doPscaling(returnValue, fractionLength + pscale);
 	}
 
+	protected void setIntBytes(int input, int offset, int length,
+	        boolean signed, int intLength, int pscale) {
+	    int tempValue = adjustIntegralValue(input, intLength, signed, pscale);
+	    convertIntToBytes(tempValue, offset, length, signed);
+	}
+	
+	protected void setIntBytes(BigDecimal input, int offset, int length,
+            boolean signed, int intLength, int pscale) {
+	    setIntBytes(input.intValue(), offset, length, signed, intLength, pscale);
+	}
+	
+	protected void setIntBytes(String input, int offset, int length,
+            boolean signed, int intLength, int pscale) {
+	    try {
+	        setIntBytes(literalToInt(input), offset, length, signed, intLength, pscale);
+	    } catch (NumberFormatException e) {
+	        setStringDisplay(input, offset, length, false);
+	    }
+	}
+	
 	protected void setLongBytes(long input, int offset, int length,
 			boolean signed, int intLength, int pscale) {
 		long tempValue = adjustIntegralValue(input, intLength, signed, pscale);
@@ -327,7 +356,11 @@ public class BaseClass {
 	
 	protected void setBigDecimalBytes(String input, int offset, int length,
             boolean signed, int intLength, int fractionLength, int pscale) {
-	    setBigDecimalBytes(literalToBigDecimal(input), offset, length, signed, intLength, fractionLength, pscale);
+	    try {
+	        setBigDecimalBytes(literalToBigDecimal(input), offset, length, signed, intLength, fractionLength, pscale);
+	    } catch (NumberFormatException e) {
+	        setStringDisplay(input, offset, length, false);
+	    }
 	}
 	
 	private static long[] powerBase10 = new long[] { 1, 10, 100, 1000, 10000,
@@ -550,11 +583,11 @@ public class BaseClass {
 		if (signed) {
 			if (input < 0) {
 				signByte = 0x0D;
+				input = Math.abs(input);
 			} else {
 				signByte = 0x0F;
 			}
 		} 
-		input = Math.abs(input);
 		int lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
 		temp[byteLength + offset - 1] = signByte;
@@ -584,11 +617,11 @@ public class BaseClass {
 		if (signed) {
 			if (input < 0) {
 				signByte = 0x0D;
+				input = Math.abs(input);
 			} else {
 				signByte = 0x0F;
 			}
 		} 
-		input = Math.abs(input);
 		long lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
 		temp[byteLength + offset - 1] = signByte;
@@ -605,18 +638,25 @@ public class BaseClass {
 			boolean signed) {
 		fillWithZero(data, offset, length, false);
 		buffer.position(offset);
-		if (!signed && input < 0) {
-			input = Math.abs(input);
-		}
-		if (length <=2 ) {
+		if (length == 8) {
+		    buffer.putLong(input);
+		} else if (length == 4) {
+		    buffer.putInt((int) input);
+		} else if (length == 2) {
 		    buffer.putShort((short) input);
-        } else if (length > 4) {
-            buffer.putLong(input);
-        } else {
-            buffer.putInt((int) input);
-        }
+		}
 	}
 
+	private void convertIntToBytes(int input, int offset, int length, boolean signed) {
+	    fillWithZero(data, offset, length, false);
+	    buffer.position(offset);
+	    if (length == 4) {
+	        buffer.putInt(input);
+	    } else if (length == 2) {
+	        buffer.putShort((short) input);
+	    }
+	}
+	
 	/**
 	 * Convert bytes array to Long TODO: Unsigned Long
 	 * 
@@ -632,12 +672,12 @@ public class BaseClass {
 		}
 //		System.out.println("Bytes " + this.printByteArray(temp.array()));
 		long result = 0;
-		if (length <=2 ) {
-			result = buffer.getShort();
-		} else if (length > 4) {
-			result = buffer.getLong();
-		} else {
-			result = buffer.getInt();
+		if (length == 8) {
+		    result = buffer.getLong();
+		} else if (length == 4) {
+		    result = buffer.getInt();
+		} else if (length == 2) {
+		    result = buffer.getShort();
 		}
 
 		if (signed) {
@@ -652,6 +692,31 @@ public class BaseClass {
 		return result;
 	}
 
+	private int convertBytesToInt(int offset, int length, boolean signed) {
+	    buffer.position(offset);
+	    if (length > 8) {
+	        throw new ArithmeticException("Length for Long conversion is too large (>8 bytes)");
+	    }
+	    int result = 0;
+	    if (length == 4) {
+	        result = buffer.getInt();
+	    } else if (length == 2) {
+	        result = buffer.getShort();
+	    }
+
+	    /*if (signed) {
+	        if (result >= powerBase10[18]) {
+	            throw new OverflowException("Overflow Long Conversion");
+	        }
+	    } else {
+	        if (result >= powerBase10[18] || result < 0) {
+	            throw new OverflowException("UnSigned Long is not correct");
+	        }
+	    }*/
+	    
+	    return result;
+	}
+	
 	/**
 	 * Convert EBCDIC to ASCII
 	 * 
