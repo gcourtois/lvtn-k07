@@ -33,6 +33,7 @@ import com.res.cobol.syntaxtree.ExecSqlStatement;
 import com.res.cobol.syntaxtree.ExitProgramStatement;
 import com.res.cobol.syntaxtree.ExitStatement;
 import com.res.cobol.syntaxtree.FetchStatement;
+import com.res.cobol.syntaxtree.FigurativeConstant;
 import com.res.cobol.syntaxtree.GobackStatement;
 import com.res.cobol.syntaxtree.GotoStatement;
 import com.res.cobol.syntaxtree.Identifier;
@@ -590,7 +591,12 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	public Object visit(Literal n, Object o) throws Exception {
-	    return n.nodeChoice.choice.accept(this, o);
+	    if (n.nodeChoice.which == 2) {
+	        // figurative constant
+	        return null;
+	    } else {
+	        return n.nodeChoice.choice.accept(this, o);
+	    }
 	}
 	
 	@Override
@@ -642,6 +648,10 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	            return Long.valueOf(sb.toString());
 	        }
 	    }
+	}
+	
+	public Object visit(FigurativeConstant n, Object o) throws Exception {
+	    return null;
 	}
 	
 	public final class IdentifierInfo {

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.regex.Pattern;
 
 import com.res.common.RESConfig;
 import com.res.java.lib.BaseClass;
@@ -26,6 +27,7 @@ public class DataPrinter {
 	private static String setGroupMethodName = "_setValue";
 	private static String getFromBytesMethodName = "_getFromBytes";
 	private static String setToBytesMethodName = "_setToBytes";
+	private static String initMethodName = "_init";
 	
 	private static boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
 	
@@ -69,18 +71,34 @@ public class DataPrinter {
         return (useJava && (props.getAdjustedLength() != props.getLength()));
     }
     
+    private static boolean hasInitValue(SymbolProperties props) {
+        for (SymbolProperties child : props.getChildren()) {
+            if (child.isData() && child.getValues() != null && child.getValues().size() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void printDataForProgram(SymbolProperties props,
 			JavaCodePrinter printer) throws IOException {
 		if (!props.isProgram())
 			return;
 
+		printer.println("public " + className(props) + "() {");
+		printer.increaseIndent();
 		if (props.getLength() > 0) {
-		    printer.println("public " + className(props) + "() {");
-		    printer.increaseIndent();
 		    printer.println(String.format("super(%d);", props.getLength()));
-		    printer.decreaseIndent();
-		    printer.println("}");
-		    printer.println();
+		}
+		if (hasInitValue(props)) {
+		    printer.println(initMethodName + "();");
+		}
+		printer.decreaseIndent();
+		printer.println("}");
+		printer.println();
+		
+		if (hasInitValue(props)) {
+		    printInitMethod(props, printer);
 		}
 		
 		printDataChildren(props, printer);
@@ -116,8 +134,12 @@ public class DataPrinter {
 
         printer.increaseIndent();
 
-        overrideConstructor(className(props), printer);
+        overrideConstructor(props, printer);
 
+        if (hasInitValue(props)) {
+            printInitMethod(props, printer);
+        }
+        
         printSetValueForGroup(props, printer);
         
         // print all children of this group
@@ -150,8 +172,12 @@ public class DataPrinter {
 
         printer.increaseIndent();
 
-        overrideConstructor(className(props), printer);
+        overrideConstructor(props, printer);
 
+        if (hasInitValue(props)) {
+            printInitMethod(props, printer);
+        }
+        
         printSetValueForGroup(props, printer);
         
         // print all children of this group
@@ -330,6 +356,65 @@ public class DataPrinter {
 		}
 	}
 	
+	private void printInitMethod(SymbolProperties props, JavaCodePrinter printer) {
+	    Pattern longLiteral = Pattern.compile("(\\+|\\-)?[0-9]+");
+	    Pattern decimalLiteral = Pattern.compile("(\\+|\\-)?[0-9]*\\.[0-9]+");
+	    Pattern stringLiteral = Pattern.compile("\".\"");
+	    printer.beginMethod("private", "void", initMethodName, null, null);
+	    for (SymbolProperties child : props.getChildren()) {
+	        if (child.getValues() == null || child.getValues().size() == 0)
+	            continue;
+	        
+	        ExpressionString value = child.getValues().get(0).value1;
+	        
+	        byte valueType = 0;
+	        if (longLiteral.matcher(value.literal).matches()) {
+	            valueType = Constants.LONG;
+	        } else if (decimalLiteral.matcher(value.literal).matches()) {
+	            valueType = Constants.BIGDECIMAL;
+	        } else if (stringLiteral.matcher(value.literal).matches()) {
+	            valueType = Constants.STRING;
+	        }
+	        
+	        if (valueType == Constants.STRING) {
+	            if (child.isOccurs()) {
+	                printer.println(String.format("for(int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
+	                printer.increaseIndent();
+	                if (genJava(child)) {
+	                    printer.println(setValueDirectly(child, value.literal.toString(), "i") + ";");
+	                } else {
+	                    printer.println(setStringMethod(child, value.literal.toString(), getOffsetWithIndex(child, "i")) + ";");
+	                }
+	                printer.endBlock();
+	            } else {
+	                if (genJava(child)) {
+	                    printer.println(setValueDirectly(child, value.literal.toString(), null) + ";");
+	                } else {
+	                    printer.println(setStringMethod(child, value.literal.toString(), getOffsetWithoutIndex(child)) + ";");
+	                }
+	            }
+	        } else {
+	            String input = value.literal.toString();
+	            if (valueType == Constants.LONG) {
+	                long tmp = Long.valueOf(input);
+	                if (tmp > Integer.MAX_VALUE) {
+	                    input += "L";
+	                }
+	            }
+	            if (child.isOccurs()) {
+	                printer.println(String.format("for(int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
+                    printer.increaseIndent();
+                    printer.println(String.format("%s(i, %s);", setMethodName(child), input));
+                    printer.endBlock();
+	            } else {
+	                printer.println(String.format("%s(%s);", setMethodName(child), input));
+	            }
+	        }
+	    }
+	    printer.endMethod();
+	    printer.println();
+	}
+	
 	private void printNumericGetter(SymbolProperties props, JavaCodePrinter printer) {
 	    byte typeInJava = props.getCobolDesc().getTypeInJava();
 	    String type = javaTypeStr[typeInJava];
@@ -399,16 +484,25 @@ public class DataPrinter {
 	    }
 	    
         // set by correct type
-	    String argType = "long ";
 	    if (props.getCobolDesc().getTypeInJava() == Constants.SHORT
 	            || props.getCobolDesc().getTypeInJava() == Constants.INTEGER) {
-	        argType = javaTypeStr[props.getCobolDesc().getTypeInJava()] + " ";
+	        String argType = javaTypeStr[props.getCobolDesc().getTypeInJava()] + " ";
+	        printer.beginMethod("public", "void", methodName, new String[]{indexName == null ? null : "int " + indexName, argType + argName}, null);
+	        if (genJava(props)) {
+	            printer.println(setValueJavaField(props, argName, indexName) + ";");
+	        } else {
+	            printer.println(setValueMethodName(props, argName, offset) + ";");
+	        }
+	        printer.endMethod();
+	        printer.println();
 	    }
-	    printer.beginMethod("public", "void", methodName, new String[]{indexName == null ? null : "int " + indexName, argType + argName }, null);
+	    
+	    // set long
+	    printer.beginMethod("public", "void", methodName, new String[]{indexName == null ? null : "int " + indexName, "long " + argName}, null);
 	    if (genJava(props)) {
 	        printer.println(setValueJavaField(props, argName, indexName) + ";");
 	    } else {
-	        printer.println(setValueMethodName(props, argName, offset) + ";");
+	        printer.println(setLongMethod(props, argName, offset) + ";");
 	    }
 	    printer.endMethod();
 	    printer.println();
@@ -434,7 +528,6 @@ public class DataPrinter {
 	    printer.println();
 	}
 	
-	
 	private void printStringGetter(SymbolProperties props, JavaCodePrinter printer) {
 	    String offset = "";
 	    String[] params = null;
@@ -457,7 +550,6 @@ public class DataPrinter {
 	    printer.endMethod();
 	    printer.println();
 	}
-	
 	
 	private void printStringSetter(SymbolProperties props, JavaCodePrinter printer) {
 	    CobolDataDescription desc = props.getCobolDesc();
@@ -524,8 +616,7 @@ public class DataPrinter {
         printer.println();
 	}
 	
-	private void overrideConstructor(String className, JavaCodePrinter printer) {
-
+	private void overrideConstructor(SymbolProperties props, JavaCodePrinter printer) {
         // printer.println("public " + className + "() {");
         // printer.increaseIndent(); printer.println("super(0);");
         // printer.decreaseIndent(); printer.println("}"); printer.println();
@@ -534,30 +625,32 @@ public class DataPrinter {
         // printer.increaseIndent(); printer.println("super(size);");
         // printer.decreaseIndent(); printer.println("}"); printer.println();
 
-        printer.println("public " + className
-                + "(byte[] data, int offset, int length) {");
-        printer.increaseIndent();
+	    printer.beginMethod("public", "", className(props), new String[]{"byte[] data", "int offset", "int length"}, null);
         printer.println("super(data, offset, length);");
-        printer.decreaseIndent();
-        printer.println("}");
+        if (hasInitValue(props)) {
+            printer.println(initMethodName + "();");
+        }
+        printer.endMethod();
         printer.println();
     }
 	
 	private void printSetValueForGroup(SymbolProperties props, JavaCodePrinter printer) {
 	    String argName = "input";
+	    // set string
 	    printer.beginMethod("public", "void", setGroupMethodName, new String[]{"String " + argName}, null);
-	    
 	    printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
+	    // if gen java, synchronize byte[] <-> field
 	    if (genJava(props)) {
 	        printer.println(getFromBytesMethodName + "();");
 	    }
-	    
 	    printer.endMethod();
 	    printer.println();
 	}
 	
 	// call for group, java types
 	private void overrideToStringForGroup(SymbolProperties props, JavaCodePrinter printer) {
+	    if (!genJava(props))
+	        return;
 	    printer.beginMethod("public", "String", "toString", null, null);
 	    printer.println(setToBytesMethodName + "();");
 	    printer.println("return " + getValueMethodName(props, getOffsetWithoutIndex(props)) + ";");
@@ -568,10 +661,21 @@ public class DataPrinter {
 	    printer.beginMethod("public", "void", getFromBytesMethodName, null, null);
 	    for (SymbolProperties child : props.getChildren()) {
 	        if (genJava(child)) {
-	            if (child.isGroupData()) {
-	                printer.println(String.format("%s.%s();", fieldName(child), getFromBytesMethodName));
+	            if (child.isOccurs()) {
+	                printer.println(String.format("for (int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
+	                printer.increaseIndent();
+	                if (child.isGroupData()) {
+	                    printer.println(String.format("%s[i].%s();", fieldName(child), getFromBytesMethodName));
+	                } else {
+	                    printer.println(String.format("%s[i].%s();", fieldName(child), "getCurrentValueFromBytes"));
+	                }
+	                printer.endBlock();
 	            } else {
-	                printer.println(String.format("%s.%s();", fieldName(child), "getCurrentValueFromBytes"));
+	                if (child.isGroupData()) {
+	                    printer.println(String.format("%s.%s();", fieldName(child), getFromBytesMethodName));
+	                } else {
+	                    printer.println(String.format("%s.%s();", fieldName(child), "getCurrentValueFromBytes"));
+	                }
 	            }
 	        }
 	    }
@@ -583,10 +687,21 @@ public class DataPrinter {
 	    printer.beginMethod("public", "void", setToBytesMethodName, null, null);
         for (SymbolProperties child : props.getChildren()) {
             if (genJava(child)) {
-                if (child.isGroupData()) {
-                    printer.println(String.format("%s.%s();", fieldName(child), setToBytesMethodName));
+                if (child.isOccurs()) {
+                    printer.println(String.format("for (int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
+                    printer.increaseIndent();
+                    if (child.isGroupData()) {
+                        printer.println(String.format("%s[i].%s();", fieldName(child), setToBytesMethodName));
+                    } else {
+                        printer.println(String.format("%s[i].%s();", fieldName(child), "setCurrentValueToBytes"));
+                    }
+                    printer.endBlock();
                 } else {
-                    printer.println(String.format("%s.%s();", fieldName(child), "setCurrentValueToBytes"));
+                    if (child.isGroupData()) {
+                        printer.println(String.format("%s.%s();", fieldName(child), setToBytesMethodName));
+                    } else {
+                        printer.println(String.format("%s.%s();", fieldName(child), "setCurrentValueToBytes"));
+                    }
                 }
             }
         }
@@ -624,225 +739,243 @@ public class DataPrinter {
 	    }
 	}
 	
-	/*private String getAdjustValueMethodName(SymbolProperties props, String argName) {
-	    CobolDataDescription desc = props.getCobolDesc();
-	    byte type = desc.getTypeInJava();
-
-	    if (type == Constants.SHORT || type == Constants.INTEGER) {
-	        String typeStr = javaTypeStr[type];
-	        return String.format("(%s) getAlgebraicValue(%s, %s, %s, %s)",
-                    typeStr, argName, desc.getMaxIntLength(), desc.isSigned(),
-                    desc.getMaxScalingLength());
-	    } else if (type == Constants.LONG) {
-	        return String.format("getAlgebraicValue(%s, %s, %s, %s)", argName,
-                    desc.getMaxIntLength(), desc.isSigned(),
-                    desc.getMaxScalingLength());
-	    } else if (type == Constants.STRING) {
-	        return String.format("getStringValue(%s, %s, %s)", argName,
-	                desc.getMaxStringLength(), desc.isJustifiedRight());
-	    } else if (type == Constants.BIGDECIMAL) {
-	        return String.format("getAlgebraicValue(%s, %s, %s, %s, %s)",
-                    argName, desc.getMaxIntLength(),
-                    desc.getMaxFractionLength(),
-                    desc.getMaxScalingLength(), desc.isSigned());
-	    }
-	    
-	    return "";
-	}*/
-	
 	private String getValueMethodName(SymbolProperties props, String offset) {
-		CobolDataDescription desc = props.getCobolDesc();
-		byte type = desc.getTypeInJava();
-		byte usage = desc.getUsage();
-								
-		if (type == Constants.SHORT || type == Constants.INTEGER) {
-			String typeStr = "";
-			if (type == Constants.SHORT)
-			    typeStr = "(short) ";
-			if (usage == Constants.DISPLAY) {
-				return String.format("%sgetIntDisplay(%s, %s, %s, %s, %s, %s)",
-										typeStr,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.isSignLeading(),
-										desc.isSignSeparate(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.BINARY) {
-				return String.format("%sgetIntBytes(%s, %s, %s, %s, %s)",
-										typeStr,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("%sgetIntBCD(%s, %s, %s, %s, %s)",
-										typeStr,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxScalingLength());
-			}
+		byte type = props.getCobolDesc().getTypeInJava();
+		
+		if (type == Constants.SHORT) {
+		    return "(short) " + getIntMethod(props, offset);
+		} else if (type == Constants.INTEGER) {
+		    return getIntMethod(props, offset);
 		} else if (type == Constants.LONG) {
-			if (usage == Constants.DISPLAY) {
-				return String.format("getLongDisplay(%s, %s, %s, %s, %s, %s)",
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.isSignLeading(),
-										desc.isSignSeparate(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.BINARY) {
-				return String.format("getLongBytes(%s, %s, %s, %s, %s)",
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("getLongBCD(%s, %s, %s, %s, %s)",
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxScalingLength());
-			}
-		}else if (type == Constants.STRING || type == Constants.GROUP) {
-			return String.format("getStringDisplay(%s, %s)", offset, props.getLength());
+		    return getLongMethod(props, offset);
 		} else if (type == Constants.BIGDECIMAL) {
-			if (usage == Constants.DISPLAY) {
-				return String.format("getBigDecimalDisplay(%s, %s, %s, %s, %s, %s)",
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.isSignLeading(),
-										desc.isSignSeparate(),
-										desc.getMaxFractionLength() + desc.getMaxScalingLength());
-			} else if (usage == Constants.BINARY) {
-				return String.format("getBigDecimalBytes(%s, %s, %s, %s, %s, %s)",
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxFractionLength(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("getBigDecimalBCD(%s, %s, %s, %s, %s, %s)",
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxFractionLength(),
-										desc.getMaxScalingLength());
-			}
+		    return getBigDecMethod(props, offset);
+		} else if (type == Constants.GROUP || type == Constants.STRING) {
+		    return getStringMethod(props, offset);
 		}
+		
 		return "";
 	}
 	
 	private String setValueMethodName(SymbolProperties props, String argName, String offset) {
-		CobolDataDescription desc = props.getCobolDesc();
-		byte type = desc.getTypeInJava();
-		byte usage = desc.getUsage();
+		byte type = props.getCobolDesc().getTypeInJava();
 		
 		if (type == Constants.SHORT || type == Constants.INTEGER) {
-		    if (usage == Constants.DISPLAY) {
-                return String.format("setIntDisplay(%s, %s, %s, %s, %s, %s, %s, %s)",
-                                        argName,
-                                        offset,
-                                        props.getLength(),
-                                        desc.isSigned(),
-                                        desc.isSignLeading(),
-                                        desc.isSignSeparate(),
-                                        desc.getMaxIntLength(),
-                                        desc.getMaxScalingLength());
-            } else if (usage == Constants.BINARY) {
-                return String.format("setIntBytes(%s, %s, %s, %s, %s, %s)",
-                                        argName,
-                                        offset,
-                                        props.getLength(),
-                                        desc.isSigned(),
-                                        desc.getMaxIntLength(),
-                                        desc.getMaxScalingLength());
-            } else if (usage == Constants.PACKED_DECIMAL) {
-                return String.format("setIntBCD(%s, %s, %s, %s, %s, %s)",
-                                        argName,
-                                        offset,
-                                        props.getLength(),
-                                        desc.isSigned(),
-                                        desc.getMaxIntLength(),
-                                        desc.getMaxScalingLength());
-            }
+		    return setIntMethod(props, argName, offset);
 		} else if (type == Constants.LONG) {
-			if (usage == Constants.DISPLAY) {
-				return String.format("setLongDisplay(%s, %s, %s, %s, %s, %s, %s, %s)",
-										argName,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.isSignLeading(),
-										desc.isSignSeparate(),
-										desc.getMaxIntLength(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.BINARY) {
-				return String.format("setLongBytes(%s, %s, %s, %s, %s, %s)",
-										argName,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("setLongBCD(%s, %s, %s, %s, %s, %s)",
-										argName,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxScalingLength());
-			}
-		} else if (type == Constants.STRING || type == Constants.GROUP) {
-			return String.format("setStringDisplay(%s, %s, %s, %s)",
-									argName,
-									offset,
-									props.getLength(),
-									desc.isJustifiedRight());
+		    return setLongMethod(props, argName, offset);
 		} else if (type == Constants.BIGDECIMAL) {
-			if (usage == Constants.DISPLAY) {
-				return String.format("setBigDecimalDisplay(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-										argName,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.isSignLeading(),
-										desc.isSignSeparate(),
-										desc.getMaxIntLength(),
-										desc.getMaxFractionLength(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.BINARY) {
-				return String.format("setBigDecimalBytes(%s, %s, %s, %s, %s, %s, %s)", 
-										argName,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxFractionLength(),
-										desc.getMaxScalingLength());
-			} else if (usage == Constants.PACKED_DECIMAL) {
-				return String.format("setBigDecimalBCD(%s, %s, %s, %s, %s, %s, %s)",
-										argName,
-										offset,
-										props.getLength(),
-										desc.isSigned(),
-										desc.getMaxIntLength(),
-										desc.getMaxFractionLength(),
-										desc.getMaxScalingLength());
-			}
+		    return setBigDecMethod(props, argName, offset);
+		} else if (type == Constants.STRING || type == Constants.GROUP) {
+		    return setStringMethod(props, argName, offset);
 		}
+		
 		return "";
 	}
 
+	private String getIntMethod(SymbolProperties props, String offset) {
+	    CobolDataDescription desc = props.getCobolDesc();
+	    byte usage = desc.getUsage();
+	    if (usage == Constants.DISPLAY) {
+            return String.format("getIntDisplay(%s, %s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.isSignLeading(),
+                                    desc.isSignSeparate(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.BINARY) {
+            return String.format("getIntBytes(%s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.PACKED_DECIMAL) {
+            return String.format("getIntBCD(%s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        }
+	    return "";
+	}
+	
+	private String getLongMethod(SymbolProperties props, String offset) {
+	    CobolDataDescription desc = props.getCobolDesc();
+	    byte usage = desc.getUsage();
+	    if (usage == Constants.DISPLAY) {
+            return String.format("getLongDisplay(%s, %s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.isSignLeading(),
+                                    desc.isSignSeparate(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.BINARY) {
+            return String.format("getLongBytes(%s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.PACKED_DECIMAL) {
+            return String.format("getLongBCD(%s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        }
+	    return "";
+	}
+	
+	private String getBigDecMethod(SymbolProperties props, String offset) {
+	    CobolDataDescription desc = props.getCobolDesc();
+	    byte usage = desc.getUsage();
+	    if (usage == Constants.DISPLAY) {
+            return String.format("getBigDecimalDisplay(%s, %s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.isSignLeading(),
+                                    desc.isSignSeparate(),
+                                    desc.getMaxFractionLength() + desc.getMaxScalingLength());
+        } else if (usage == Constants.BINARY) {
+            return String.format("getBigDecimalBytes(%s, %s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxFractionLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.PACKED_DECIMAL) {
+            return String.format("getBigDecimalBCD(%s, %s, %s, %s, %s, %s)",
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxFractionLength(),
+                                    desc.getMaxScalingLength());
+        }
+	    return "";
+	}
+	
+	private String getStringMethod(SymbolProperties props, String offset) {
+	    return String.format("getStringDisplay(%s, %s)", offset, props.getLength());
+	}
+	
+	private String setIntMethod(SymbolProperties props, String argName, String offset) {
+	    CobolDataDescription desc = props.getCobolDesc();
+	    byte usage = desc.getUsage();
+	    if (usage == Constants.DISPLAY) {
+            return String.format("setIntDisplay(%s, %s, %s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.isSignLeading(),
+                                    desc.isSignSeparate(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.BINARY) {
+            return String.format("setIntBytes(%s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.PACKED_DECIMAL) {
+            return String.format("setIntBCD(%s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        }
+	    return "";
+	}
+	
+	private String setLongMethod(SymbolProperties props, String argName, String offset) {
+	    CobolDataDescription desc = props.getCobolDesc();
+	    byte usage = desc.getUsage();
+	    if (usage == Constants.DISPLAY) {
+            return String.format("setLongDisplay(%s, %s, %s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.isSignLeading(),
+                                    desc.isSignSeparate(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.BINARY) {
+            return String.format("setLongBytes(%s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.PACKED_DECIMAL) {
+            return String.format("setLongBCD(%s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxScalingLength());
+        }
+	    return "";
+	}
+	
+	private String setBigDecMethod(SymbolProperties props, String argName, String offset) {
+	    CobolDataDescription desc = props.getCobolDesc();
+	    byte usage = desc.getUsage();
+	    if (usage == Constants.DISPLAY) {
+            return String.format("setBigDecimalDisplay(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.isSignLeading(),
+                                    desc.isSignSeparate(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxFractionLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.BINARY) {
+            return String.format("setBigDecimalBytes(%s, %s, %s, %s, %s, %s, %s)", 
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxFractionLength(),
+                                    desc.getMaxScalingLength());
+        } else if (usage == Constants.PACKED_DECIMAL) {
+            return String.format("setBigDecimalBCD(%s, %s, %s, %s, %s, %s, %s)",
+                                    argName,
+                                    offset,
+                                    props.getLength(),
+                                    desc.isSigned(),
+                                    desc.getMaxIntLength(),
+                                    desc.getMaxFractionLength(),
+                                    desc.getMaxScalingLength());
+        }
+	    return "";
+	}
+	
+	private String setStringMethod(SymbolProperties props, String argName, String offset) {
+	    return String.format("setStringDisplay(%s, %s, %s, %s)",
+                argName,
+                offset,
+                props.getLength(),
+                props.getCobolDesc().isJustifiedRight());
+	}
+	
 	private String javaClassName(SymbolProperties props) {
 	    byte typeInJava = props.getCobolDesc().getTypeInJava();
 	    if (typeInJava >= Constants.SHORT && typeInJava <= Constants.LONG) {
@@ -902,5 +1035,15 @@ public class DataPrinter {
 	    }
 	    sb.append(".setValue(" + argName + ")");
 	    return sb.toString();
+	}
+
+	private String setValueDirectly(SymbolProperties props, String argName, String indexArg) {
+	    StringBuilder sb = new StringBuilder();
+        sb.append(fieldName(props));
+        if (indexArg != null && indexArg != "") {
+            sb.append("[" + indexArg + "]");
+        }
+        sb.append(".setDirectly(" + argName + ")");
+        return sb.toString();
 	}
 }

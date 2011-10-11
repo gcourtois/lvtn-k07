@@ -1299,9 +1299,13 @@ public class BaseClass {
 	            BigDecimal tmp = new BigDecimal(input);
 	            setValue(tmp.abs());
 	        } catch (NumberFormatException e) {
-	            setStringDisplay(input, offset, length, false);
-	            isNum = false;
+	            setDirectly(input);
 	        }
+	    }
+	    
+	    public void setDirectly(String input) {
+	        setStringDisplay(input, offset, length, false);
+	        isNum = false;
 	    }
 	    
 	    public void setCurrentValueToBytes() {
@@ -1454,9 +1458,13 @@ public class BaseClass {
                 }
                 setValue(tmp);
             } catch (NumberFormatException e) {
-                setStringDisplay(input, offset, length, false);
-                isNum = false;
+                setDirectly(input);
             }
+        }
+        
+        public void setDirectly(String input) {
+            setStringDisplay(input, offset, length, false);
+            isNum = false;
         }
 	}
 
@@ -1480,6 +1488,10 @@ public class BaseClass {
         
         public void setValue(String input) {
             this.value = getStringValue(input, length, rightJustified);
+        }
+        
+        public void setDirectly(String input) {
+            this.value = getStringValue(input, length, false);
         }
         
         public String getValue() {
