@@ -227,10 +227,10 @@ public class BaseClass {
 	protected void setBigDecimalDisplay(BigDecimal input, int offset,
 			int length, boolean signed, boolean signLeading,
 			boolean signSeparate, int intLength, int fractionLength, int pscale) {
-//		long tempValue = adjustDecimalValue(input, intLength, fractionLength,
-//				pscale, signed);
-//		convertLongToDisplay(tempValue, offset, length, signed, signLeading,
-//				signSeparate);
+		long tempValue = adjustDecimalValue(input, intLength, fractionLength,
+				pscale, signed);
+		convertLongToDisplay(tempValue, offset, length, signed, signLeading,
+				signSeparate);
 
 	}
 	

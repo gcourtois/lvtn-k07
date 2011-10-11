@@ -820,8 +820,10 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	            if (getAsString) {
 	                if (props.isGroupData()) {
 	                    rs.append(DataPrinter.getMethodName(path[i]) + "().toString()");
-	                } else {
+	                } else if (!(props.getCobolDesc().getTypeInJava() == Constants.STRING)){
 	                    rs.append(DataPrinter.getAsStringName(path[i]) + "()");
+	                } else {
+	                    rs.append(DataPrinter.getMethodName(path[i]) + "()");
 	                }
 	            } else {
 	                rs.append(DataPrinter.getMethodName(path[i]) + "()");
@@ -836,7 +838,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	            String s = path[i];
 	            if (i == path.length - 1) {
 	                if (isGetMethod) {
-	                    String methodName = (getAsString && !props.isGroupData())
+	                    String methodName = (getAsString && !props.isGroupData() && !(props.getCobolDesc().getTypeInJava() == Constants.STRING))
 	                                        ? DataPrinter.getAsStringName(s)
 	                                        : DataPrinter.getMethodName(s);
 	                    if (s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
