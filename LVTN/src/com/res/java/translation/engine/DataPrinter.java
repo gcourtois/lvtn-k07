@@ -343,6 +343,7 @@ public class DataPrinter {
 	    Pattern longLiteral = Pattern.compile("(\\+|\\-)?[0-9]+");
 	    Pattern decimalLiteral = Pattern.compile("(\\+|\\-)?[0-9]*\\.[0-9]+");
 	    Pattern stringLiteral = Pattern.compile("\".*\"");
+	    Pattern stringLiteral2 = Pattern.compile("'.*'");
 	    printer.beginMethod("private", "void", initMethodName, null, null);
 	    for (SymbolProperties child : props.getChildren()) {
 	        if (!child.isData())
@@ -369,8 +370,10 @@ public class DataPrinter {
                     inputType = Constants.LONG;
                 } else if (decimalLiteral.matcher(input).matches()) {
                     inputType = Constants.BIGDECIMAL;
-                } else if (stringLiteral.matcher(input).matches()) {
+                } else if (stringLiteral.matcher(input).matches()
+                        || stringLiteral2.matcher(input).matches()) {
                     inputType = Constants.STRING;
+                    input = formatStringLiteral(input);
                 }
 	        }
 	        
@@ -411,6 +414,19 @@ public class DataPrinter {
 	    }
 	    printer.endMethod();
 	    printer.println();
+	}
+	
+	private String formatStringLiteral(String input) {
+	    input = input.replaceAll("\\\\", "\\\\\\\\");
+	    if (input.startsWith("'")) {
+	        input = input.substring(1, input.length() - 1);
+	        input = input.replaceAll("''", "'");
+	        input = input.replaceAll("\"", "\\\\\"");
+	        input = "\"" + input + "\"";
+	    } else if (input.startsWith("\"")) {
+	        input = input.replaceAll("\"\"", "\\\\\"");
+	    }
+	    return input;
 	}
 	
 	private void printNumericGetter(SymbolProperties props, JavaCodePrinter printer) {
