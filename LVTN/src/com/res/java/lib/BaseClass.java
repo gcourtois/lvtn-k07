@@ -694,8 +694,8 @@ public class BaseClass {
 
 	private int convertBytesToInt(int offset, int length, boolean signed) {
 	    buffer.position(offset);
-	    if (length > 8) {
-	        throw new ArithmeticException("Length for Long conversion is too large (>8 bytes)");
+	    if (length > 4) {
+	        throw new ArithmeticException("Length for Int conversion is too large (>8 bytes)");
 	    }
 	    int result = 0;
 	    if (length == 4) {
@@ -704,15 +704,15 @@ public class BaseClass {
 	        result = buffer.getShort();
 	    }
 
-	    /*if (signed) {
-	        if (result >= powerBase10[18]) {
+	    if (signed) {
+	        if (result >= powerBase10[10]) {
 	            throw new OverflowException("Overflow Long Conversion");
 	        }
 	    } else {
-	        if (result >= powerBase10[18] || result < 0) {
+	        if (result >= powerBase10[10] || result < 0) {
 	            throw new OverflowException("UnSigned Long is not correct");
 	        }
-	    }*/
+	    }
 	    
 	    return result;
 	}
@@ -734,9 +734,9 @@ public class BaseClass {
 		byte[] tempArray = new byte[length];
 		buffer.position(offset);
 		buffer.get(tempArray, 0, length);
-		if (length > 8) {
+		if (length > 10) {
 			throw new OverflowException(
-					"Length of Bytes array is too Long > 8");
+					"Length of Bytes array is too long for int > 10");
 		}
 		if (RunConfig.getInstance().isEbcdicMachine()) {
 		}
@@ -851,9 +851,9 @@ public class BaseClass {
 		byte[] tempArray = new byte[length];
 		buffer.position(offset);
 		buffer.get(tempArray, 0, length);
-		if (length > 8) {
+		if (length > 18) {
 			throw new OverflowException(
-					"Length of Bytes array is too Long > 8");
+					"Length of Bytes array is too long for Long > 18");
 		}
 		if (RunConfig.getInstance().isEbcdicMachine()) {
 		}
@@ -1104,9 +1104,9 @@ public class BaseClass {
 				} else {
 					int signIndex = firstDigitIndex;
 					if (input < 0) {
-						temp[signIndex] = (byte) ((byte)(temp[signIndex] & 0x0F) | 0xD0);
+						temp[signIndex] = (byte) ((byte)(temp[signIndex] & 0x0F) | 0x70);
 					} else {
-						temp[signIndex] = (byte) ((byte)(temp[signIndex] & 0x0F)  | 0xC0);
+						temp[signIndex] = (byte) ((byte)(temp[signIndex] & 0x0F)  | 0x30);
 					}
 				}
 			} else {
@@ -1128,9 +1128,9 @@ public class BaseClass {
 				}
 				if (!signSeparate) {
 					if (input < 0) {
-						temp[length - 1] = (byte) ((byte) (temp[length - 1] & 0x0F) | 0xD0);
+						temp[length - 1] = (byte) ((byte) (temp[length - 1] & 0x0F) | 0x70);
 					} else {
-						temp[length - 1] = (byte) ((byte) (temp[length - 1] & 0x0F) | 0xC0);
+						temp[length - 1] = (byte) ((byte) (temp[length - 1] & 0x0F) | 0x30);
 					}
 					 
 				}
