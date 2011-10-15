@@ -60,7 +60,7 @@ public class EditedVar {
 		} else {
 			try {
 				// TODO: COMMA SWAP PERIOD
-				return doNumericEditString(input.trim());
+				return doNumericEdit(input.trim());
 			} catch (Exception e) {
 				e.printStackTrace();
 				return "";
@@ -197,7 +197,7 @@ public class EditedVar {
 		return retVal;
 	}
 	
-	private String doNumericEditString(String stringInput) {
+	private String doNumericEdit(String stringInput) {
 		char[] listChars = stringInput.toCharArray();
 		boolean isString = false;
 		for (char b : listChars) {
@@ -211,7 +211,7 @@ public class EditedVar {
 		if (isString) {
 			return doNumericEdit(BigDecimal.ZERO);
 		} 
-		return doNumericEdit(new BigDecimal(stringInput));
+		return doNumericEdit(new BigDecimal(stringInput.replace(decimalChar, '.')));
 	}
 	
 	private String doNumericEdit(BigDecimal stringInput) {
@@ -254,8 +254,7 @@ public class EditedVar {
 		boolean isNegative = false;
 		int compareWithZero = input.compareTo(BigDecimal.ZERO);
 		if (compareWithZero == 0) {
-			String[] temp = stringInput.split("(\\" + decimalChar + ")");
-			System.out.println(temp[0]);
+			String[] temp = stringInput.toPlainString().split("[\\" + decimalChar + "]");
 			intString.append(temp[0]);
 			if (temp.length == 2) {
 				fractionString.append(temp[1]);
