@@ -60,7 +60,7 @@ public class EditedVar {
 		} else {
 			try {
 				// TODO: COMMA SWAP PERIOD
-				return doNumericEdit(input.trim());
+				return doNumericEditString(input.trim());
 			} catch (Exception e) {
 				e.printStackTrace();
 				return "";
@@ -68,7 +68,35 @@ public class EditedVar {
 
 		}
 	}
+	public String doEdit(long input) {
+		if (picType == Constants.ALPHANUMERIC_EDITED) {
+			return simpleInsert(String.valueOf(input));
+		} else {
+			try {
+				// TODO: COMMA SWAP PERIOD
+				return doNumericEdit(new BigDecimal(input));
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "";
+			}
 
+		}
+	}
+	
+	public String doEdit(BigDecimal input) {
+		if (picType == Constants.ALPHANUMERIC_EDITED) {
+			return simpleInsert(String.valueOf(input));
+		} else {
+			try {
+				// TODO: COMMA SWAP PERIOD
+				return doNumericEdit(input);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "";
+			}
+
+		}
+	}
 	private String normalizePicString(String picString) {
 		StringBuilder normalizedString = new StringBuilder(picString.toUpperCase());
 		if (picType == Constants.NUMERIC_EDITED) {
@@ -168,9 +196,27 @@ public class EditedVar {
 		}
 		return retVal;
 	}
-
-	private String doNumericEdit(String stringInput) {
-		BigDecimal input = new BigDecimal(stringInput);
+	
+	private String doNumericEditString(String stringInput) {
+		char[] listChars = stringInput.toCharArray();
+		boolean isString = false;
+		for (char b : listChars) {
+			if ((b >= '0' && b <= '9') || (b == this.decimalChar || b == this.commaChar)) {
+				continue;
+			} else {
+				isString = true;
+				break;
+			}
+		}
+		if (isString) {
+			return doNumericEdit(BigDecimal.ZERO);
+		} 
+		return doNumericEdit(new BigDecimal(stringInput));
+	}
+	
+	private String doNumericEdit(BigDecimal stringInput) {
+		BigDecimal input = stringInput;
+		
 		if (this.blankWhenZero && (input.compareTo(BigDecimal.ZERO) == 0)) {
 			return normalizedPic.replaceAll("(.)", " ");
 		}
