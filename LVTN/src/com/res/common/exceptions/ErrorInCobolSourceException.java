@@ -30,6 +30,6 @@ public class ErrorInCobolSourceException extends Exception {
 	}
 	
 	public ErrorInCobolSourceException(RESNode n, String msg) {
-	    super(String.format("(%s:%s):%s", n.sourceFile, n.line + 1, msg));
+	    super(String.format("(%s:line %s):%s", n.sourceFile, n.line + 1, msg));
 	}
 }

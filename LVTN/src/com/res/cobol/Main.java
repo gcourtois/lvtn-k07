@@ -243,7 +243,7 @@ public class Main {
 	private static void printPackageHeader() {
 		try {
 			System.out.println("The java classes are under the folder: "
-					+ new File(".").getCanonicalPath());
+					+ new File(RESConfig.getInstance().getOutputDir()).getCanonicalPath());
 		} catch (IOException e) {
 			System.out.println("Errors encountered: " + e.getMessage()
 					+ ". Processing terminated.");

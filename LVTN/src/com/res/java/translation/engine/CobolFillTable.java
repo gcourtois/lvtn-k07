@@ -34,12 +34,15 @@ import com.res.common.exceptions.ErrorInCobolSourceException;
 import com.res.java.lib.Constants;
 import com.res.java.lib.FieldFormat;
 import com.res.java.lib.RunTimeUtil;
+import com.res.java.translation.engine.Cobol2Java.IdentifierInfo;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
+import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.util.NameUtil;
 
 public class CobolFillTable extends DepthFirstVisitor {
+    private Cobol2Java cobol2Java = new Cobol2Java();
 
     private Stack<String> qualified = new Stack<String>();
     private Stack<SymbolProperties> dataStack = null;
@@ -49,7 +52,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     private SymbolProperties sectionProps = null;
     private String paragraphName = null;
     private String sectionName = null;
-    private ExpressionString literal = new ExpressionString();
+    private LiteralString literalString = new LiteralString();
     private String pictureString = null;
     private String dataName = null;
     private String levelNumber = null;
@@ -348,7 +351,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(EntryStatement n) throws Exception {
         n.literal.accept(this);
-        createProgram(paragraphName = RunTimeUtil.getInstance().stripQuotes(literal.toString(), true), true);
+        createProgram(paragraphName = RunTimeUtil.getInstance().stripQuotes(literalString.toString(), true), true);
     }
 
     private SymbolProperties find01Level(SymbolProperties par) {
@@ -421,7 +424,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 }
             }
         } else if (doLiteral) {
-            literal.literal.append(n.tokenImage);
+            literalString.literal.append(n.tokenImage);
         } else if (doingDataName) {
             if (dataName == null) {
                 dataName = "";
@@ -450,17 +453,14 @@ public class CobolFillTable extends DepthFirstVisitor {
         } 
     }
 
-   
-
     @Override
     public void visit(Literal n) throws Exception {
         doLiteral = true;
-        literal = new ExpressionString();
-        n.nodeChoice.accept(this);
-        if (n.nodeOptional.present() && (n.nodeChoice.which == 0 || n.nodeChoice.which == 1)) {
-            literal.isAll = true;
+        literalString = new LiteralString();
+        if (n.nodeChoice.which == 0 || n.nodeChoice.which == 1 || n.nodeChoice.which == 2) {
+            literalString = (LiteralString) n.nodeChoice.accept(cobol2Java, false);
         } else {
-            literal.isAll = false;
+            n.nodeChoice.accept(this);
         }
         doLiteral = false;
     }
@@ -468,28 +468,33 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(FigurativeConstant n) throws Exception {
         String lit = null;
+        byte cat = 0;
         switch (n.nodeChoice.which) {
             case 0:
             case 1:
             case 2:
                 lit = "0";
+                cat = Constants.ZERO;
                 break;
             case 3:
             case 4:
-                lit = "\" \"";
+                lit = " ";
+                cat = Constants.SPACE;
                 break;
             case 5:
             case 6:
                 lit = "HIGH-VALUE";
+                cat = Constants.HIGH_VALUE;
                 break;
             case 7:
             case 8:
                 lit = "LOW-VALUE";
+                cat = Constants.LOW_VALUE;
                 break;
             case 9:
             case 10:
-//                lit = "\"\\\"\"";
                 lit = "\"";
+                cat = Constants.QUOTE;
                 break;
             case 11:
             case 12:
@@ -498,10 +503,11 @@ public class CobolFillTable extends DepthFirstVisitor {
                 break;
         }
         if (doLiteral) {
-            literal.literal.append(lit);
+            literalString.literal.append(lit);
         } else {
-            literal = new ExpressionString(lit);
+            literalString = new LiteralString(lit);
         }
+        literalString.category = cat;
     }
     private ArrayList<SymbolProperties> filesToPostProcess = new ArrayList<SymbolProperties>();
 
@@ -602,7 +608,9 @@ public class CobolFillTable extends DepthFirstVisitor {
     @Override
     public void visit(DataDivision n) throws Exception {
         super.visit(n);
-        SymbolTable.visit(SymbolTable.getInstance().getCurrentProgram(), new CalculateSymbolLength());
+        SymbolProperties currentProgram = SymbolTable.getInstance().getCurrentProgram();
+        SymbolTable.visit(currentProgram, new SymbolValidation());
+        SymbolTable.visit(currentProgram, new CalculateSymbolLength());
     }
     
     @Override
@@ -1251,13 +1259,36 @@ public class CobolFillTable extends DepthFirstVisitor {
 
     @Override
     public void visit(MoveStatement n) throws Exception {
-
         switch (n.nodeChoice.which) {
             case 0:
                 NodeSequence nodeseq = (NodeSequence) n.nodeChoice.choice;
                 if (nodeseq.size() != 3) {
                     return;
                 }
+                
+                // validate moving rules
+                Object sender = nodeseq.nodes.get(0).accept(cobol2Java, false);
+                byte fromCat = 0;
+                byte fromJavaType = 0;
+                if (sender instanceof LiteralString) {
+                    LiteralString tmp = (LiteralString) sender;
+                    fromCat = tmp.category;
+                    fromJavaType = tmp.javaType;
+                } else {
+                    CobolDataDescription desc = ((IdentifierInfo) sender).getQualifiedName().getCobolDesc();
+                    fromCat = desc.getDataCategory();
+                    fromJavaType = desc.getTypeInJava();
+                }
+                
+                for (Node receiver : ((NodeList)nodeseq.nodes.get(2)).nodes) {
+                    CobolDataDescription toDesc = ((IdentifierInfo) ((NodeSequence) receiver).nodes.get(0).accept(cobol2Java, null)).getQualifiedName().getCobolDesc();
+                    if (!validateMoveRules(fromCat, fromJavaType, toDesc.getDataCategory())) {
+                        throw new ErrorInCobolSourceException(n, "Invalid MOVE statement.");
+                    }
+                }
+                
+                // end validation
+                
                 SymbolProperties propsFrom = null;
                 boolean isSourceANumber = false;
                 int javaType1 = 0,
@@ -1277,7 +1308,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                     setRef(props);
                     isSourceANumber = (verifyCobolPicture(props.getPictureString()) <= Constants.BIGDECIMAL);
                 } else {
-                    formatLiteral(literal);
+                    formatLiteral(literalString);
                     javaType1 = expressionType;
                     dataUsage1 = Constants.BINARY;
                     isSourceANumber = (expressionType <= Constants.BIGDECIMAL);
@@ -1337,6 +1368,34 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
     }
 
+    public static boolean validateMoveRules(byte fromCat, byte fromJavaType, byte toCat) {
+        if (toCat == Constants.ALPHABETIC) {
+            if (fromCat == Constants.ALPHABETIC
+                    || fromCat == Constants.ALPHANUMERIC
+                    || fromCat == Constants.ALPHANUMERIC_EDITED
+                    || fromCat == Constants.SPACE) {
+                return true;
+            }
+            return false;
+        } else if (toCat == Constants.ALPHANUMERIC
+                || toCat == Constants.ALPHANUMERIC_EDITED) {
+            if (fromCat == Constants.NUMERIC && fromJavaType == Constants.BIGDECIMAL) {
+                return false;
+            }
+            return true;
+        } else if (toCat == Constants.NUMERIC
+                || toCat == Constants.NUMERIC_EDITED) {
+            if (fromCat == Constants.ALPHABETIC || fromCat == Constants.SPACE
+                    || fromCat == Constants.ALPHANUMERIC_EDITED
+                    || fromCat == Constants.QUOTE || fromCat == Constants.HIGH_VALUE
+                    || fromCat == Constants.LOW_VALUE) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    
     private int verifyCobolPicture(String picture) {
         if (picture == null) {
             return Constants.GROUP;
@@ -1735,20 +1794,20 @@ public class CobolFillTable extends DepthFirstVisitor {
                 SymbolProperties saveProps = props;
                 ((NodeChoice) seq.elementAt(0)).choice.accept(this);
                 if (props != null) {
-                    ExpressionString value1 = props.getValues().get(0).value1;
-                     ExpressionString value2 = null;
+                    LiteralString value1 = props.getValues().get(0).value1;
+                    LiteralString value2 = null;
                     a.add(saveProps.new CoupleValue(value1, value2));
                 }
                 props = saveProps;
                 break doit;
             } else {
                 seq.elementAt(0).accept(this);
-                ExpressionString value1 = literal;
-                ExpressionString value2 = null;
+                LiteralString value1 = literalString;
+                LiteralString value2 = null;
                 if (((NodeOptional) seq.elementAt(2)).present()) {
                     NodeSequence seq2 = (NodeSequence) ((NodeOptional) seq.elementAt(2)).node;
                     seq2.elementAt(1).accept(this);
-                    value2 = literal;
+                    value2 = literalString;
                 }
                 a.add(props.new CoupleValue(value1, value2));
             }
@@ -1766,8 +1825,8 @@ public class CobolFillTable extends DepthFirstVisitor {
 
     @Override
     public void visit(Identifier n) throws Exception {
-        n.accept(new Cobol2Java(), null);
-//        super.visit(n);
+        n.accept(cobol2Java, null);
+        super.visit(n);
     }
     
     @Override
@@ -1865,7 +1924,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         super.visit(n);
     }
 
-    private void formatLiteral(ExpressionString lit) {
+    private void formatLiteral(LiteralString lit) {
         expressionType = Constants.BYTE;
         return;
     }
@@ -1918,7 +1977,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 break;//out of case 0
             case 1:
                 int prevExpressionType = expressionType;
-                formatLiteral(literal);
+                formatLiteral(literalString);
                 if (prevExpressionType == Constants.BIGDECIMAL
                         || expressionType == Constants.BIGDECIMAL) {
                     //setImportBigDecimalInProgram(SymbolTable.programs.peek());
@@ -2244,7 +2303,7 @@ public class CobolFillTable extends DepthFirstVisitor {
 
     private void doInspectPhrase1(Node n) throws Exception {
         props = null;
-        literal = null;
+        literalString = null;
         n.accept(this);
         if (props != null) {
             if (!isGroupOrAlphanumeric(props)) {
@@ -2405,7 +2464,7 @@ public class CobolFillTable extends DepthFirstVisitor {
             }
             for (Enumeration<Node> e2 = ((NodeList) nodeseq.elementAt(0)).elements(); e2.hasMoreElements();) {
                 props = null;
-                literal = null;
+                literalString = null;
                 NodeChoice nodechoice = (NodeChoice) e2.nextElement();
                 switch (nodechoice.which) {
                     case 0:
@@ -2428,7 +2487,7 @@ public class CobolFillTable extends DepthFirstVisitor {
         setRef(props);
         if (n.nodeOptional.present()) {
             props = null;
-            literal = null;
+            literalString = null;
             NodeSequence nodeseq = (NodeSequence) n.nodeOptional.node;
 
             if (((NodeChoice) nodeseq.elementAt(3)).which == 0) {
@@ -2869,7 +2928,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     public void visit(CancelStatement n) throws Exception {
         for (Enumeration<Node> e = n.nodeList.elements(); e.hasMoreElements();) {
             props = null;
-            literal = null;
+            literalString = null;
             e.nextElement().accept(this);
             if (props != null) {
                 setRef(props);

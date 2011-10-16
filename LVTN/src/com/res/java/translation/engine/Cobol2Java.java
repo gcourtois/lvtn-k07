@@ -1,7 +1,5 @@
 package com.res.java.translation.engine;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -49,6 +47,7 @@ import com.res.cobol.syntaxtree.MoveStatement;
 import com.res.cobol.syntaxtree.MultiplyStatement;
 import com.res.cobol.syntaxtree.Node;
 import com.res.cobol.syntaxtree.NodeChoice;
+import com.res.cobol.syntaxtree.NodeList;
 import com.res.cobol.syntaxtree.NodeListOptional;
 import com.res.cobol.syntaxtree.NodeOptional;
 import com.res.cobol.syntaxtree.NodeSequence;
@@ -96,8 +95,8 @@ import com.res.java.lib.Program;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
+import com.res.java.util.FileUtil;
 import com.res.java.util.JavaCodePrinter;
-import com.res.java.util.NameUtil;
 
 public class Cobol2Java extends GJDepthFirst<Object, Object> {
     private String runMethodName = "_run";
@@ -106,26 +105,13 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 
     @Override
 	public Object visit(ProgramUnit n, Object argu) throws Exception {
-	    File f = new File(RESConfig.getInstance().getProgramPackage());
-        if (!f.exists()) {
-            f.mkdir();
-        }
-        f = new File(RESConfig.getInstance().getDataPackage());
-        if (!f.exists()) {
-            f.mkdir();
-        }
-
         String programName = n.identificationDivision.programIdParagraph.programName.cobolWord.nodeToken.tokenImage;
 
         SymbolProperties props = SymbolTable.getInstance().lookup(programName);
-        // create new file
-        String fileName = RESConfig.getInstance().getProgramPackage()
-                + File.separatorChar + NameUtil.getFileName(props);
-        System.out.println("Create file " + fileName);
 
-        JavaCodePrinter printer;
-        // printer = new JavaCodePrinter(System.out);
-        printer = new JavaCodePrinter(new FileOutputStream(fileName));
+        String className = props.getJavaName2();
+        String fileName = className + ".java";
+        JavaCodePrinter printer = new JavaCodePrinter(FileUtil.newProgramFile(fileName));
 
         // print package
         printer.println("package "
@@ -137,13 +123,19 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         printer.printImport(EditedVar.class);
         printer.printImport(BigDecimal.class);
         
-        printer.println("import " + RESConfig.getInstance().getDataPackage()
-                + ".*;");
+        if (props.hasChildren()) {
+            for (SymbolProperties child : props.getChildren()) {
+                if (child.is01Group()) {
+                    printer.println("import " + RESConfig.getInstance().getDataPackage()
+                            + ".*;");
+                    break;
+                }
+            }
+        }
         printer.println();
 
         // print class definition
-        printer.println("public class " + props.getJavaName2()
-                + " extends Program {");
+        printer.println("public class " + className + " extends Program {");
         printer.increaseIndent();
 
         createListParagraphs(props);
@@ -151,7 +143,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         super.visit(n, printer);
 
         printer.beginMethod("public static", "void", "main", new String[]{"String[] args"}, null);
-        printer.println(String.format("new %s().%s();", programName,
+        printer.println(String.format("new %s().%s();", className,
                 runMethodName));
         printer.endMethod();
 
@@ -163,6 +155,8 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 
 	private void createListParagraphs(SymbolProperties props) {
+	    if (!props.hasChildren())
+	        return;
         for (SymbolProperties p : props.getChildren()) {
             if (p.getType() == SymbolConstants.PARAGRAPH)
                 listParagraphs.add(p);
@@ -438,9 +432,38 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 
     @Override
     public Object visit(MoveStatement n, Object argu) throws Exception {
+        JavaCodePrinter printer = (JavaCodePrinter) argu;
+        if (n.nodeChoice.which == 0) {
+            NodeSequence seq = (NodeSequence) n.nodeChoice.choice;
+            
+            Object sender = ((NodeChoice) seq.nodes.get(0)).accept(this, false);
+            
+            List<IdentifierInfo> listReceivers = new ArrayList<IdentifierInfo>();
+            for (Node receiver : ((NodeList) seq.nodes.get(2)).nodes) {
+                IdentifierInfo id = (IdentifierInfo) ((NodeSequence) receiver).nodes.get(0).accept(this, null);
+                listReceivers.add(id);
+            }
+            
+            if (sender instanceof LiteralString) {
+                LiteralString l = (LiteralString) sender;
+                l.convertToPrint();
+                String input = l.literal.toString();
+                for (IdentifierInfo i : listReceivers) {
+                    printer.println(callMethodPath(i.getQualifiedName(), i.getListSubscripts(), false, false, input) + ";");
+                }
+            } else {
+                IdentifierInfo s = (IdentifierInfo) sender;
+                String input = callMethodPath(s.getQualifiedName(), s.getListSubscripts(), true, false, null);
+                for (IdentifierInfo r : listReceivers) {
+                    printer.println(callMethodPath(r.getQualifiedName(), r.getListSubscripts(), false, false, input) + ";");
+                }
+            }
+        } else {
+            //TODO: move corresponding
+        }
         return null;
     }
-
+    
     @Override
     public Object visit(MultiplyStatement n, Object argu) throws Exception {
         return null;
@@ -576,12 +599,12 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	        if (arg instanceof IdentifierInfo) {
 	            IdentifierInfo info = (IdentifierInfo) arg;
 	            sb.append(callMethodPath(info.getQualifiedName(), info.getListSubscripts(), true, true, null));
-	        } else if (arg instanceof Long) {
-	            sb.append(arg);
-	            if ((Long)arg > Integer.MAX_VALUE) {
-	                sb.append("L");
-	            }
+	        } else if (arg instanceof LiteralString) {
+	            LiteralString l = (LiteralString) arg;
+	            l.convertToPrint();
+	            sb.append(l.literal.toString());
 	        } else {
+	            // String
 	            sb.append(arg.toString());
 	        }
 	    }
@@ -591,17 +614,25 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	}
 	
 	public Object visit(Literal n, Object o) throws Exception {
-	    if (n.nodeChoice.which == 2) {
-	        // figurative constant
-	        return null;
-	    } else {
-	        return n.nodeChoice.choice.accept(this, o);
+	    Object rs = n.nodeChoice.choice.accept(this, o);
+	    if (rs instanceof LiteralString && n.nodeOptional.present()) {
+	        LiteralString l = (LiteralString) rs;
+	        if (l.category == Constants.NUMERIC) {
+	            throw new ErrorInCobolSourceException(n, "Follow ALL must be nonnumeric literal or figurative constants.");
+	        }
+	        l.isAll = true;
+	        return l;
 	    }
+	    return rs;
 	}
 	
 	@Override
 	public Object visit(NonNumericConstant n, Object o) throws Exception {
-	    return n.nodeChoice.choice.accept(this, o);
+	    LiteralString l = new LiteralString((String) n.nodeChoice.choice.accept(this, o));
+	    l.category = Constants.ALPHANUMERIC;
+	    l.javaType = Constants.STRING;
+	    l.convertToJavaLiteral();
+	    return l;
 	}
 	
 	@Override
@@ -642,16 +673,53 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	    if (getString) {
 	        return "\"" + sb.toString() + "\"";
 	    } else {
+	        LiteralString l = null;
 	        if (sb.indexOf(".") > 0) {
-	            return new BigDecimal(sb.toString());
+	            l = new LiteralString(new BigDecimal(sb.toString()).toString());
+	            l.category = Constants.NUMERIC;
+	            l.javaType = Constants.BIGDECIMAL;
 	        } else {
-	            return Long.valueOf(sb.toString());
+	            l = new LiteralString(Long.valueOf(sb.toString()).toString());
+	            l.category = Constants.NUMERIC;
+	            l.javaType = Constants.LONG;
 	        }
+	        return l;
 	    }
 	}
 	
 	public Object visit(FigurativeConstant n, Object o) throws Exception {
-	    return null;
+	    LiteralString l = new LiteralString();
+	    switch (n.nodeChoice.which) {
+	    case 0:
+	    case 1:
+	    case 2:
+	        l.literal.append("0");
+	        l.category = Constants.ZERO;
+	        break;
+	    case 3:
+	    case 4:
+	        l.literal.append(" ");
+	        l.category = Constants.SPACE;
+	        break;
+	    case 5:
+	    case 6:
+	        l.category = Constants.HIGH_VALUE;
+	        break;
+	    case 7:
+	    case 8:
+	        l.category = Constants.LOW_VALUE;
+	        break;
+	    case 9:
+	    case 10:
+	        l.literal.append("\"");
+	        l.category = Constants.QUOTE;
+	        break;
+	    case 11:
+	    case 12:
+	        l.category = Constants.NULL;
+	        break;
+	    }
+	    return l;
 	}
 	
 	public final class IdentifierInfo {

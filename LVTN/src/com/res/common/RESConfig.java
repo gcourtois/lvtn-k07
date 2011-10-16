@@ -29,7 +29,7 @@ public class RESConfig implements Cloneable {
 	public final String versionString = " alpha1.9(08/05/2010) ";
 	private String programPackage;
 	private String dataPackage ;
-	private String outputDir=null;
+	private String outputDir=".";
 	private String configFile="."+File.separatorChar+"Config.properties";
 	private boolean longDataPackageName ;
 	private boolean doListDir ;
@@ -94,7 +94,7 @@ public class RESConfig implements Cloneable {
 		} catch(Exception e) {
 			programPackage ="cobolprogramclasses";
 			dataPackage ="coboldataclasses";
-			outputDir="";
+			outputDir=".";
 		}
 		tabSpaces="";
 		for(int i=0;i<tabLength;++i)

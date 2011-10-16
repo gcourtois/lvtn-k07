@@ -60,6 +60,14 @@ public class Constants {
 	public static final byte NATIONAL = 6;
 	public static final byte NATIONAL_EDITED = 7;
 
+	// figurative constants type
+	public static final byte SPACE = 8;
+	public static final byte QUOTE = 9;
+	public static final byte LOW_VALUE = 10;
+	public static final byte HIGH_VALUE = 11;
+	public static final byte ZERO = 12;
+	public static final byte NULL = 13;
+	
 	// File Organization Codes
 	public static final byte SEQUENTIAL = 0;
 	public static final byte INDEXED = 1;

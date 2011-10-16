@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import com.res.cobol.syntaxtree.DataDescriptionEntry;
 import com.res.java.lib.Constants;
-import com.res.java.translation.engine.ExpressionString;
+import com.res.java.translation.engine.LiteralString;
 
 public class SymbolProperties implements Cloneable {
 
@@ -893,15 +893,15 @@ public class SymbolProperties implements Cloneable {
 
     public class CoupleValue {
 
-        public ExpressionString value1;
-        public ExpressionString value2;
+        public LiteralString value1;
+        public LiteralString value2;
 
         public CoupleValue(String v1, String v2) {
-            value1 = new ExpressionString(v1);
-            value2 = new ExpressionString(v2);
+            value1 = new LiteralString(v1);
+            value2 = new LiteralString(v2);
         }
 
-        public CoupleValue(ExpressionString v1, ExpressionString v2) {
+        public CoupleValue(LiteralString v1, LiteralString v2) {
             value1 = v1;
             value2 = v2;
         }

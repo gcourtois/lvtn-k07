@@ -521,7 +521,7 @@ public class BaseClass {
 			byte eachByte = data[index];
 			int firstDigit = (eachByte >> 4) & 0x0f;
 			int secondDigit = eachByte & 0x0f;
-			if (index == (length - 1)) {
+			if (index == (offset + length - 1)) {
 				if (signed) {
 					if (secondDigit == 0xd) {
 						negate = true;
@@ -551,7 +551,7 @@ public class BaseClass {
 			byte eachByte = data[index];
 			int firstDigit = (eachByte >> 4) & 0x0f;
 			int secondDigit = eachByte & 0x0f;
-			if (index == (length - 1)) {
+			if (index == (offset + length - 1)) {
 				if (signed) {
 					if (secondDigit == 0xd) {
 						negate = true;
@@ -590,10 +590,10 @@ public class BaseClass {
 		} 
 		int lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
-		temp[byteLength + offset - 1] = signByte;
+		temp[byteLength - 1] = signByte;
 		input = input / 10;
 		for (int index = 1; index < byteLength; index++, input /= 100) {
-			temp[byteLength + offset - index - 1] = TranslateConstants.PACKED_DECIMALS[input % 100];
+			temp[byteLength - index - 1] = TranslateConstants.PACKED_DECIMALS[input % 100];
 		}
 		buffer.position(offset);
 		buffer.put(temp, 0, length);
@@ -624,10 +624,10 @@ public class BaseClass {
 		} 
 		long lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
-		temp[byteLength + offset - 1] = signByte;
+		temp[byteLength - 1] = signByte;
 		input = input / 10;
 		for (int index = 1; index < byteLength; index++, input /= 100) {
-			temp[byteLength + offset - index - 1] = TranslateConstants.PACKED_DECIMALS[(int) (input % 100)];
+			temp[byteLength - index - 1] = TranslateConstants.PACKED_DECIMALS[(int) (input % 100)];
 		}
 		buffer.position(offset);
 		buffer.put(temp, 0, length);

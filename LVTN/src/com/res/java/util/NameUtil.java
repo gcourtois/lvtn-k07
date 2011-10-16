@@ -24,11 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
 
-import com.res.common.RESConfig;
-import com.res.java.lib.RunTimeUtil;
-import com.res.java.translation.symbol.SymbolProperties;
-import com.res.java.translation.symbol.SymbolTable;
-
 @SuppressWarnings("unchecked")
 public class NameUtil {
 
@@ -70,65 +65,6 @@ public class NameUtil {
 		return javaName.toString().trim();
 	}
 
-	public static String getFileName(SymbolProperties props) {
-		return getJavaName2(props) + ".java";
-	}
-
-	public static String getBeanInfoFileName(SymbolProperties props2,
-			boolean isData) {
-		String s = getJavaName2(props2) + "BeanInfo.java";
-		return s;
-	}
-
-	public static String getPackageName(SymbolProperties props2,
-			boolean programPackage) {
-
-		RESConfig config = RESConfig.getInstance();
-
-		if (programPackage)
-			return config.getProgramPackage().replace('\\', '.');
-		else {
-
-			SymbolProperties props = props2;
-
-			props = SymbolTable.getInstance().getFirstProgram();
-
-			if (props != null && !props.isProgram())
-				props = null;
-
-			return config.getDataPackage().replace('\\', '.')
-					+ ((RESConfig.getInstance().isLongDataPackageName() && props != null) ? ('.' + props
-							.getJavaName1().toLowerCase()) : "");
-
-		}
-	}
-
-	public static String getPathName(String fileName, String suffix,
-			boolean isData) {
-		String p = null;
-		if (isData)
-			p = RESConfig.getInstance().getDataPackage();
-		else
-			p = RESConfig.getInstance().getProgramPackage();
-		p = p.toLowerCase().replace('.', '\\') + '\\';
-		if (suffix != null && suffix.trim().length() > 0)
-			p += suffix.toLowerCase().replace('.', '\\');
-		p += '\\' + NameUtil.getClassName(fileName, suffix, isData);
-		p += ".java";
-
-		return p;
-	}
-
-
-	public static String getClassName(String fileName, String suffix,
-			boolean isData) {
-		String c = convertCobolNameToJava(fileName, true);
-		if (suffix != null && suffix.trim().length() > 0) {
-			c += convertCobolNameToJava(suffix, true);
-		}
-		return c;
-	}
-
 	private static final TreeSet<String> JAVA_RESERVED_WORDS = new TreeSet<String>();
 
 	static {
@@ -143,24 +79,5 @@ public class NameUtil {
 				"strictfp", "volatile", "const", "float", "native", "super",
 				"while" }));
 
-	}
-
-	public static String getJavaName1(SymbolProperties props) {
-		if (props.getJavaName1() != null)
-			return props.getJavaName1();
-		RunTimeUtil.getInstance().reportError(
-				"Error: Java name for " + props.getDataName()
-						+ " is null. Contact RES support.", true);
-		return "nullName";
-
-	}
-
-	public static String getJavaName2(SymbolProperties props) {
-		if (props.getJavaName2() != null)
-			return props.getJavaName2();
-		RunTimeUtil.getInstance().reportError(
-				"Error: Java name for " + props.getDataName()
-						+ " is null. Contact RES support.", true);
-		return "NullName";
 	}
 }

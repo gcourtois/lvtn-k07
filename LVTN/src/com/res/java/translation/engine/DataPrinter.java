@@ -1,12 +1,9 @@
 package com.res.java.translation.engine;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.regex.Pattern;
 
 import com.res.common.RESConfig;
 import com.res.java.lib.BaseClass;
@@ -14,8 +11,8 @@ import com.res.java.lib.Constants;
 import com.res.java.lib.EditedVar;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
+import com.res.java.util.FileUtil;
 import com.res.java.util.JavaCodePrinter;
-import com.res.java.util.NameUtil;
 
 public class DataPrinter {
 	private Queue<SymbolProperties> group01ToCreate = new LinkedList<SymbolProperties>();
@@ -60,11 +57,15 @@ public class DataPrinter {
     }
     
     public static final String getAsStringName(String name) {
-        return getMethodName(name) + "AsString";
+        return getMethodName(name) + "String";
     }
     
     private static String getAsStringName(SymbolProperties props) {
         return getAsStringName(className(props));
+    }
+    
+    private static String getAsDoubleName(SymbolProperties props) {
+        return getMethodName(className(props)) + "Double";
     }
     
     private static boolean genJava(SymbolProperties props) {
@@ -97,12 +98,9 @@ public class DataPrinter {
 
 	private void createGroup01File(SymbolProperties props) throws IOException {
         // create new file
-        String fileName = RESConfig.getInstance().getDataPackage()
-                + File.separatorChar + NameUtil.getFileName(props);
-        System.out.println("Create file " + fileName);
+        String fileName = className(props) + ".java";
 
-        JavaCodePrinter printer = new JavaCodePrinter(new FileOutputStream(
-                fileName));
+        JavaCodePrinter printer = new JavaCodePrinter(FileUtil.newDataFile(fileName));
 
         // print package
         printer.println("package " + RESConfig.getInstance().getDataPackage()
@@ -340,93 +338,53 @@ public class DataPrinter {
 	}
 	
 	private void printInitMethod(SymbolProperties props, JavaCodePrinter printer) {
-	    Pattern longLiteral = Pattern.compile("(\\+|\\-)?[0-9]+");
-	    Pattern decimalLiteral = Pattern.compile("(\\+|\\-)?[0-9]*\\.[0-9]+");
-	    Pattern stringLiteral = Pattern.compile("\".*\"");
-	    Pattern stringLiteral2 = Pattern.compile("'.*'");
 	    printer.beginMethod("private", "void", initMethodName, null, null);
-	    for (SymbolProperties child : props.getChildren()) {
-	        if (!child.isData())
-	            continue;
-	        
-	        String input = "";
-	        byte inputType = 0;
-	        
-	        if (child.getValues() == null || child.getValues().size() == 0) {
-	            byte category = child.getCobolDesc().getDataCategory();
-	            if (category == Constants.NUMERIC) {
-	                input = "0";
-	                inputType = Constants.LONG;
-	            } else if (category == Constants.NUMERIC_EDITED) {
-	                input = "\"0\"";
-	                inputType = Constants.STRING;
-	            } else {
-	                input = "\" \"";
-	                inputType = Constants.STRING;
+	    if (props.hasChildren()) {
+	        for (SymbolProperties child : props.getChildren()) {
+	            if (!child.isData())
+	                continue;
+
+	            if (child.getValues() != null && child.getValues().size() > 0) {
+	                LiteralString val = child.getValues().get(0).value1;
+	                val.convertToPrint();
+	                String input = val.literal.toString();
+
+	                if (val.javaType == Constants.STRING) {
+	                    if (child.isOccurs()) {
+	                        printer.println(String.format("for(int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
+	                        printer.increaseIndent();
+	                        if (genJava(child)) {
+	                            printer.println(setValueDirectly(child, input, "i") + ";");
+	                        } else {
+	                            printer.println(setStringMethod(child, input, getOffsetWithIndex(child, "i")) + ";");
+	                        }
+	                        printer.endBlock();
+	                    } else {
+	                        if (genJava(child)) {
+	                            printer.println(setValueDirectly(child, input, null) + ";");
+	                        } else {
+	                            printer.println(setStringMethod(child, input, getOffsetWithoutIndex(child)) + ";");
+	                        }
+	                    }
+	                } else {
+	                    /*if (val.javaType == Constants.BIGDECIMAL) {
+	                    input = String.format("new BigDecimal(\"%s\")", input);
+	                }*/
+	                    if (child.isOccurs()) {
+	                        printer.println(String.format("for(int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
+	                        printer.increaseIndent();
+	                        printer.println(String.format("%s(i, %s);", setMethodName(child), input));
+	                        printer.endBlock();
+	                    } else {
+	                        printer.println(String.format("%s(%s);", setMethodName(child), input));
+	                    }
+	                }
 	            }
-	        } else {
-	            input = child.getValues().get(0).value1.literal.toString();
-	            if (longLiteral.matcher(input).matches()) {
-                    inputType = Constants.LONG;
-                } else if (decimalLiteral.matcher(input).matches()) {
-                    inputType = Constants.BIGDECIMAL;
-                } else if (stringLiteral.matcher(input).matches()
-                        || stringLiteral2.matcher(input).matches()) {
-                    inputType = Constants.STRING;
-                    input = formatStringLiteral(input);
-                }
+	            
 	        }
-	        
-	        if (inputType == Constants.STRING) {
-                if (child.isOccurs()) {
-                    printer.println(String.format("for(int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
-                    printer.increaseIndent();
-                    if (genJava(child)) {
-                        printer.println(setValueDirectly(child, input, "i") + ";");
-                    } else {
-                        printer.println(setStringMethod(child, input, getOffsetWithIndex(child, "i")) + ";");
-                    }
-                    printer.endBlock();
-                } else {
-                    if (genJava(child)) {
-                        printer.println(setValueDirectly(child, input, null) + ";");
-                    } else {
-                        printer.println(setStringMethod(child, input, getOffsetWithoutIndex(child)) + ";");
-                    }
-                }
-            } else {
-                if (inputType == Constants.LONG) {
-                    if (Long.valueOf(input) > Integer.MAX_VALUE) {
-                        input += "L";
-                    }
-                } else if (inputType == Constants.BIGDECIMAL) {
-                    input = String.format("new BigDecimal(\"%s\")", input);
-                }
-                if (child.isOccurs()) {
-                    printer.println(String.format("for(int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
-                    printer.increaseIndent();
-                    printer.println(String.format("%s(i, %s);", setMethodName(child), input));
-                    printer.endBlock();
-                } else {
-                    printer.println(String.format("%s(%s);", setMethodName(child), input));
-                }
-            }
 	    }
 	    printer.endMethod();
 	    printer.println();
-	}
-	
-	private String formatStringLiteral(String input) {
-	    input = input.replaceAll("\\\\", "\\\\\\\\");
-	    if (input.startsWith("'")) {
-	        input = input.substring(1, input.length() - 1);
-	        input = input.replaceAll("''", "'");
-	        input = input.replaceAll("\"", "\\\\\"");
-	        input = "\"" + input + "\"";
-	    } else if (input.startsWith("\"")) {
-	        input = input.replaceAll("\"\"", "\\\\\"");
-	    }
-	    return input;
 	}
 	
 	private void printNumericGetter(SymbolProperties props, JavaCodePrinter printer) {
@@ -435,7 +393,7 @@ public class DataPrinter {
 	    String offset = "";
 	    String[] params = null;
 	    
-	    String indexName = null;
+	    String indexName = "";
 	    if (props.isOccurs()) {
 	        indexName = "i";
 	        params = new String[]{"int " + indexName};
@@ -452,6 +410,14 @@ public class DataPrinter {
 	    }
 	    printer.endMethod();
 	    printer.println();
+	    
+	    if (typeInJava >= Constants.SHORT && typeInJava <= Constants.LONG) {
+	        // get double
+	        printer.beginMethod("public", "double", getAsDoubleName(props), params, null);
+	        printer.println(String.format("return %s(%s);", getMethodName(props), indexName));
+	        printer.endMethod();
+	        printer.println();
+	    }
 	    
 	    // string getter
 	    printer.beginMethod("public", "String", getAsStringName(props), params, null);
@@ -531,6 +497,11 @@ public class DataPrinter {
 	        printer.println();
 	    }
 	    
+	    // set double
+	    printer.beginMethod("public", "void", methodName, new String[]{indexName == null ? null : "int " + indexName, "double " + argName}, null);
+	    printer.println(String.format("%s(%sBigDecimal.valueOf(%s).longValue());", methodName, indexName == null ? "" : indexName + ", ", argName));
+	    printer.endMethod();
+	    printer.println();
 	    
 	    // set BigDecimal
 	    printer.beginMethod("public", "void", methodName, new String[]{indexName == null ? null : "int " + indexName, "BigDecimal " + argName }, null);
@@ -592,6 +563,7 @@ public class DataPrinter {
         }
 
 	    String argName = "input";
+	    String editedInput = String.format("%s.doEdit(%s)", editorName(props), argName);
 	    
 	    String offset = "";
 	    String indexName = null;
@@ -607,13 +579,13 @@ public class DataPrinter {
 	    printer.beginMethod("public", "void", setMethodName(props), new String[]{indexName == null ? null : "int " + indexName, "String " + argName}, null);
         if (genJava(props)) {
             if (doEdit) {
-                printer.println(setValueJavaField(props, String.format("%s.doEdit(%s)", editorName(props), argName), indexName) + ";");
+                printer.println(setValueJavaField(props, editedInput, indexName) + ";");
             } else {
                 printer.println(setValueJavaField(props, argName, indexName) + ";");
             }
         } else {
             if (doEdit) {
-                printer.println(setValueMethodName(props, String.format("%s.doEdit(%s)", editorName(props), argName), offset) + ";");
+                printer.println(setValueMethodName(props, editedInput, offset) + ";");
             } else {
                 printer.println(setValueMethodName(props, argName, offset) + ";");
             }
@@ -623,22 +595,37 @@ public class DataPrinter {
         
         // set long
         printer.beginMethod("public", "void", setMethodName(props), new String[]{indexName == null ? null : "int " + indexName, "long " + argName}, null);
-        argName = String.format("unsignedValue(%s)", argName);
+        if (desc.getDataCategory() == Constants.ALPHABETIC
+                || desc.getDataCategory() == Constants.ALPHANUMERIC) {
+            argName = String.format("unsignedValue(%s)", argName);
+        }
         if (genJava(props)) {
             if (doEdit) {
-                printer.println(setValueJavaField(props, String.format("%s.doEdit(%s)", editorName(props), argName), indexName) + ";");
+                printer.println(setValueJavaField(props, editedInput, indexName) + ";");
             } else {
                 printer.println(setValueJavaField(props, argName, indexName) + ";");
             }
         } else {
             if (doEdit) {
-                printer.println(setValueMethodName(props, String.format("%s.doEdit(%s)", editorName(props), argName), offset) + ";");
+                printer.println(setValueMethodName(props, editedInput, offset) + ";");
             } else {
                 printer.println(setValueMethodName(props, argName, offset) + ";");
             }
         }
         printer.endMethod();
         printer.println();
+        
+        if (desc.getDataCategory() == Constants.NUMERIC_EDITED) {
+            // set BigDec
+            printer.beginMethod("public", "void", setMethodName(props), new String[]{indexName == null ? null : "int " + indexName, "BigDecimal " + argName}, null);
+            if (genJava(props)) {
+                printer.println(setValueJavaField(props, editedInput, indexName) + ";");
+            } else {
+                printer.println(setValueMethodName(props, editedInput, offset) + ";");
+            }
+            printer.endMethod();
+            printer.println();
+        }
 	}
 	
 	private void overrideConstructor(SymbolProperties props, JavaCodePrinter printer) {

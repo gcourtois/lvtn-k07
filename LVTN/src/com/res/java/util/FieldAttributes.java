@@ -29,7 +29,6 @@ import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 
 public class FieldAttributes {
 
-	// Update further
 	public static int calculateBytesLength(SymbolProperties props) {
 		int len = 0;
 		boolean isNumber = false;
@@ -54,64 +53,28 @@ public class FieldAttributes {
 			break;
 		}
 
-		/*if (props.getDataCategory() == Constants.NUMERIC_EDITED) {
-			desc.setTypeInJava(Constants.STRING);
-			if (desc.getMaxFractionLength() > 0)
-				len++;
-			desc.setMaxIntLength((short) 0);
-			desc.setMaxFractionLength((short) 0);
-			desc.setMaxStringLength(len);
-			isNumber = false;
-		}*/
-
 		if (isNumber) {
 			switch (desc.getUsage()) {
 			case Constants.BINARY:
-//				props.setAdjustedLength(len);
 				if (len >= 1 && len <= 4) {
 					len = 2;
 				} else if (len >= 5 && len <= 9) {
 					len = 4;
 				} else if (len >= 10) {
 					len = 8;
-					//					if (desc.getTypeInJava() == Constants.INTEGER)
-					//						desc.setTypeInJava(Constants.LONG);
 				} else
 					len = 0;
 				break;
 			case Constants.PACKED_DECIMAL:
-//				props.setAdjustedLength(len);
 				len = (len + 2) / 2;
-				/*int len2 = len;
-				len = len2 / 2;
-				if (len2 % 2 > 0)
-					len++;
-				if (len >= 1 && len <= 4) {
-				} else if (len >= 5 && len <= 10) {
-					if (desc.getTypeInJava() == Constants.INTEGER)
-						desc.setTypeInJava(Constants.LONG);
-				} else
-					len = 0;*/
 				break;
 			case Constants.DISPLAY:
-//				props.setAdjustedLength(len);
 				if (desc.isSigned() && desc.isSignSeparate())
 					len++;
-				//				if (desc.isCurrency())
-				//					len++;
-				/*if (len >= 1 && len <= 4) {
-				} else if (len >= 5 && len <= 9) {
-				} else if (len >= 10) {
-					if (desc.getTypeInJava() == Constants.INTEGER)
-						desc.setTypeInJava(Constants.LONG);
-				} else
-					len = 0;*/
 				break;
 			default:
-//				props.setAdjustedLength(len);
 			}
-		}/* else if (desc.getMaxStringLength() == 1)
-						desc.setTypeInJava(Constants.CHAR);*/
+		}
 		return len;
 	}
 
