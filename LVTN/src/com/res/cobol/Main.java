@@ -64,32 +64,8 @@ public class Main {
 			}
 
 			while (i < args.length) {
-				context.setCobolFillTable(CobolFillTable.getInstance(context));
-				context.setCobolRecode(CobolRecode.getInstance(context));
 				instance.execute(new File(args[i++]));
-				CobolParserTokenManager.commentLines.clear();
-				CobolParserTokenManager.lastToken = null;
-				context.getCharStream().Done();
-				CobolFillTable.clear();
-				CobolRecode.clear();
-				SymbolTable.clear();
-				System.gc();
 			}
-			/*
-			 * File dir = new
-			 * File(args[i].substring(0,args[i].lastIndexOf(File.separatorChar)+1));
-			 * 
-			 * if(!dir.exists()||!dir.canRead()) { System.out.println("Directory
-			 * "+dir.getCanonicalPath()+" does not exist or cannot read.");
-			 * Main.displayProgramUsageAndExit(); }
-			 *  // list the files using our FileFilter File[] files =
-			 * dir.listFiles(instance.new
-			 * CobolFileFilter((args[i].lastIndexOf(File.separatorChar)<0)?args[i]:(args[i].substring(args[i].lastIndexOf(File.separatorChar)+1))));
-			 * 
-			 * if(instance.doListDir = files.length>1) { printPackageHeader(); }
-			 * 
-			 * for (File f : files) { instance.execute(f); }
-			 */
 			
 			System.out
 			.println("Done in "
@@ -105,6 +81,9 @@ public class Main {
 	}
 
 	public void execute(File srcF) throws Exception {
+	    context.setCobolFillTable(CobolFillTable.getInstance(context));
+        context.setCobolRecode(CobolRecode.getInstance(context));
+        
 		File destF = null;
         String fileName;
         System.err.println(fileName = srcF.getCanonicalPath());
@@ -140,16 +119,11 @@ public class Main {
                     parse(context);
                 } else {
                     CompilationUnit unit = parse(context);
-                    /*if (RESConfig.getInstance().isInError()) {
-                        System.out
-                                .println("Errors encountered. Processing terminated.");
-                    } else {*/
-                        translate(unit);
-//                    }
+                    translate(unit);
                     unit = null;
                 }
 
-                // destF.delete();
+                destF.delete();
                 destF = null;
             }
         }
@@ -161,16 +135,20 @@ public class Main {
 			destF.delete();
 		}
 		if (context.getSourceFile() != null) {
-			try {
-				context.getSourceFile().close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		    context.getSourceFile().close();
 		}
 		context.setSourceFile(null);
 		context.setSourceFileName(null);
 		destF = null;
 		srcF = null;
+		
+		CobolParserTokenManager.commentLines.clear();
+        CobolParserTokenManager.lastToken = null;
+        context.getCharStream().Done();
+        CobolFillTable.clear();
+        CobolRecode.clear();
+        SymbolTable.clear();
+        System.gc();
 	}
 
 	private CobolParser cobolParser = null;
@@ -189,12 +167,6 @@ public class Main {
 	    }
 
 	    unit = cobolParser.CompilationUnit();
-	    if (context.isTraceOn() && context.getTraceLevel() % 2 != 0) {
-	        // System.out.println("************************************************************************");
-	        // TreeDumper dump = new TreeDumper();
-	        // dump.visit(unit);
-	        // return null;
-	    }
 
 	    context.getCharStream().Done();
 	    cobolParser = null;
@@ -208,10 +180,6 @@ public class Main {
         // getContext().setTraceLevel(2);
         unit.accept(context.getCobolFillTable());
 
-        /*if (RESConfig.getInstance().isInError()) {
-            System.out.println("Errors encountered. Processing terminated.");
-            return;
-        }*/
         System.out.println("Translation to Java started.");
         if (!doListDir) {
             printPackageHeader();
@@ -223,8 +191,6 @@ public class Main {
 
         // Do Dead-Code Removal and later Restructuring if any
         unit.accept(context.getCobolRecode());
-        // System.out.println("************************Symbol
-        // Table****************************************");
 //         SymbolTable.getInstance().display();
         if (context.isTraceOn()) {
             System.out
@@ -235,9 +201,7 @@ public class Main {
 
         unit.accept(new Cobol2Java(), null);
 
-        //			ClassFile.endProgramScope();
-        // SymbolTable.getInstance().endProgram();
-
+//         SymbolTable.getInstance().endProgram();
     }
 
 	private static void printPackageHeader() {
@@ -415,6 +379,26 @@ public class Main {
 		return i;
 	}
 
+	public RESConfig getConfig() {
+	    return this.config;
+	}
+	
+	public void setSourceFormat(boolean isFixedFormat) {
+	    if (isFixedFormat) {
+	        preprocessor.setSourceFormat(Preprocessor.FORMAT_FIXED);
+	    } else {
+	        preprocessor.setSourceFormat(Preprocessor.FORMAT_VARIABLE);
+	    }
+	}
+	
+	public void setGenOption(boolean useJava) {
+	    if (useJava) {
+	        config.setOptimizeAlgorithm(1);
+	    } else {
+	        config.setOptimizeAlgorithm(0);
+	    }
+	}
+	
 	public static RESContext getContext() {
 		return context;
 	}
