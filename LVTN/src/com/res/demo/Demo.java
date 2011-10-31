@@ -67,6 +67,8 @@ public class Demo {
     
     private JFileChooser outputDirChooser;
     
+    private OutputCodeBrowser javaCodeBrowser; 
+    
     private Main instance = new Main();
     
     public void display() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {
@@ -315,10 +317,15 @@ public class Demo {
                     instance.execute(openedFile);
                     JOptionPane.showMessageDialog(mainFrame, "Finish");
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    if (javaCodeBrowser != null) {
+                        javaCodeBrowser.dispose();
+                    }
+                    javaCodeBrowser = new OutputCodeBrowser(new File(outputDirTxt.getText()));
+                    javaCodeBrowser.setVisible(true);
                 } catch (ParseException e) {
                     JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Parse exception", JOptionPane.ERROR_MESSAGE);
                 } catch (ErrorInCobolSourceException e) {
-                    JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Parse exception", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Syntax error", JOptionPane.ERROR_MESSAGE);
                 } catch (IOException e) {
                     JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "I/O exception", JOptionPane.ERROR_MESSAGE);
                 } catch (Exception e) {
