@@ -13,7 +13,7 @@ import com.res.java.lib.exceptions.InvalidDataFormatException;
 import com.res.java.lib.exceptions.OverflowException;
 
 public class BaseClass {
-	public byte[] data;
+	protected byte[] data;
 
 	protected int offset;
 
@@ -55,7 +55,8 @@ public class BaseClass {
 			boolean signed, int intLength, int fractionLength, int pscale) throws InvalidDataFormatException {
 		long longValue = convertBCDToLong(offset, length, signed);
 //		System.out.println(longValue);
-		longValue = adjustIntegralValue(longValue, intLength + fractionLength, signed, pscale);
+		//TODO: test lai
+		longValue = adjustIntegralValue(longValue, intLength + fractionLength, signed, 0);
 		BigDecimal returnValue = new BigDecimal(longValue);
 		return doPscaling(returnValue, fractionLength + pscale);
 	}
@@ -67,8 +68,9 @@ public class BaseClass {
 					"Bytes array is too long for Int type");
 		}
 		int tempValue = convertBCDToInt(offset, length, signed);
-		tempValue = adjustIntegralValue(tempValue, intLength, signed, pscale);
-		return tempValue;
+		tempValue = adjustIntegralValue(tempValue, intLength, signed, 0);
+		return doPscaling(tempValue, pscale);
+		
 	}
 	
 	protected long getLongBCD(int offset, int length, boolean signed,
@@ -78,8 +80,8 @@ public class BaseClass {
 					"Bytes array is too long for Long type");
 		}
 		long tempValue = convertBCDToLong(offset, length, signed);
-		tempValue = adjustIntegralValue(tempValue, intLength, signed, pscale);
-		return tempValue;
+		tempValue = adjustIntegralValue(tempValue, intLength, signed, 0);
+		return doPscaling(tempValue, pscale);
 	}
 	
 	protected void setIntBCD(int input, int offset, int length,
@@ -597,6 +599,7 @@ public class BaseClass {
 		}
 		buffer.position(offset);
 		buffer.put(temp, 0, length);
+		System.out.println(this.printByteArray(this.data));
 	}
 	
 	/**
