@@ -22,7 +22,7 @@ public class LiteralString {
 	}
 	
 	/**
-	 * Apply for nonnumeric literals.<br/>
+	 * Apply to nonnumeric literals.<br/>
 	 * Remove enclosed character (" or ').<br/>
 	 * Replace double quotes ("") or double apostrophe('')
 	 */

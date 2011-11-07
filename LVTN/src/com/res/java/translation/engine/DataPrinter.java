@@ -2,15 +2,16 @@ package com.res.java.translation.engine;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import com.res.common.RESConfig;
 import com.res.java.lib.BaseClass;
 import com.res.java.lib.Constants;
-import com.res.java.lib.EditedVar;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
+import com.res.java.translation.symbol.SymbolProperties.CoupleValue;
 import com.res.java.util.FileUtil;
 import com.res.java.util.JavaCodePrinter;
 
@@ -108,8 +109,9 @@ public class DataPrinter {
         printer.println();
 
         // print import
-        printer.printImport(BaseClass.class);
-        printer.printImport(EditedVar.class);
+//        printer.printImport(BaseClass.class);
+//        printer.printImport(EditedVar.class);
+        printer.printImport("com.res.java.lib.*");
         printer.printImport(BigDecimal.class);
         printer.println();
 
@@ -237,8 +239,34 @@ public class DataPrinter {
 	}
 	
 	private void printLv88Data(SymbolProperties props, JavaCodePrinter printer) {
-        printer.println("//Create getter, setter for condition-name"
-                + props.getDataName());
+	    SymbolProperties parent = props.getParent();
+	    String indexName = parent.isOccurs() ? "i" : "";
+	    String valName = "val";
+	    String valType = javaTypeStr[parent.getCobolDesc().getTypeInJava()];
+//	    printer.println("//Create getter, setter for condition-name"
+//                + props.getDataName());
+        printer.beginMethod("public", "boolean", getMethodName(props), indexName == "" ? null : new String[]{"int " + indexName}, null);
+        printer.println(String.format("%s %s = %s(%s);", valType, valName, getMethodName(parent), indexName));
+
+        StringBuilder expr = new StringBuilder();
+        ArrayList<CoupleValue> values = props.getValues();
+        LiteralString firstVal = values.get(0).value1;
+        firstVal.convertToPrint();
+        expr.append(String.format("Compare.equal(%s, %s)", valName, firstVal.toString()));
+        
+        for (int i = 1; i < values.size(); i++) {
+            LiteralString v = values.get(i).value1;
+            v.convertToPrint();
+            expr.append(String.format(" || Compare.equal(%s, %s)", valName, v.toString()));
+        }
+        
+        printer.println("return " + expr.toString() + ";");
+        printer.endMethod();
+        printer.println();
+        
+        printer.beginMethod("public", "void", setMethodName(props), indexName == "" ? null : new String[]{"int " + indexName}, null);
+        printer.println(String.format("%s(%s%s);", setMethodName(parent), indexName == "" ? "" : indexName + ", ", firstVal.toString()));
+        printer.endMethod();
         printer.println();
     }
 
@@ -305,8 +333,6 @@ public class DataPrinter {
 
 	private void printElementData(SymbolProperties props,
 			JavaCodePrinter printer) {
-//        boolean isString = (props.getCobolDesc().getTypeInJava() == Constants.STRING);
-		
 		// create field if use java
 		if (genJava(props)) {
 		    if (props.isOccurs()) { // create array
@@ -335,6 +361,9 @@ public class DataPrinter {
 		    printNumericGetter(props, printer);
 		    printNumericSetter(props, printer);
 		}
+		
+		// if has child, then must be lv88-entry
+		printDataChildren(props, printer);
 	}
 	
 	private void printInitMethod(SymbolProperties props, JavaCodePrinter printer) {

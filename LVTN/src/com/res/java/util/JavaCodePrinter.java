@@ -21,6 +21,10 @@ public class JavaCodePrinter extends CodePrinter {
 		println("import " + c.getCanonicalName() + ";");
 	}
 	
+	public void printImport(String packageName) {
+	    println("import " + packageName + ";");
+	}
+	
 	public void beginMethod(String accessSpecifier, String returnType, String name, String[] params, String[] exceptions) {
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(accessSpecifier + " ");

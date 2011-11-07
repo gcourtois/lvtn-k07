@@ -90,8 +90,6 @@ import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
 import com.res.common.exceptions.ErrorInCobolSourceException;
 import com.res.java.lib.Constants;
-import com.res.java.lib.EditedVar;
-import com.res.java.lib.Program;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
@@ -119,15 +117,17 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         printer.println();
 
         // print import
-        printer.printImport(Program.class);
-        printer.printImport(EditedVar.class);
+//        printer.printImport(Program.class);
+//        printer.printImport(EditedVar.class);
+        printer.printImport("com.res.java.lib.*");
         printer.printImport(BigDecimal.class);
         
         if (props.hasChildren()) {
             for (SymbolProperties child : props.getChildren()) {
                 if (child.is01Group()) {
-                    printer.println("import " + RESConfig.getInstance().getDataPackage()
-                            + ".*;");
+//                    printer.println("import " + RESConfig.getInstance().getDataPackage()
+//                            + ".*;");
+                    printer.printImport(RESConfig.getInstance().getDataPackage() + ".*");
                     break;
                 }
             }

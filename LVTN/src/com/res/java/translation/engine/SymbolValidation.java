@@ -30,6 +30,17 @@ public class SymbolValidation implements Visitor {
 
     @Override
     public void visit88Element(SymbolProperties props) throws Exception {
+        ArrayList<CoupleValue> values = props.getValues();
+        if (values == null || values.size() == 0) {
+            throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), props.getDataName() + ": condition-name must have VALUES.");
+        }
+        byte toCat = props.getParent().getCobolDesc().getDataCategory();
+        for (CoupleValue c : values) {
+            LiteralString val = c.value1;
+            if (!CobolFillTable.validateMoveRules(val.category, val.javaType, toCat)) {
+                throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "Invalid value: " + val.toString());
+            }
+        }
     }
 
     @Override
