@@ -92,6 +92,10 @@ class CodePrinter {
 		this.ps = new PrintStream(os);
 	}
 	
+	public PrintStream getStream() {
+	    return this.ps;
+	}
+	
 	public void close() {
 		ps.close();
 	}

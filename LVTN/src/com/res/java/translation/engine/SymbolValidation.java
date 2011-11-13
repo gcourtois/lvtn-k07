@@ -125,30 +125,31 @@ public class SymbolValidation implements Visitor {
             if (props.isGroupData()) {
                 throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "BLANK WHEN ZERO for group item: " + props.getDataName());
             } else {
-                if (props.isBlankWhenZero()) {
-                    if (props.getLevelNumber() == 66 || props.getLevelNumber() == 88) {
-                        throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), String.format("Level %s item cannot have BLANK WHEN ZERO", props.getLevelNumber()));
-                    }
-                    if (desc.getDataCategory() == Constants.NUMERIC) {
-                        desc.setDataCategory(Constants.NUMERIC_EDITED);
-                        desc.setTypeInJava(Constants.STRING);
-                        if (desc.getPic().indexOf("V") > 0) {
-                            desc.setMaxStringLength(desc.getPic().length() - 1);
-                        } else {
-                            desc.setMaxStringLength(desc.getPic().length());
-                        }
-                    }
-
-                    if (desc.getDataCategory() == Constants.NUMERIC_EDITED) {
-                        if (desc.getUsage() != Constants.DISPLAY) {
-                            throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "BLANK WHEN ZERO only apply with usage DISPLAY.");
-                        }
-                        if (desc.getPic().contains("S") || desc.getPic().contains("*")) {
-                            throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "BLANK WHEN ZERO clause cannot apply for picture contains 'S' or '*'.");
-                        }
+                if (props.getLevelNumber() == 66 || props.getLevelNumber() == 88) {
+                    throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), String.format("Level %s item cannot have BLANK WHEN ZERO", props.getLevelNumber()));
+                }
+                
+                // if numeric -> change to numeric-edited
+                if (desc.getDataCategory() == Constants.NUMERIC) {
+                    desc.setDataCategory(Constants.NUMERIC_EDITED);
+                    desc.setTypeInJava(Constants.STRING);
+                    if (desc.getPic().indexOf("V") > 0) {
+                        desc.setMaxStringLength(desc.getPic().length() - 1);
                     } else {
-                        throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "Invalid data category for BLANK WHEN ZERO clause.");
+                        desc.setMaxStringLength(desc.getPic().length());
                     }
+                }
+                
+                // check
+                if (desc.getDataCategory() == Constants.NUMERIC_EDITED) {
+                    if (desc.getUsage() != Constants.DISPLAY) {
+                        throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "BLANK WHEN ZERO only apply with usage DISPLAY.");
+                    }
+                    if (desc.getPic().contains("S") || desc.getPic().contains("*")) {
+                        throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "BLANK WHEN ZERO clause cannot apply for picture contains 'S' or '*'.");
+                    }
+                } else {
+                    throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "Invalid data category for BLANK WHEN ZERO clause.");
                 }
             }
         }

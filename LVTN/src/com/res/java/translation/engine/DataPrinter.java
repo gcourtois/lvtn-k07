@@ -1,11 +1,11 @@
 package com.res.java.translation.engine;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.res.cobol.visitor.TreeDumper;
 import com.res.common.RESConfig;
 import com.res.java.lib.BaseClass;
 import com.res.java.lib.Constants;
@@ -28,6 +28,8 @@ public class DataPrinter {
 	private static String initMethodName = "_init";
 	
 	private static boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
+	
+	private TreeDumper dumper;
 	
 	private static String className(SymbolProperties props) {
         return props.getJavaName2();
@@ -74,7 +76,7 @@ public class DataPrinter {
     }
     
     public void printDataForProgram(SymbolProperties props,
-			JavaCodePrinter printer) throws IOException {
+			JavaCodePrinter printer) throws Exception {
 		if (!props.isProgram())
 			return;
 
@@ -90,6 +92,8 @@ public class DataPrinter {
 		
 		printInitMethod(props, printer);
 		
+		dumper = new TreeDumper(printer.getStream());
+		dumper.printSpecials(false);
 		printDataChildren(props, printer);
 
 		while (group01ToCreate.size() > 0) {
@@ -97,12 +101,22 @@ public class DataPrinter {
 		}
 	}
 
-	private void createGroup01File(SymbolProperties props) throws IOException {
+    private void printEntryComment(SymbolProperties props, JavaCodePrinter printer) throws Exception {
+        printer.print("//");
+        dumper.startAtNextToken();
+        dumper.visit(props.getDataDescriptionEntry());
+        printer.println();
+    }
+    
+	private void createGroup01File(SymbolProperties props) throws Exception {
         // create new file
         String fileName = className(props) + ".java";
 
         JavaCodePrinter printer = new JavaCodePrinter(FileUtil.newDataFile(fileName));
-
+//        JavaCodePrinter printer = new JavaCodePrinter(System.out);
+        dumper = new TreeDumper(printer.getStream());
+        dumper.printSpecials(false);
+        
         // print package
         printer.println("package " + RESConfig.getInstance().getDataPackage()
                 + ";");
@@ -150,7 +164,7 @@ public class DataPrinter {
     }
 
 	private void createInnerGroupClass(SymbolProperties props,
-            JavaCodePrinter printer) {
+            JavaCodePrinter printer) throws Exception {
         // print class definition
         printer.println("public class " + className(props) + " extends "
                 + BaseClass.class.getSimpleName() + " {");
@@ -180,7 +194,7 @@ public class DataPrinter {
     }
 
 	private void printDataChildren(SymbolProperties props,
-			JavaCodePrinter printer) {
+			JavaCodePrinter printer) throws Exception {
 		if (!props.hasChildren())
 			return;
 		for (SymbolProperties p : props.getChildren()) {
@@ -205,7 +219,9 @@ public class DataPrinter {
 	}
 
 
-	private void printLv66Data(SymbolProperties props, JavaCodePrinter printer) {
+	private void printLv66Data(SymbolProperties props, JavaCodePrinter printer) throws Exception {
+	    printEntryComment(props, printer);
+	    
 		// renames field always use byte array
 		byte typeInJava = props.getCobolDesc().getTypeInJava();
 		
@@ -238,7 +254,9 @@ public class DataPrinter {
 		printer.println();*/
 	}
 	
-	private void printLv88Data(SymbolProperties props, JavaCodePrinter printer) {
+	private void printLv88Data(SymbolProperties props, JavaCodePrinter printer) throws Exception {
+	    printEntryComment(props, printer);
+	    
 	    SymbolProperties parent = props.getParent();
 	    String indexName = parent.isOccurs() ? "i" : "";
 	    String valName = "val";
@@ -270,13 +288,9 @@ public class DataPrinter {
         printer.println();
     }
 
-	private void printGroupData(SymbolProperties props, JavaCodePrinter printer) {
-		if (props.getLevelNumber() == 1) {
-			group01ToCreate.add(props);
-		} else {
-			innerGroupToCreate.add(props);
-		}
-
+	private void printGroupData(SymbolProperties props, JavaCodePrinter printer) throws Exception {
+		printEntryComment(props, printer);
+		
 		String argName = "input";
 		String arraySpecifier = "";
 		String indexName = null;
@@ -332,7 +346,9 @@ public class DataPrinter {
 	}
 
 	private void printElementData(SymbolProperties props,
-			JavaCodePrinter printer) {
+			JavaCodePrinter printer) throws Exception {
+	    printEntryComment(props, printer);
+	    
 		// create field if use java
 		if (genJava(props)) {
 		    if (props.isOccurs()) { // create array

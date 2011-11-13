@@ -3,9 +3,12 @@
 //
 package com.res.cobol.visitor;
 
-import com.res.cobol.syntaxtree.*;
-import java.util.*;
-import java.io.*;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.Enumeration;
+
+import com.res.cobol.syntaxtree.NodeToken;
 
 /**
  * Dumps the syntax tree to a Writer using the location information in
@@ -79,7 +82,8 @@ public class TreeDumper extends DepthFirstVisitor {
       //
       if ( startAtNextToken ) {
          curLine = n.beginLine;
-         curColumn = 1;
+//         curColumn = 1;
+         curColumn = n.beginColumn;
          startAtNextToken = false;
 
          if ( n.beginColumn < curColumn )

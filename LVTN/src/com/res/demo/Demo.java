@@ -2,12 +2,15 @@ package com.res.demo;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Event;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
@@ -27,11 +30,16 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
+
+import jsyntaxpane.DefaultSyntaxKit;
 
 import com.res.cobol.Main;
 import com.res.cobol.parser.ParseException;
@@ -45,6 +53,7 @@ public class Demo {
     private JMenuBar menuBar;
     private JMenu fileMenu;
     private JMenuItem openItem;
+    private JMenuItem saveItem;
     private JMenuItem exitItem;
     
     private JRadioButton fixFormatRadio;
@@ -71,6 +80,9 @@ public class Demo {
     
     private Main instance = new Main();
     
+    private static String programTitle = "COBOL to JAVA demo";
+    private boolean textChanged = false;
+    
     public void display() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         
@@ -85,15 +97,21 @@ public class Demo {
     }
     
     private void init() throws IOException {
-        mainFrame = new JFrame("COBOL to JAVA demo");
+        mainFrame = new JFrame(programTitle);
         
         menuBar = new JMenuBar();
         fileMenu = new JMenu("File");
         openItem = new JMenuItem("Open");
+        saveItem = new JMenuItem("Save");
+        saveItem.setEnabled(false);
         exitItem = new JMenuItem("Exit");
         fileMenu.setMnemonic(KeyEvent.VK_F);
+        saveItem.setMnemonic(KeyEvent.VK_S);
         openItem.setMnemonic(KeyEvent.VK_O);
         exitItem.setMnemonic(KeyEvent.VK_X);
+        saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
+        openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
+        exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, Event.ALT_MASK));
         
         fixFormatRadio = new JRadioButton("Fixed");
         fixFormatRadio.setSelected(true);
@@ -110,8 +128,11 @@ public class Demo {
         
         doConvertBtn = new JButton("Convert");
         
+        DefaultSyntaxKit.initKit();
         cobolEditor = new JEditorPane();
-        cobolScrollPane = new JScrollPane();
+        cobolScrollPane = new JScrollPane(cobolEditor);
+        cobolEditor.setContentType("text/c");
+        cobolEditor.setFont(new Font("", 0, 12));
         
         openFileChooser = new JFileChooser();
         openFileChooser.setFileFilter(new FileFilter() {
@@ -136,6 +157,7 @@ public class Demo {
     
     private void layout() {        
         fileMenu.add(openItem);
+        fileMenu.add(saveItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
         menuBar.add(fileMenu);
@@ -199,8 +221,8 @@ public class Demo {
         outputLayout.putConstraint(SpringLayout.NORTH, outputDirBtn, -2, SpringLayout.NORTH, outputDirLbl);
         outputLayout.putConstraint(SpringLayout.EAST, outputDirBtn, -3, SpringLayout.EAST, outputTargetPanel);
         
-        cobolScrollPane.getViewport().add(cobolEditor);
-        cobolScrollPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+//        cobolScrollPane.getViewport().add(cobolEditor);
+        cobolScrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         
         SpringLayout mainLayout = new SpringLayout(); 
         mainFrame.setLayout(mainLayout);
@@ -248,6 +270,13 @@ public class Demo {
             }
         });
         
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveFile();
+            }
+        });
+        
         exitItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -282,16 +311,56 @@ public class Demo {
         });
     }
 
+    private class TextChangedListener implements DocumentListener {
+        @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateTextChanged();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateTextChanged();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateTextChanged();
+            }
+    }
+    
+    private void updateTextChanged() {
+        textChanged = true;
+        saveItem.setEnabled(true);
+    }
+    
+    private void saveFile() {
+        if (textChanged) {
+            try {
+                FileWriter fw = new FileWriter(openedFile);
+                cobolEditor.write(fw);
+                fw.flush();
+                fw.close();
+                textChanged = false;
+                saveItem.setEnabled(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void openFile() {
         if (openFileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             openedFile = openFileChooser.getSelectedFile();
             try {
-                cobolEditor.read(new FileInputStream(openedFile), null);
+                FileInputStream fis = new FileInputStream(openedFile);
+                cobolEditor.read(fis, null);
+                fis.close();
+                cobolEditor.getDocument().addDocumentListener(new TextChangedListener());
+                textChanged = false;
+                mainFrame.setTitle(programTitle + " (" + openedFile.getCanonicalPath() + ")");
             } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

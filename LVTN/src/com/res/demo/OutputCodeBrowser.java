@@ -23,6 +23,7 @@ public class OutputCodeBrowser extends JFrame {
     private JEditorPane javaEditor;
     private JScrollPane treeScroll;
     private JScrollPane editorScroll;
+    private JSplitPane splitPane;
     
     public OutputCodeBrowser(File outputDir) {
         this.outputDir = outputDir;
@@ -34,6 +35,12 @@ public class OutputCodeBrowser extends JFrame {
         pack();
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+    
+    @Override
+    public void setVisible(boolean b) {
+        super.setVisible(b);
+        splitPane.setDividerLocation(0.25);
     }
     
     private void init() {
@@ -62,10 +69,10 @@ public class OutputCodeBrowser extends JFrame {
         javaEditor = new JEditorPane();
         editorScroll = new JScrollPane(javaEditor);
         javaEditor.setContentType("text/java");
-        javaEditor.setEditable(false);
+//        javaEditor.setEditable(false);
         javaEditor.setFont(new Font("Courier", 0, 12));
         
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScroll, editorScroll);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScroll, editorScroll);
         add(splitPane);
     }
     
@@ -82,5 +89,6 @@ public class OutputCodeBrowser extends JFrame {
     public static void main(String[] args) {
         OutputCodeBrowser b = new OutputCodeBrowser(new File("D:/opt"));
         b.setVisible(true);
+//        b.splitPane.setDividerLocation(0.5);
     }
 }
