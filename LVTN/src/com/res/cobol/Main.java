@@ -82,75 +82,77 @@ public class Main {
 	}
 
 	public void execute(File srcF) throws Exception {
-	    context.setCobolFillTable(CobolFillTable.getInstance(context));
-        context.setCobolRecode(CobolRecode.getInstance(context));
-        
-		File destF = null;
-        String fileName;
-        System.err.println(fileName = srcF.getCanonicalPath());
+	    try {
+	        context.setCobolFillTable(CobolFillTable.getInstance(context));
+	        context.setCobolRecode(CobolRecode.getInstance(context));
 
-        RESConfig.getInstance().setInError(false);
+	        File destF = null;
+	        String fileName;
+	        System.err.println(fileName = srcF.getCanonicalPath());
 
-        context.setSourceFileName(fileName.substring(fileName.replace('/',
-                File.separatorChar).lastIndexOf(File.separatorChar) + 1));
+	        RESConfig.getInstance().setInError(false);
 
-        if (!srcF.exists() || !srcF.isFile() || !srcF.canRead()) {
-            System.out.println("Invalid Source File: " + fileName);
-        } else {
-            String dest = "$temporary.file";
-            if (context.isProcessPreprocessOnly()) {
-                preprocessor.preprocess(fileName, null);
-            } else {
-                destF = new File(dest);
-                if (destF.exists()) {
-                    destF.delete();
-                }
-                preprocessor.preprocess(fileName, dest);
-                if (!destF.exists()) {
-                    return;
-                }
-                System.out.println("Parsing Cobol started for: "
-                        + srcF.getAbsolutePath() + "");
-                context.setSourceFile(new BufferedReader(new InputStreamReader(
-                        new FileInputStream(destF))));
-                if (!context.getSourceFile().ready()) {
-                    throw new ParseException();
-                }
-                if (context.isProcessParseOnly()) {
-                    parse(context);
-                } else {
-                    CompilationUnit unit = parse(context);
-                    GenDetails.getInstance().clear();
-                    translate(unit);
-                    unit = null;
-                }
+	        context.setSourceFileName(fileName.substring(fileName.replace('/',
+	                File.separatorChar).lastIndexOf(File.separatorChar) + 1));
 
-                destF.delete();
-                destF = null;
-            }
-        }
-		
-		if (doListDir && srcF != null) {
-			System.out.println("Done: " + srcF.getAbsolutePath() + "\n");
-		}
-		if (destF != null) {
-			destF.delete();
-		}
-		if (context.getSourceFile() != null) {
-		    context.getSourceFile().close();
-		}
-		context.setSourceFile(null);
-		context.setSourceFileName(null);
-		destF = null;
-		srcF = null;
-		
-		CobolParserTokenManager.commentLines.clear();
-        CobolParserTokenManager.lastToken = null;
-        context.getCharStream().Done();
-        CobolFillTable.clear();
-        CobolRecode.clear();
-        SymbolTable.clear();
-        System.gc();
+	        if (!srcF.exists() || !srcF.isFile() || !srcF.canRead()) {
+	            System.out.println("Invalid Source File: " + fileName);
+	        } else {
+	            String dest = "$temporary.file";
+	            if (context.isProcessPreprocessOnly()) {
+	                preprocessor.preprocess(fileName, null);
+	            } else {
+	                destF = new File(dest);
+	                if (destF.exists()) {
+	                    destF.delete();
+	                }
+	                preprocessor.preprocess(fileName, dest);
+	                if (!destF.exists()) {
+	                    return;
+	                }
+	                System.out.println("Parsing Cobol started for: "
+	                        + srcF.getAbsolutePath() + "");
+	                context.setSourceFile(new BufferedReader(new InputStreamReader(
+	                        new FileInputStream(destF))));
+	                if (!context.getSourceFile().ready()) {
+	                    throw new ParseException();
+	                }
+	                if (context.isProcessParseOnly()) {
+	                    parse(context);
+	                } else {
+	                    CompilationUnit unit = parse(context);
+	                    GenDetails.getInstance().clear();
+	                    translate(unit);
+	                    unit = null;
+	                }
+
+	                destF.delete();
+	                destF = null;
+	            }
+	        }
+
+	        if (doListDir && srcF != null) {
+	            System.out.println("Done: " + srcF.getAbsolutePath() + "\n");
+	        }
+	        if (destF != null) {
+	            destF.delete();
+	        }
+	        if (context.getSourceFile() != null) {
+	            context.getSourceFile().close();
+	        }
+	        context.setSourceFile(null);
+	        context.setSourceFileName(null);
+	        destF = null;
+	        srcF = null;
+	    } finally {
+	        CobolParserTokenManager.commentLines.clear();
+	        CobolParserTokenManager.lastToken = null;
+	        context.getCharStream().Done();
+	        CobolFillTable.clear();
+	        CobolRecode.clear();
+	        SymbolTable.clear();
+	        System.gc();
+	    }
 	}
 
 	private CobolParser cobolParser = null;
