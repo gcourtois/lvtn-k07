@@ -59,8 +59,10 @@ import com.res.cobol.syntaxtree.Paragraph;
 import com.res.cobol.syntaxtree.ParagraphName;
 import com.res.cobol.syntaxtree.PerformStatement;
 import com.res.cobol.syntaxtree.ProcedureBody;
+import com.res.cobol.syntaxtree.ProcedureDivision;
 import com.res.cobol.syntaxtree.ProcedureSection;
 import com.res.cobol.syntaxtree.ProgramIdParagraph;
+import com.res.cobol.syntaxtree.ProgramName;
 import com.res.cobol.syntaxtree.ProgramUnit;
 import com.res.cobol.syntaxtree.QualifiedDataName;
 import com.res.cobol.syntaxtree.QueryStatement;
@@ -89,6 +91,8 @@ import com.res.cobol.syntaxtree.WriteStatement;
 import com.res.cobol.visitor.GJDepthFirst;
 import com.res.common.RESConfig;
 import com.res.common.exceptions.ErrorInCobolSourceException;
+import com.res.demo.util.GenDetails;
+import com.res.demo.util.GenDetails.OutputInfo;
 import com.res.java.lib.Constants;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
@@ -101,14 +105,20 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
     
 	private Queue<SymbolProperties> listParagraphs = new LinkedList<SymbolProperties>();
 
+	private GenDetails genDetails = GenDetails.getInstance();
+	
+	private String currentFile;
+	
     @Override
 	public Object visit(ProgramUnit n, Object argu) throws Exception {
-        String programName = n.identificationDivision.programIdParagraph.programName.cobolWord.nodeToken.tokenImage;
+        ProgramName programNode = n.identificationDivision.programIdParagraph.programName;
+        String programName = programNode.cobolWord.nodeToken.tokenImage;
 
         SymbolProperties props = SymbolTable.getInstance().lookup(programName);
 
         String className = props.getJavaName2();
         String fileName = FileUtil.getJavaFileName(props);
+        currentFile = FileUtil.getProgramFilePath(fileName);
         JavaCodePrinter printer = new JavaCodePrinter(FileUtil.newProgramFile(fileName));
 
         // print package
@@ -125,8 +135,6 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         if (props.hasChildren()) {
             for (SymbolProperties child : props.getChildren()) {
                 if (child.is01Group()) {
-//                    printer.println("import " + RESConfig.getInstance().getDataPackage()
-//                            + ".*;");
                     printer.printImport(RESConfig.getInstance().getDataPackage() + ".*");
                     break;
                 }
@@ -135,6 +143,9 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         printer.println();
 
         // print class definition
+        OutputInfo info = genDetails.new OutputInfo(currentFile, printer.getCurrentLine(), printer.getCurrentLine());
+        genDetails.add(programNode.line + 1, info);
+        genDetails.add(n.identificationDivision.nodeToken.line + 1, info);
         printer.println("public class " + className + " extends Program {");
         printer.increaseIndent();
 
@@ -191,14 +202,24 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	
 	@Override
 	public Object visit(ProcedureBody n, Object o) throws Exception {
+	    int divisionLine = ((ProcedureDivision)n.getParent()).nodeChoice.line;
+	    int beginLine = 0;
+	    int endLine = 0;
+	    
 	    JavaCodePrinter printer = (JavaCodePrinter) o;
+	    beginLine = printer.getCurrentLine();
 	    printer.beginMethod("public", "void", runMethodName, null, null);
 	    n.paragraphs.nodeListOptional.accept(this, o);
 	    if (listParagraphs.size() > 0) {
 	        printer.println(getQualifiedJavaName(listParagraphs.peek()) + "(false);");
 	    }
 	    printer.endMethod();
+	    endLine = printer.getCurrentLine();
 	    printer.println();
+	    
+	    OutputInfo info = genDetails.new OutputInfo(currentFile, beginLine, endLine);
+	    genDetails.add(divisionLine + 1, info);
+	    
 	    n.paragraphs.nodeListOptional1.accept(this, o);
 	    n.nodeListOptional.accept(this, o);
 	    return null;

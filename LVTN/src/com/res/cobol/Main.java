@@ -32,6 +32,7 @@ import com.res.cobol.parser.RESCharStream;
 import com.res.cobol.syntaxtree.CompilationUnit;
 import com.res.common.RESConfig;
 import com.res.common.RESContext;
+import com.res.demo.util.GenDetails;
 import com.res.java.translation.engine.Cobol2Java;
 import com.res.java.translation.engine.CobolFillTable;
 import com.res.java.translation.engine.CobolRecode;
@@ -119,6 +120,7 @@ public class Main {
                     parse(context);
                 } else {
                     CompilationUnit unit = parse(context);
+                    GenDetails.getInstance().clear();
                     translate(unit);
                     unit = null;
                 }

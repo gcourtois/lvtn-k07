@@ -17,6 +17,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import jsyntaxpane.DefaultSyntaxKit;
 
+@SuppressWarnings("serial")
 public class OutputCodeBrowser extends JFrame {
     private File outputDir;
     private JTree tree;
@@ -77,13 +78,35 @@ public class OutputCodeBrowser extends JFrame {
     }
     
     private DefaultMutableTreeNode getDirectoryTree(File f) {
-        DefaultMutableTreeNode rs = new DefaultMutableTreeNode(f);
+        DefaultMutableTreeNode rs = new FileTreeNode(f);
         if (f.isDirectory()) {
             for (File child : f.listFiles()) {
                 rs.add(getDirectoryTree(child));
             }
         }
         return rs;
+    }
+    
+    class FileTreeNode extends DefaultMutableTreeNode {
+        public FileTreeNode() {
+            super();
+        }
+        
+        public FileTreeNode(Object userObject) {
+            super(userObject);
+        }
+        
+        public FileTreeNode(Object userObject, boolean allowsChildren) {
+            super(userObject, allowsChildren);
+        }
+        
+        @Override
+        public String toString() {
+            if (userObject instanceof File) {
+                return ((File) userObject).getName();
+            }
+            return super.toString();
+        }
     }
     
     public static void main(String[] args) {

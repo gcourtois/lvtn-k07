@@ -30,7 +30,7 @@ import com.res.demo.util.GenDetails.OutputInfo;
 public class CompareCode extends JFrame {
     
     private GenDetails genDetails = GenDetails.getInstance();
-    private HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0xDDDDFF));
+    private HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0xF5D310));
     private String currentJavaFile = "";
     
     public CompareCode(File cobolSrc) throws IOException {
