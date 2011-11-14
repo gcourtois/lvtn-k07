@@ -34,7 +34,7 @@ public class OutputCodeBrowser extends JFrame {
         init();
         pack();
         setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
     
     @Override

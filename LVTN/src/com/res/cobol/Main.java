@@ -191,7 +191,7 @@ public class Main {
 
         // Do Dead-Code Removal and later Restructuring if any
         unit.accept(context.getCobolRecode());
-//         SymbolTable.getInstance().display();
+//        SymbolTable.getInstance().display();
         if (context.isTraceOn()) {
             System.out
                     .println("************************************************************************");

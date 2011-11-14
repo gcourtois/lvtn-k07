@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
@@ -51,10 +52,15 @@ public class Demo {
     private JFrame mainFrame;
     
     private JMenuBar menuBar;
+    
     private JMenu fileMenu;
     private JMenuItem openItem;
     private JMenuItem saveItem;
     private JMenuItem exitItem;
+    
+    private JMenu viewMenu;
+    private JMenuItem outputCodeItem;
+    private JMenuItem compareCodeItem;
     
     private JRadioButton fixFormatRadio;
     private JRadioButton freeFormatRadio;
@@ -77,6 +83,7 @@ public class Demo {
     private JFileChooser outputDirChooser;
     
     private OutputCodeBrowser javaCodeBrowser; 
+    private CompareCode codeCompare;
     
     private Main instance = new Main();
     
@@ -100,18 +107,34 @@ public class Demo {
         mainFrame = new JFrame(programTitle);
         
         menuBar = new JMenuBar();
+        
         fileMenu = new JMenu("File");
-        openItem = new JMenuItem("Open");
-        saveItem = new JMenuItem("Save");
-        saveItem.setEnabled(false);
-        exitItem = new JMenuItem("Exit");
         fileMenu.setMnemonic(KeyEvent.VK_F);
-        saveItem.setMnemonic(KeyEvent.VK_S);
-        openItem.setMnemonic(KeyEvent.VK_O);
-        exitItem.setMnemonic(KeyEvent.VK_X);
+        openItem = new JMenuItem("Open", KeyEvent.VK_O);
+        saveItem = new JMenuItem("Save", KeyEvent.VK_S);
+        saveItem.setEnabled(false);
+        exitItem = new JMenuItem("Exit", KeyEvent.VK_X);
         saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
         exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, Event.ALT_MASK));
+        
+        viewMenu = new JMenu("View");
+        viewMenu.setMnemonic(KeyEvent.VK_V);
+        viewMenu.setEnabled(false);
+        outputCodeItem = new JMenuItem("Generated codes", KeyEvent.VK_G);
+        compareCodeItem = new JMenuItem("Code compare dialog", KeyEvent.VK_C);
+        
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+        fileMenu.addSeparator();
+        fileMenu.add(exitItem);
+        menuBar.add(fileMenu);
+        
+        viewMenu.add(outputCodeItem);
+        viewMenu.add(compareCodeItem);
+        menuBar.add(viewMenu);
+        
+        mainFrame.setJMenuBar(menuBar);
         
         fixFormatRadio = new JRadioButton("Fixed");
         fixFormatRadio.setSelected(true);
@@ -156,14 +179,6 @@ public class Demo {
     }
     
     private void layout() {        
-        fileMenu.add(openItem);
-        fileMenu.add(saveItem);
-        fileMenu.addSeparator();
-        fileMenu.add(exitItem);
-        menuBar.add(fileMenu);
-        
-        mainFrame.setJMenuBar(menuBar);
-        
         ButtonGroup formatGroup = new ButtonGroup();
         formatGroup.add(fixFormatRadio);
         formatGroup.add(freeFormatRadio);
@@ -263,27 +278,37 @@ public class Demo {
     }
 
     private void addListener() {
-        openItem.addActionListener(new ActionListener() {
+        ActionListener menuListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openFile();
+                Object source = e.getSource();
+                if (source == openItem) {
+                    openFile();
+                } else if (source == saveItem) {
+                    saveFile();
+                } else if (source == exitItem) {
+                    mainFrame.dispose();
+                    javaCodeBrowser.dispose();
+                    codeCompare.dispose();
+                    System.exit(0);
+                } else if (source == outputCodeItem) {
+                    if (javaCodeBrowser != null) {
+                        javaCodeBrowser.setVisible(true);
+                    }
+                } else if (source == compareCodeItem) {
+                    if (codeCompare != null) {
+                        codeCompare.setVisible(true);
+                    }
+                }
             }
-        });
+            
+        };
         
-        saveItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveFile();
-            }
-        });
-        
-        exitItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainFrame.dispose();
-                System.exit(0);
-            }
-        });
+        openItem.addActionListener(menuListener);
+        saveItem.addActionListener(menuListener);
+        exitItem.addActionListener(menuListener);
+        outputCodeItem.addActionListener(menuListener);
+        compareCodeItem.addActionListener(menuListener);
         
         outputDirBtn.addActionListener(new ActionListener() {
             @Override
@@ -355,6 +380,13 @@ public class Demo {
                 FileInputStream fis = new FileInputStream(openedFile);
                 cobolEditor.read(fis, null);
                 fis.close();
+                if (javaCodeBrowser != null) {
+                    javaCodeBrowser.dispose();
+                }
+                if (codeCompare != null) {
+                    codeCompare.dispose();
+                }
+                viewMenu.setEnabled(false);
                 cobolEditor.getDocument().addDocumentListener(new TextChangedListener());
                 textChanged = false;
                 mainFrame.setTitle(programTitle + " (" + openedFile.getCanonicalPath() + ")");
@@ -378,19 +410,36 @@ public class Demo {
         config.setOutputDir(outputDirTxt.getText());
         config.setDataPackage(dataDirTxt.getText());
         config.setProgramPackage(programDirTxt.getText());
-        new Runnable() {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    
                     instance.execute(openedFile);
-                    JOptionPane.showMessageDialog(mainFrame, "Finish");
+                    
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    
                     if (javaCodeBrowser != null) {
                         javaCodeBrowser.dispose();
                     }
                     javaCodeBrowser = new OutputCodeBrowser(new File(outputDirTxt.getText()));
-                    javaCodeBrowser.setVisible(true);
+                    
+                    if (codeCompare != null) {
+                        codeCompare.dispose();
+                    }
+                    codeCompare = new CompareCode(openedFile);
+                    viewMenu.setEnabled(true);
+                    
+                    String title = "Finish";
+                    String message = "Finish convert " + openedFile.getName() + ".\nWhat do you want to do next ?";
+                    String[] options = new String[]{"View generated code", "Compare code", "None"};
+                    int opt = JOptionPane.showOptionDialog(mainFrame, message, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                    if (opt == JOptionPane.YES_OPTION) {
+                        javaCodeBrowser.setVisible(true);
+                    } else if (opt == JOptionPane.NO_OPTION) {
+                        codeCompare.setVisible(true);
+                    }
                 } catch (ParseException e) {
                     JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Parse exception", JOptionPane.ERROR_MESSAGE);
                 } catch (ErrorInCobolSourceException e) {
@@ -403,7 +452,7 @@ public class Demo {
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 }
             }
-        }.run();
+        });
     }
     
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {

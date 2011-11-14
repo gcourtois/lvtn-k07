@@ -108,7 +108,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
         SymbolProperties props = SymbolTable.getInstance().lookup(programName);
 
         String className = props.getJavaName2();
-        String fileName = className + ".java";
+        String fileName = FileUtil.getJavaFileName(props);
         JavaCodePrinter printer = new JavaCodePrinter(FileUtil.newProgramFile(fileName));
 
         // print package
