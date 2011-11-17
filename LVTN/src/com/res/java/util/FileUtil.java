@@ -9,19 +9,25 @@ import com.res.java.translation.symbol.SymbolProperties;
 
 public class FileUtil {
     private static RESConfig config = RESConfig.getInstance();
-    public static final String dataPackagePath = config.getOutputDir() + File.separatorChar + config.getDataPackage().replace('.', File.separatorChar);
-    public static final String programPackagePath = config.getOutputDir() + File.separatorChar + config.getProgramPackage().replace('.', File.separatorChar);
     
     public static String getJavaFileName(SymbolProperties props) {
         return props.getJavaName2() + ".java";
     }
     
+    public static String getDataPackagePath() {
+        return config.getOutputDir() + File.separatorChar + config.getDataPackage().replace('.', File.separatorChar);
+    }
+    
+    public static String getProgramPackagePath() {
+        return config.getOutputDir() + File.separatorChar + config.getProgramPackage().replace('.', File.separatorChar);
+    }
+    
     public static String getDataFilePath(String fileName) {
-        return dataPackagePath + File.separatorChar + fileName;
+        return getDataPackagePath() + File.separatorChar + fileName;
     }
     
     public static String getProgramFilePath(String fileName) {
-        return programPackagePath + File.separatorChar + fileName;
+        return getProgramPackagePath() + File.separatorChar + fileName;
     }
     
     public static void createOutputDirectory() throws IOException {
@@ -29,11 +35,11 @@ public class FileUtil {
     }
     
     public static void createDataPackageDirectory() throws IOException {
-        createDirectories(dataPackagePath);
+        createDirectories(getDataPackagePath());
     }
     
     public static void createProgramPackageDirectory() throws IOException {
-        createDirectories(programPackagePath);
+        createDirectories(getProgramPackagePath());
     }
     
     public static FileOutputStream newDataFile(String fileName) throws IOException {

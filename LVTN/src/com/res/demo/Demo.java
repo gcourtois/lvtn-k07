@@ -404,16 +404,17 @@ public class Demo {
             return;
         }
 
-        RESConfig config = instance.getConfig();
-        instance.setSourceFormat(fixFormatRadio.isSelected());
-        instance.setGenOption(genJavaCheckbox.isSelected());
-        config.setOutputDir(outputDirTxt.getText());
-        config.setDataPackage(dataDirTxt.getText());
-        config.setProgramPackage(programDirTxt.getText());
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
+                    RESConfig config = instance.getConfig();
+                    instance.setSourceFormat(fixFormatRadio.isSelected());
+                    instance.setGenOption(genJavaCheckbox.isSelected());
+                    config.setOutputDir(outputDirTxt.getText());
+                    config.setDataPackage(dataDirTxt.getText());
+                    config.setProgramPackage(programDirTxt.getText());
+                    
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     
                     instance.execute(openedFile);

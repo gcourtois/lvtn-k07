@@ -28,53 +28,53 @@ public class DataPrinter {
 	private static String setToBytesMethodName = "_setToBytes";
 	private static String initMethodName = "_init";
 	
-	private static boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
+	private boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
 	
 	private TreeDumper dumper;
 	private String currentOutputFile;
 	private GenDetails genDetails = GenDetails.getInstance();
 	
-	private static String className(SymbolProperties props) {
+	private String className(SymbolProperties props) {
         return props.getJavaName2();
     }
 
-    private static String fieldName(SymbolProperties props) {
+    private String fieldName(SymbolProperties props) {
         return props.getJavaName1();
     }
 
-    private static String editorName(SymbolProperties props) {
+    private String editorName(SymbolProperties props) {
         return "_" + props.getJavaName1() + "_editor";
     }
 
-    public static final String getMethodName(String name) {
+    public final static String getMethodName(String name) {
         return "get" + name;
     }
     
-    private static String getMethodName(SymbolProperties props) {
+    private String getMethodName(SymbolProperties props) {
         return getMethodName(className(props));
     }
     
-    public static final String setMethodName(String name) {
+    public final static String setMethodName(String name) {
         return "set" + name;
     }
     
-    private static String setMethodName(SymbolProperties props) {
+    private String setMethodName(SymbolProperties props) {
         return setMethodName(className(props));
     }
     
-    public static final String getAsStringName(String name) {
+    public final static String getAsStringName(String name) {
         return getMethodName(name) + "String";
     }
     
-    private static String getAsStringName(SymbolProperties props) {
+    private String getAsStringName(SymbolProperties props) {
         return getAsStringName(className(props));
     }
     
-    private static String getAsDoubleName(SymbolProperties props) {
+    private String getAsDoubleName(SymbolProperties props) {
         return getMethodName(className(props)) + "Double";
     }
     
-    private static boolean genJava(SymbolProperties props) {
+    private boolean genJava(SymbolProperties props) {
         return (useJava && (props.getAdjustedLength() != props.getLength()));
     }
     
