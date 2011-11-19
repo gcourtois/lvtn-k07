@@ -141,6 +141,7 @@ public class EditedVar {
 	private String simpleInsert(String input) {
 		// Apply for Numeric-edited and Alphanumeric-edited
 		// AlphaNum first rightJustified???
+		
 		int definedLength = this.definedLength;
 		int inputLength = input.length();
 		if (picType == Constants.ALPHANUMERIC_EDITED) {
@@ -162,7 +163,7 @@ public class EditedVar {
 				}
 			}
 		}
-
+//		System.out.println("INPUT " + input);
 		StringBuilder inputBuilder = new StringBuilder(input);
 		char[] charArray = this.normalizedPic.toCharArray();
 		StringBuilder picBuilder = new StringBuilder(normalizedPic);
@@ -292,7 +293,6 @@ public class EditedVar {
 			if (currentPos != 0) {
 				prevChar = intArray[prevPos];
 			}
-//			System.out.println(i + "%" + currentChar + " |" + intString + "|");
 			if (currentChar == 'Z' || currentChar == '*') {
 				if (currentPos == 0) {
 					if (currentEditingSymbol == ' '
@@ -404,8 +404,14 @@ public class EditedVar {
 						if (symbolIndex < currentPos) {
 							currentEditingSymbol = currentChar;
 						} else {
-							intString.setCharAt(i, currentChar);
-							continue;
+							if (i == 0) {
+								intString.insert(0, currentChar);
+								continue;
+							} else {
+								intString.setCharAt(i, currentChar);
+								continue;
+							}
+							
 						}
 					} else if (currentEditingSymbol != currentChar) {
 						// Z is editing symbol now.
@@ -463,8 +469,16 @@ public class EditedVar {
 							intString.setCharAt(i, '0');
 						}
 					}
+				} else if (currentChar == 'C' || currentChar == 'R' || currentChar == 'D') {
+					intString.insert(i, currentChar);
 				} else if (currentChar == 'B' || currentChar == '0'
 						|| currentChar == '/' || currentChar == commaChar) {
+					if (currentChar == 'B' && currentPos != 0) {
+						if (prevChar == 'D') {
+							intString.insert(i, currentChar);
+							continue;
+						}
+					}
 					if (currentPos == 0) {
 						// End of String --> do nothing
 						if (i >= intString.length()) {

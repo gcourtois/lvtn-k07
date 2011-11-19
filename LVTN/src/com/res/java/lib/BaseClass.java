@@ -390,7 +390,7 @@ public class BaseClass {
 	
 	protected int adjustIntegralValue(int input, int intLength,
 			boolean signed, int pscale) {
-		if (intLength > 8) {
+		if (intLength > 10) {
 			throw new ArithmeticException("Size is larger than 18");
 		}
 		// pscale must >= 0
