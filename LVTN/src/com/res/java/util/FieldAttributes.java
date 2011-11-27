@@ -88,10 +88,7 @@ public class FieldAttributes {
 	
 		if (alphabetic.matcher(pic).matches()) {
 			desc.setDataCategory(Constants.ALPHABETIC);
-			if (pic.length() == 1)
-				desc.setTypeInJava(Constants.CHAR);
-			else
-				desc.setTypeInJava(Constants.STRING);
+			desc.setTypeInJava(Constants.STRING);
 			desc.setMaxStringLength(desc.getPic().length());
 		} else if (alphanumeric.matcher(pic).matches()) {
 			desc.setDataCategory(Constants.ALPHANUMERIC);
