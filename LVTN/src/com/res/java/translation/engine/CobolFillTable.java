@@ -1588,7 +1588,7 @@ public class CobolFillTable extends DepthFirstVisitor {
     public void visit(IntegerConstant n) throws Exception {
         super.visit(n);
         try {
-            integerConstant = Long.valueOf(((NodeToken)n.nodeChoice.choice).tokenImage);
+            integerConstant = Long.valueOf(((NodeToken)n.nodeChoice.choice).tokenImage.replace(",", ""));
         } catch (NumberFormatException e) {
             throw new ErrorInCobolSourceException(n, "Invalid integer literal");
         }

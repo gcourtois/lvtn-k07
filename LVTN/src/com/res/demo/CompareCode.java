@@ -2,6 +2,7 @@ package com.res.demo;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,7 +10,6 @@ import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,9 +25,10 @@ import javax.swing.text.Highlighter.HighlightPainter;
 import jsyntaxpane.DefaultSyntaxKit;
 
 import com.res.demo.util.GenDetails;
+import com.res.demo.util.LinePainter;
 import com.res.demo.util.GenDetails.OutputInfo;
 
-public class CompareCode extends JFrame {
+public class CompareCode extends JPanel {
     
     private GenDetails genDetails = GenDetails.getInstance();
     private HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(0xF5D310));
@@ -37,8 +38,7 @@ public class CompareCode extends JFrame {
         init();
         cobolLabel.setText(cobolSrc.getCanonicalPath());
         cobolEditor.read(new FileInputStream(cobolSrc), null);
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setLayout(new GridLayout(1, 1));
     }
     
     private JSplitPane splitPane;
@@ -57,6 +57,7 @@ public class CompareCode extends JFrame {
         cobolEditor = new JEditorPane();
         cobolScrollPane = new JScrollPane(cobolEditor);
         cobolEditor.setContentType("text/c");
+        new LinePainter(cobolEditor, new Color(0xF5D310));
         
         javaEditor = new JEditorPane();
         javaScrollPane = new JScrollPane(javaEditor);
@@ -76,8 +77,8 @@ public class CompareCode extends JFrame {
         javaPanel.add(javaLabel, BorderLayout.NORTH);
         javaPanel.add(javaScrollPane, BorderLayout.CENTER);
         
-//        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, cobolScrollPane, javaScrollPane);
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, cobolPanel, javaPanel);
+//        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, cobolScrollPane, javaScrollPane);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, cobolPanel, javaPanel);
         add(splitPane);
         
         cobolEditor.addCaretListener(new CaretListener() {
@@ -101,7 +102,9 @@ public class CompareCode extends JFrame {
             try {
                 File f = new File(info.fileName);
                 javaLabel.setText(f.getCanonicalPath());
-                javaEditor.read(new FileInputStream(f), null);
+                FileInputStream fis = new FileInputStream(f);
+                javaEditor.read(fis, null);
+                fis.close();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {

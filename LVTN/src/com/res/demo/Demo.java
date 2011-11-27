@@ -59,8 +59,7 @@ public class Demo {
     private JMenuItem exitItem;
     
     private JMenu viewMenu;
-    private JMenuItem outputCodeItem;
-    private JMenuItem compareCodeItem;
+    private JMenuItem showResultItem;
     
     private JRadioButton fixFormatRadio;
     private JRadioButton freeFormatRadio;
@@ -82,8 +81,7 @@ public class Demo {
     
     private JFileChooser outputDirChooser;
     
-    private OutputCodeBrowser javaCodeBrowser; 
-    private CompareCode codeCompare;
+    private ShowResultView showResultView;
     
     private Main instance = new Main();
     
@@ -120,18 +118,17 @@ public class Demo {
         
         viewMenu = new JMenu("View");
         viewMenu.setMnemonic(KeyEvent.VK_V);
-        viewMenu.setEnabled(false);
-        outputCodeItem = new JMenuItem("Generated codes", KeyEvent.VK_G);
-        compareCodeItem = new JMenuItem("Code compare dialog", KeyEvent.VK_C);
-        
+        showResultItem = new JMenuItem("Result", KeyEvent.VK_R);
+        showResultItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK));
+        showResultItem.setEnabled(false);
+            
         fileMenu.add(openItem);
         fileMenu.add(saveItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
         menuBar.add(fileMenu);
         
-        viewMenu.add(outputCodeItem);
-        viewMenu.add(compareCodeItem);
+        viewMenu.add(showResultItem);
         menuBar.add(viewMenu);
         
         mainFrame.setJMenuBar(menuBar);
@@ -288,16 +285,13 @@ public class Demo {
                     saveFile();
                 } else if (source == exitItem) {
                     mainFrame.dispose();
-                    javaCodeBrowser.dispose();
-                    codeCompare.dispose();
-                    System.exit(0);
-                } else if (source == outputCodeItem) {
-                    if (javaCodeBrowser != null) {
-                        javaCodeBrowser.setVisible(true);
+                    if (showResultView != null) {
+                        showResultView.dispose();
                     }
-                } else if (source == compareCodeItem) {
-                    if (codeCompare != null) {
-                        codeCompare.setVisible(true);
+                    System.exit(0);
+                } else if (source == showResultItem) {
+                    if (showResultView != null) {
+                        showResultView.setVisible(true);
                     }
                 }
             }
@@ -307,8 +301,7 @@ public class Demo {
         openItem.addActionListener(menuListener);
         saveItem.addActionListener(menuListener);
         exitItem.addActionListener(menuListener);
-        outputCodeItem.addActionListener(menuListener);
-        compareCodeItem.addActionListener(menuListener);
+        showResultItem.addActionListener(menuListener);
         
         outputDirBtn.addActionListener(new ActionListener() {
             @Override
@@ -380,13 +373,7 @@ public class Demo {
                 FileInputStream fis = new FileInputStream(openedFile);
                 cobolEditor.read(fis, null);
                 fis.close();
-                if (javaCodeBrowser != null) {
-                    javaCodeBrowser.dispose();
-                }
-                if (codeCompare != null) {
-                    codeCompare.dispose();
-                }
-                viewMenu.setEnabled(false);
+                showResultItem.setEnabled(false);
                 cobolEditor.getDocument().addDocumentListener(new TextChangedListener());
                 textChanged = false;
                 mainFrame.setTitle(programTitle + " (" + openedFile.getCanonicalPath() + ")");
@@ -421,26 +408,15 @@ public class Demo {
                     
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     
-                    if (javaCodeBrowser != null) {
-                        javaCodeBrowser.dispose();
-                    }
-                    javaCodeBrowser = new OutputCodeBrowser(new File(outputDirTxt.getText()));
+                    showResultItem.setEnabled(true);
                     
-                    if (codeCompare != null) {
-                        codeCompare.dispose();
-                    }
-                    codeCompare = new CompareCode(openedFile);
-                    viewMenu.setEnabled(true);
+                    JOptionPane.showMessageDialog(mainFrame, "Finish");
                     
-                    String title = "Finish";
-                    String message = "Finish convert " + openedFile.getName() + ".\nWhat do you want to do next ?";
-                    String[] options = new String[]{"View generated code", "Compare code", "None"};
-                    int opt = JOptionPane.showOptionDialog(mainFrame, message, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-                    if (opt == JOptionPane.YES_OPTION) {
-                        javaCodeBrowser.setVisible(true);
-                    } else if (opt == JOptionPane.NO_OPTION) {
-                        codeCompare.setVisible(true);
+                    if (showResultView != null) {
+                        showResultView.dispose();
                     }
+                    showResultView = new ShowResultView(openedFile, new File(outputDirTxt.getText()));
+                    showResultView.setVisible(true);
                 } catch (ParseException e) {
                     JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Parse exception", JOptionPane.ERROR_MESSAGE);
                 } catch (ErrorInCobolSourceException e) {

@@ -1,13 +1,14 @@
 package com.res.demo;
 
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
@@ -18,7 +19,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import jsyntaxpane.DefaultSyntaxKit;
 
 @SuppressWarnings("serial")
-public class OutputCodeBrowser extends JFrame {
+public class OutputCodeBrowser extends JPanel {
     private File outputDir;
     private JTree tree;
     private JEditorPane javaEditor;
@@ -28,20 +29,12 @@ public class OutputCodeBrowser extends JFrame {
     
     public OutputCodeBrowser(File outputDir) {
         this.outputDir = outputDir;
-        try {
-            setTitle(outputDir.getCanonicalPath());
-        } catch (IOException e) {
-        }
         init();
-        pack();
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setLayout(new GridLayout(1,1));
     }
     
-    @Override
-    public void setVisible(boolean b) {
-        super.setVisible(b);
-        splitPane.setDividerLocation(0.25);
+    public void setDividerLocation(double location) {
+        splitPane.setDividerLocation(location);
     }
     
     private void init() {
@@ -59,7 +52,7 @@ public class OutputCodeBrowser extends JFrame {
                         javaEditor.read(fis, null);
                         fis.close();
                     } catch (IOException e1) {
-                        JOptionPane.showMessageDialog(getContentPane(), e1.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, e1.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -70,7 +63,7 @@ public class OutputCodeBrowser extends JFrame {
         javaEditor = new JEditorPane();
         editorScroll = new JScrollPane(javaEditor);
         javaEditor.setContentType("text/java");
-//        javaEditor.setEditable(false);
+        javaEditor.setEditable(false);
         javaEditor.setFont(new Font("Courier", 0, 12));
         
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScroll, editorScroll);
@@ -103,15 +96,11 @@ public class OutputCodeBrowser extends JFrame {
         @Override
         public String toString() {
             if (userObject instanceof File) {
-                return ((File) userObject).getName();
+                if (!isRoot()) {
+                    return ((File) userObject).getName();
+                }
             }
             return super.toString();
         }
-    }
-    
-    public static void main(String[] args) {
-        OutputCodeBrowser b = new OutputCodeBrowser(new File("D:/opt"));
-        b.setVisible(true);
-//        b.splitPane.setDividerLocation(0.5);
     }
 }
