@@ -110,13 +110,13 @@ public class SymbolValidation implements Visitor {
         props.getCobolDesc().setTypeInJava(Constants.GROUP);
         props.getCobolDesc().setDataCategory(Constants.ALPHANUMERIC);
         
-        SymbolTable.visit(props.getChildren(), this);
-        
         validateBlankWhenZero(props);
         
         validateJustified(props);
         
         validateValue(props);
+        
+        SymbolTable.visit(props.getChildren(), this);
     }
     
     private void validateBlankWhenZero(SymbolProperties props) throws Exception {
