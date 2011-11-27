@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.res.cobol.visitor.TreeDumper;
+import com.res.cobol.visitor.PrintSourceAsComment;
 import com.res.common.RESConfig;
 import com.res.demo.util.GenDetails;
 import com.res.java.lib.BaseClass;
@@ -30,7 +30,7 @@ public class DataPrinter {
 	
 	private boolean useJava = (RESConfig.getInstance().getOptimizeAlgorithm() == 1);
 	
-	private TreeDumper dumper;
+	private PrintSourceAsComment dumper;
 	private String currentOutputFile;
 	private GenDetails genDetails = GenDetails.getInstance();
 	
@@ -97,7 +97,7 @@ public class DataPrinter {
 		
 		printInitMethod(props, printer);
 		
-		dumper = new TreeDumper(printer);
+		dumper = new PrintSourceAsComment(printer);
 		dumper.printSpecials(false);
 		
 		printDataChildren(props, printer);
@@ -121,7 +121,7 @@ public class DataPrinter {
         currentOutputFile = FileUtil.getDataFilePath(fileName);
         
         JavaCodePrinter printer = new JavaCodePrinter(FileUtil.newDataFile(fileName));
-        dumper = new TreeDumper(printer);
+        dumper = new PrintSourceAsComment(printer);
         dumper.printSpecials(false);
         
         // print package

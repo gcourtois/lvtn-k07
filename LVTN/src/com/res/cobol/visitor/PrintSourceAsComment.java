@@ -12,14 +12,14 @@ import com.res.java.util.CodePrinter;
  * Dumps the syntax tree to a Writer using the location information in each
  * NodeToken.
  */
-public class TreeDumper extends DepthFirstVisitor {
+public class PrintSourceAsComment extends DepthFirstVisitor {
     private CodePrinter out;
     private int curLine = 1;
     private int curColumn = 1;
     private boolean startAtNextToken = false;
     private boolean printSpecials = true;
 
-    public TreeDumper(CodePrinter out) {
+    public PrintSourceAsComment(CodePrinter out) {
         this.out = out;
     }
     
@@ -102,8 +102,10 @@ public class TreeDumper extends DepthFirstVisitor {
         //
         if (curLine < n.beginLine) {
             curColumn = 1;
-            for (; curLine < n.beginLine; ++curLine)
+            for (; curLine < n.beginLine; ++curLine) {
                 out.println();
+                out.print("//");
+            }
         }
 
         for (; curColumn < n.beginColumn; ++curColumn)
@@ -114,13 +116,13 @@ public class TreeDumper extends DepthFirstVisitor {
 
     private void printToken(String s) {
         for (int i = 0; i < s.length(); ++i) {
+            out.print(s.charAt(i));
             if (s.charAt(i) == '\n') {
                 ++curLine;
                 curColumn = 1;
+                out.print("//");
             } else
                 curColumn++;
-
-            out.print(s.charAt(i));
         }
     }
 }

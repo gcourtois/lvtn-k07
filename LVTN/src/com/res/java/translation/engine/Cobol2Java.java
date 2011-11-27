@@ -474,7 +474,13 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
                 }
             } else {
                 IdentifierInfo s = (IdentifierInfo) sender;
-                String input = callMethodPath(s.getQualifiedName(), s.getListSubscripts(), true, false, null);
+                String input = "";
+                if (s.getQualifiedName().isGroupData()) {
+                    input = callMethodPath(s.getQualifiedName(), s.getListSubscripts(), true, true, null);
+                } else {
+                    input = callMethodPath(s.getQualifiedName(), s.getListSubscripts(), true, false, null);
+                }
+                
                 for (IdentifierInfo r : listReceivers) {
                     printer.println(callMethodPath(r.getQualifiedName(), r.getListSubscripts(), false, false, input) + ";");
                 }
