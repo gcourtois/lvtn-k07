@@ -37,8 +37,8 @@ import com.res.java.lib.RunTimeUtil;
 import com.res.java.translation.engine.Cobol2Java.IdentifierInfo;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
-import com.res.java.translation.symbol.SymbolTable;
 import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
+import com.res.java.translation.symbol.SymbolTable;
 import com.res.java.util.NameUtil;
 
 public class CobolFillTable extends DepthFirstVisitor {
@@ -1230,7 +1230,8 @@ public class CobolFillTable extends DepthFirstVisitor {
 
     @Override
     public void visit(DataJustifiedClause n) throws Exception {
-        props.setJustifiedRight(n.nodeOptional.present());
+//        props.setJustifiedRight(n.nodeOptional.present());
+        props.setJustifiedRight(true);
     }
 
     @Override
