@@ -599,7 +599,7 @@ public class BaseClass {
 		}
 		buffer.position(offset);
 		buffer.put(temp, 0, length);
-		System.out.println(this.printByteArray(this.data));
+//		System.out.println(this.printByteArray(this.data));
 	}
 	
 	/**
@@ -1510,32 +1510,4 @@ public class BaseClass {
         }
 	}
 	
-	public static void main(String[] args) {
-		BaseClass a = new BaseClass(6);
-		long start = System.currentTimeMillis();
-//    	for (long i = 1; i < 100000000; i++) {
-//    		a.convertLongToDisplay(i % 10000, 0, 6, false, false, false);
-//    	}
-//		for (int i = 1; i < 100000000; i++) {
-//			a.convertStringToDisplay("ABC" + i, 0, 5, false);	
-//		}
-//		a.convertLongToDisplay(12, 0, 6, false, false, false);
-//		System.out.println(a.convertDisplayToInt(0, 6, true, false, true));
-//		for (int i = 0; i < 100000000; i++) {
-//			a.convertDisplayToInt(0, 6, false, false, false);
-//		}
-//		a.convertStringToDisplay("ABCD", 0, 6, true);
-//		System.out.println(a.convertDisplayToString(0, 6));
-//		for (int i = 0; i < 100000000; i++) {
-//			a.convertDisplayToString(0, 6);
-//		}
-//		a.convertIntToBCD(12, 0, 4, true);
-//		System.out.println(a.convertBCDToInt(0, 4, true));
-		for (int i = 0; i < 100000000; i++) {
-			a.convertIntToBCD((i % 10000), 0,4, false);
-		}
-    	long end = System.currentTimeMillis();
-    	System.out.println("TIME " + (end-start));
-    	System.out.println("ARRAY " + a.printByteArray(a.data));
-	}
 }
