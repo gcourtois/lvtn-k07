@@ -222,7 +222,9 @@ public class SymbolValidation implements Visitor {
                 }
             }
         } else {
-            if (!props.isGroupData()) {
+            boolean hasDefaultValue = !props.isGroupData() && (props.getLevelNumber() != 66)
+                                        && (props.getRedefines() == null);
+            if (hasDefaultValue) {
                 //create default value
                 LiteralString v = new LiteralString();
                 byte category = desc.getDataCategory();
