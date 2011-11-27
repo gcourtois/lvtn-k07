@@ -123,9 +123,6 @@ public class FieldAttributes {
 		} else {
 		    throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "Invalid picture string: " + pic);
 		}
-		if (desc.getDataCategory() == Constants.NUMERIC && desc.isBlankWhenZero()) {
-		    desc.setDataCategory(Constants.NUMERIC_EDITED);
-		}
 	}
 
 	private static Pattern alphabetic = Pattern
