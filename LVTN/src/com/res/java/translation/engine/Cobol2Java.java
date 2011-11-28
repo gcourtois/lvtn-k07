@@ -701,7 +701,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	        return "\"" + sb.toString() + "\"";
 	    } else {
 	        LiteralString l = null;
-	        if (sb.indexOf(".") > 0) {
+	        if (sb.indexOf(".") >= 0) {
 	            l = new LiteralString(new BigDecimal(sb.toString()).toString());
 	            l.category = Constants.NUMERIC;
 	            l.javaType = Constants.BIGDECIMAL;
