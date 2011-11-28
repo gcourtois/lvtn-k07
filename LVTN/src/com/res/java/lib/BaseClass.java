@@ -511,7 +511,8 @@ public class BaseClass {
 	}
 
 	private BigDecimal doPscaling(BigDecimal input, int scale) {
-		return input.scaleByPowerOfTen(-scale);
+		input = input.scaleByPowerOfTen(-scale);
+		return input;
 	}
 
 	
@@ -776,7 +777,7 @@ public class BaseClass {
 						negate = false;
 					} else {
 						throw new ArithmeticException(
-								"Sign byte character is not right");
+								"Sign byte character is not right " + signValue + " " + this.printByteArray(tempArray) + " " + signIndex + " " + offset + " " + length);
 					}
 					byte lastByte = tempArray[signIndex];
 					lastByte = (byte) (lastByte & 0x0f);
@@ -1510,4 +1511,7 @@ public class BaseClass {
         }
 	}
 	
+	public static void main(String[] args) {
+		
+	}
 }
