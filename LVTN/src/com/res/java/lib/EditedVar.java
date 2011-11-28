@@ -222,16 +222,16 @@ public class EditedVar {
 			return normalizedPic.replaceAll("(.)", " ");
 		}
 		int replaceZ = normalizedPic.replaceAll(
-				"([^Z" + decimalChar + commaChar + "B0/])", "").length();
+				"([^Z\\" + decimalChar + "\\" + commaChar + "B0/])", "").length();
 		int replaceAsterix = normalizedPic.replaceAll(
-				"([\\*" + decimalChar + "B0/])", "").length();
+				"([\\*\\" + decimalChar + "\\" + commaChar +  "B0/])", "").length();
 		if (replaceZ == normalizedPic.length()) { // ZERO
 			if (input.compareTo(BigDecimal.ZERO) == 0) {
 				return normalizedPic.replaceAll("(.)", " ");
 			}
 		} else if (replaceAsterix == 0) {
 			if (input.compareTo(BigDecimal.ZERO) == 0) {
-				return normalizedPic.replaceAll("(.)", "*");
+				return normalizedPic.replaceAll("\\" + commaChar, "*");
 			}
 		} else {
 			char[] floatingSymbols = { '+', '-', '$' };
@@ -266,21 +266,30 @@ public class EditedVar {
 			}
 			input = input.abs();
 			long intPart = input.longValue();
+			
 			int scale = input.scale();
-			input = input.scaleByPowerOfTen(input.scale());
-			long fractionPart = input.longValue()
-					- (long) (intPart * Math.pow(10, scale));
+			BigDecimal fractionPart = input.subtract(new BigDecimal(intPart));
 			if (intArray.length > 0) {
-				intString = new StringBuilder(String.valueOf(intPart));
+				if (intPart == 0) {
+					intString = new StringBuilder("");
+				} else {
+					intString = new StringBuilder(String.valueOf(intPart));
+				}
+				
 				intString = intString.reverse();
 			}
 			if (fractionArray.length > 0) {
-				fractionString = new StringBuilder(String.valueOf(fractionPart));
+				String[] fracArray = fractionPart.toString().split("\\.");
+				if (fracArray.length > 1) {
+					fractionString = new StringBuilder(fracArray[1]);
+				} else {
+					fractionString = new StringBuilder("");
+				}
+				
 			}
 		}
 
 		boolean doneFloatingInsert = false;
-		//System.out.println("PIC STRING " + normalizedPic);
 		StringBuilder picBuilder = new StringBuilder(normalizedPic);
 		char currentEditingSymbol = ' ';
 		for (int i = 0; i < intArray.length; i++) {
@@ -300,9 +309,9 @@ public class EditedVar {
 						if (i >= intString.length()) {
 							intString.append(currentChar);
 						} else {
-							if (intString.charAt(i) == '0') {
-								intString.setCharAt(i, currentChar);
-							}
+//							if (intString.charAt(i) == '0') {
+//								intString.setCharAt(i, currentChar);
+//							}
 						}
 					} else {
 						// Z can't be the first of +++$$$
@@ -320,9 +329,9 @@ public class EditedVar {
 					if (i >= intString.length()) {
 						intString.append(currentChar);
 					} else {
-						if (intString.charAt(i) == '0') {
-							intString.setCharAt(i, currentChar);
-						}
+//						if (intString.charAt(i) == '0') {
+//							intString.setCharAt(i, currentChar);
+//						}
 					}
 
 				}
@@ -624,7 +633,7 @@ public class EditedVar {
 //		System.out.println("AFTER EDIT INT STRING " + intString.toString()
 //				+ "|");
 //
-//		System.out.println("FRACTION STRING " + afterDecimal);
+		boolean isContinueEditing = false;
 		if (!fractionString.equals("")) {
 			for (int i = 0; i < fractionArray.length; i++) {
 				char currentChar = fractionArray[i];
@@ -651,10 +660,28 @@ public class EditedVar {
 						fractionString.setCharAt(i, '0');
 					}
 					break;
-				case 'B':
-				case '0':
 				case '+':
 				case '-':
+					if (!isContinueEditing) {
+						if (afterDecimal.indexOf(currentChar, i + 1) > -1) {
+							isContinueEditing = true;
+						}
+					} 
+					if (isContinueEditing) {
+						if (i >= fractionString.length()) {
+							fractionString.append('0');
+						}
+					} else {
+						if (i >= fractionString.length()) {
+							fractionString.append(currentChar);
+						} else {
+							fractionString.setCharAt(i, currentChar);
+						}
+					}
+							
+					break;
+				case 'B':
+				case '0':
 				case 'C':
 				case 'D':
 				case 'R':
