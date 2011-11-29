@@ -28,6 +28,7 @@ import com.res.demo.util.GenDetails;
 import com.res.demo.util.LinePainter;
 import com.res.demo.util.GenDetails.OutputInfo;
 
+@SuppressWarnings("serial")
 public class CompareCode extends JPanel {
     
     private GenDetails genDetails = GenDetails.getInstance();

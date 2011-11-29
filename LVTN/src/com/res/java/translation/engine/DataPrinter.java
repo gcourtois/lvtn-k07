@@ -1098,7 +1098,8 @@ public class DataPrinter {
         if (indexArg != null && indexArg != "") {
             sb.append("[" + indexArg + "]");
         }
-        sb.append(".setDirectly(" + argName + ")");
+        String methodName = props.isGroupData() ? "_setValue" : "setDirectly";
+        sb.append(String.format(".%s(%s)", methodName, argName));
         return sb.toString();
 	}
 }

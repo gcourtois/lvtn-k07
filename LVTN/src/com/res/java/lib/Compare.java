@@ -29,10 +29,23 @@ public class Compare {
     }
     
     public static final boolean equal(String op1, long op2) {
-        return op1.equals(String.valueOf(op2));
+        return equal(op1, String.valueOf(op2));
     }
     
     public static final boolean equal(String op1, String op2) {
+        if (op1.length() < op2.length()) {
+            StringBuilder sb = new StringBuilder(op1);
+            while (sb.length() < op2.length()) {
+                sb.append(' ');
+            }
+            op1 = sb.toString();
+        } else if (op1.length() > op2.length()) {
+            StringBuilder sb = new StringBuilder(op2);
+            while (sb.length() < op1.length()) {
+                sb.append(' ');
+            }
+            op2 = sb.toString();
+        }
         return op1.equals(op2);
     }
 }

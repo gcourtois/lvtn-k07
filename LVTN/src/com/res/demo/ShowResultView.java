@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
+@SuppressWarnings("serial")
 public class ShowResultView extends JFrame {
     private JTabbedPane tabbedPane = new JTabbedPane();
     private OutputCodeBrowser outputCode;
@@ -15,7 +16,7 @@ public class ShowResultView extends JFrame {
         outputCode = new OutputCodeBrowser(outputDir);
         compareCode = new CompareCode(cobolSrc);
         tabbedPane.add("Generated codes", outputCode);
-        tabbedPane.add("Tab2", compareCode);
+        tabbedPane.add("Compare", compareCode);
         add(tabbedPane);
         setTitle("Result");
         setSize(800, 600);
