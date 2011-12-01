@@ -440,12 +440,12 @@ public class SymbolProperties implements Cloneable {
         this.values = values;
     }
 
-    public boolean isSigned() {
-        return isSigned;
+    public boolean hasSignClause() {
+        return this.hasSignClause;
     }
 
-    public void setSigned(boolean isSigned) {
-        this.isSigned = isSigned;
+    public void setSignClause(boolean hasSignClause) {
+        this.hasSignClause = hasSignClause;
     }
 
     public boolean isBlankWhenZero() {
@@ -745,7 +745,8 @@ public class SymbolProperties implements Cloneable {
     private boolean isAlphabeticLowerTested;
     private boolean isAlphabeticUpperTested;
     private boolean isAParentInOccurs;
-    private boolean isSigned;//These are duplicated here with Constants.
+    private boolean hasSignClause;
+    
     //May have to re-factor out the duplications
     private boolean isBlankWhenZero;
     private boolean isCurrency;

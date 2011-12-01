@@ -37,8 +37,8 @@ import com.res.java.lib.RunTimeUtil;
 import com.res.java.translation.engine.Cobol2Java.IdentifierInfo;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
-import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.translation.symbol.SymbolTable;
+import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.util.NameUtil;
 
 public class CobolFillTable extends DepthFirstVisitor {
@@ -721,7 +721,6 @@ public class CobolFillTable extends DepthFirstVisitor {
                 throw new ErrorInCobolSourceException(n, "OCCURS clause cannot appear in entry with level " + lv);
             }
         } else {
-            //TODO Error processing
             return;
         }
 
@@ -749,10 +748,6 @@ public class CobolFillTable extends DepthFirstVisitor {
         }
 
 
-        /*if (props == null || dataName == null) {
-            return;
-        }*/
-        
         if (context.getTraceLevel() >= 2) {
             System.out.println("Doing CobolFillTable symbol " + dataName);
         }
@@ -835,7 +830,11 @@ public class CobolFillTable extends DepthFirstVisitor {
                 props.setDataUsage(usage);
             }
         }
-//        props.setDataUsage(usage);
+
+        if (parent != null && parent.isGroupData() && parent.hasSignClause() && !props.hasSignClause()) {
+            props.setSignLeading(parent.isSignLeading());
+            props.setSignSeparate(parent.isSignSeparate());
+        }
         
         if (parent != null) {
         	boolean exist = false;
@@ -1729,6 +1728,7 @@ public class CobolFillTable extends DepthFirstVisitor {
 
 	@Override
     public void visit(DataSignClause n) throws Exception {
+	    props.setSignClause(true);
         if (n.nodeChoice.which == 0) {
             props.setSignLeading(true);
         }

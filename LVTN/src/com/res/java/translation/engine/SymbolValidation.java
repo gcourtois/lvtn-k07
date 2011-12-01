@@ -223,7 +223,7 @@ public class SymbolValidation implements Visitor {
             }
         } else {
             boolean hasDefaultValue = !props.isGroupData() && (props.getLevelNumber() != 66)
-                                        && (props.getRedefines() == null);
+                                        && (props.getRedefines() == null) && !hasOrInRedefines(props);
             if (hasDefaultValue) {
                 //create default value
                 LiteralString v = new LiteralString();
@@ -244,5 +244,14 @@ public class SymbolValidation implements Visitor {
                 props.setValues(values);
             }
         }
+    }
+    
+    private boolean hasOrInRedefines(SymbolProperties props) {
+        while (props != null) {
+            if (props.getRedefines() != null)
+                return true;
+            props = props.getParent();
+        }
+        return false;
     }
 }
