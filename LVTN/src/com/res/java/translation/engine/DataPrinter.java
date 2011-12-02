@@ -412,9 +412,6 @@ public class DataPrinter {
 	                        }
 	                    }
 	                } else {
-	                    /*if (val.javaType == Constants.BIGDECIMAL) {
-	                    input = String.format("new BigDecimal(\"%s\")", input);
-	                }*/
 	                    if (child.isOccurs()) {
 	                        printer.println(String.format("for(int i = 0; i < %s; i++) {", child.getMaxOccursInt()));
 	                        printer.increaseIndent();
@@ -693,7 +690,9 @@ public class DataPrinter {
 	    String argName = "input";
 	    // set string
 	    printer.beginMethod("public", "void", setGroupMethodName, new String[]{"String " + argName}, null);
-	    printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
+//	    printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
+	    String offset = props.isOccurs() ? "this.offset" : props.getGlobalOffset() + "";
+	    printer.println(setValueMethodName(props, argName, offset) + ";");
 	    // if gen java, synchronize byte[] <-> field
 	    if (genJava(props)) {
 	        printer.println(getFromBytesMethodName + "();");
@@ -708,7 +707,9 @@ public class DataPrinter {
 	        return;
 	    printer.beginMethod("public", "String", "toString", null, null);
 	    printer.println(setToBytesMethodName + "();");
-	    printer.println("return " + getValueMethodName(props, getOffsetWithoutIndex(props)) + ";");
+//	    printer.println("return " + getValueMethodName(props, getOffsetWithoutIndex(props)) + ";");
+	    String offset = props.isOccurs() ? "this.offset" : "" + props.getGlobalOffset();
+	    printer.println("return " + getValueMethodName(props, offset) + ";");
 	    printer.endMethod();
 	}
 	
