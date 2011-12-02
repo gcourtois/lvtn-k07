@@ -17,6 +17,13 @@ public class LiteralString {
 	    literal = new StringBuilder(s);
 	}
 	
+	public LiteralString(LiteralString l) {
+	    literal = new StringBuilder(l.literal);
+	    this.isAll = l.isAll;
+	    this.javaType = l.javaType;
+	    this.category = l.category;
+	}
+	
 	public String toString() {
 	    return this.literal.toString();
 	}

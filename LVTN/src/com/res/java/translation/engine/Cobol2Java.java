@@ -97,6 +97,7 @@ import com.res.java.lib.Constants;
 import com.res.java.translation.symbol.SymbolConstants;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolTable;
+import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.util.FileUtil;
 import com.res.java.util.JavaCodePrinter;
 
@@ -467,15 +468,44 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
             
             if (sender instanceof LiteralString) {
                 LiteralString l = (LiteralString) sender;
-                l.convertToPrint();
-                String input = l.literal.toString();
+                
                 for (IdentifierInfo i : listReceivers) {
+                    LiteralString val = new LiteralString(l);
+                    int len = i.getQualifiedName().getLength();
+                    CobolDataDescription desc = i.getQualifiedName().getCobolDesc();
+                    
+                    if (val.isAll
+                            || val.category == Constants.SPACE
+                            || val.category == Constants.QUOTE) {
+                        if (val.isAll && desc.getDataCategory() == Constants.NUMERIC) {
+                            len = desc.getMaxIntLength() + desc.getMaxScalingLength() + desc.getMaxFractionLength();
+                        }
+                        val.fillToSize(len);
+                        val.category = Constants.ALPHANUMERIC;
+                        val.javaType = Constants.STRING;
+                    }
+                    
+                    if (val.category == Constants.ZERO) {
+                        if (desc.getDataCategory() == Constants.NUMERIC
+                                || desc.getDataCategory() == Constants.NUMERIC_EDITED) {
+                            val.category = Constants.NUMERIC;
+                            val.javaType = Constants.LONG;
+                        } else {
+                            val.fillToSize(len);
+                            val.category = Constants.ALPHANUMERIC;
+                            val.javaType = Constants.STRING;
+                        }
+                    }
+                    
+                    val.convertToPrint();
+                    String input = val.toString();
                     printer.println(callMethodPath(i.getQualifiedName(), i.getListSubscripts(), false, false, input) + ";");
                 }
             } else {
                 IdentifierInfo s = (IdentifierInfo) sender;
                 String input = "";
                 if (s.getQualifiedName().isGroupData()) {
+                    // get group as String instead of Object type.
                     input = callMethodPath(s.getQualifiedName(), s.getListSubscripts(), true, true, null);
                 } else {
                     input = callMethodPath(s.getQualifiedName(), s.getListSubscripts(), true, false, null);
@@ -936,7 +966,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	                    String methodName = (getAsString && !props.isGroupData() && !(props.getCobolDesc().getTypeInJava() == Constants.STRING))
 	                                        ? DataPrinter.getAsStringName(s)
 	                                        : DataPrinter.getMethodName(s);
-	                    if (s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
+	                    if (occurParents.size() > 0 && s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
 	                        occurParents.poll();
 	                        rs.append(String.format("%s(%s)", methodName, adjustSubscript(subscripts.poll())));
 	                    } else {
@@ -947,7 +977,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	                    }
 	                } else {
 	                    // set method
-	                    if (s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
+	                    if (occurParents.size() > 0 && s.equalsIgnoreCase(occurParents.peek().getJavaName2())) {
 	                        occurParents.poll();
 	                        rs.append(String.format("%s(%s, %s)",
 	                                DataPrinter.setMethodName(s),
@@ -967,7 +997,6 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 	            }
 	        }
 	    }
-	    
 	    return rs.toString();
 	}
 	
