@@ -550,6 +550,11 @@ public class BaseClass {
 //		System.out.println("PREV " + this.printByteArray(data));
 		boolean negate = false;
 		long result = 0;
+		int byteLength = (length > 1) ? (length / 2) : 1;
+		if ((length % 2) == 0) {
+			byteLength++;
+		}
+		length = byteLength;
 		for (int index = offset; index < offset + length; index++) {
 			byte eachByte = data[index];
 			int firstDigit = (eachByte >> 4) & 0x0f;
@@ -577,10 +582,13 @@ public class BaseClass {
 	
 	private void convertIntToBCD(int input, int offset, int length,
 			boolean signed) {
-		int byteLength = length;
-		byte[] temp = new byte[length];
-		for (int i = 0; i < length; i++) {
-			temp[i] = '0';
+		int byteLength = (length > 1) ? (length / 2): 1;
+		if (length % 2 == 0) {
+			byteLength++;
+		}
+		byte[] temp = new byte[byteLength];
+		for (int i = 0; i < byteLength; i++) {
+			temp[i] = TranslateConstants.PACKED_DECIMALS[0];
 		}
 		byte signByte = 0x0F;
 		if (signed) {
@@ -590,16 +598,18 @@ public class BaseClass {
 			} else {
 				signByte = 0x0F;
 			}
-		} 
+		} else {
+			input = Math.abs(input);
+		}
 		int lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
 		temp[byteLength - 1] = signByte;
 		input = input / 10;
-		for (int index = 1; index < byteLength; index++, input /= 100) {
-			temp[byteLength - index - 1] = TranslateConstants.PACKED_DECIMALS[input % 100];
+		for (int index = byteLength - 2; input >0; index--, input /= 100) {
+			temp[index] = TranslateConstants.PACKED_DECIMALS[input % 100];
 		}
 		buffer.position(offset);
-		buffer.put(temp, 0, length);
+		buffer.put(temp, 0, byteLength);
 //		System.out.println(this.printByteArray(this.data));
 	}
 	
@@ -612,10 +622,18 @@ public class BaseClass {
 	 */
 	private void convertLongToBCD(long input, int offset, int length,
 			boolean signed) {
-		int byteLength = length;
-		byte[] temp = new byte[length];
-		for (int i = 0; i < length; i++) {
-			temp[i] = '0';
+		if (length < 10) {
+			convertIntToBCD((int) input, offset, length, signed);
+			return;
+		}
+		int byteLength = (length > 1) ? (length / 2): 1;
+		if (length % 2 == 0) {
+			byteLength++;
+		}
+		
+		byte[] temp = new byte[byteLength];
+		for (int i = 0; i < byteLength; i++) {
+			temp[i] = TranslateConstants.PACKED_DECIMALS[0];
 		}
 		byte signByte = 0x0F;
 		if (signed) {
@@ -625,16 +643,18 @@ public class BaseClass {
 			} else {
 				signByte = 0x0F;
 			}
-		} 
+		} else {
+			input = Math.abs(input);
+		}
 		long lastDigit = input % 10;
 		signByte = (byte) ((signByte | (lastDigit << 4)) & 0xFF);
 		temp[byteLength - 1] = signByte;
 		input = input / 10;
-		for (int index = 1; index < byteLength; index++, input /= 100) {
-			temp[byteLength - index - 1] = TranslateConstants.PACKED_DECIMALS[(int) (input % 100)];
+		for (int index = byteLength-2; input>0; index--, input /= 100) {
+			temp[index] = TranslateConstants.PACKED_DECIMALS[(int) (input % 100)];
 		}
 		buffer.position(offset);
-		buffer.put(temp, 0, length);
+		buffer.put(temp, 0, byteLength);
 
 	}
 
@@ -975,6 +995,7 @@ public class BaseClass {
 		buffer.get(tempArray, 0, length);
 		String result = "";
 		StringBuilder a = new StringBuilder(result);
+		
 		for (int i = 0; i < length; i++) {
 			char c = (char) tempArray[i];
 			if (tempArray[i] == 0x00) {
@@ -1082,7 +1103,14 @@ public class BaseClass {
 	 */
 	private void convertLongToDisplay(long input, int offset, int length,
 			boolean signed, boolean signLeading, boolean signSeparate) {
+		if (length < 10) {
+			convertIntToDisplay((int) input, offset, length, signed, signLeading, signSeparate);
+			return;
+		}
 		byte[] temp = new byte[length];
+		for (int i = 0; i < length; i++) {
+			temp[i] = '0';
+		}
 		if (signed) {
 			if (signLeading) {
 				int i = length-1;
@@ -1143,7 +1171,7 @@ public class BaseClass {
 		} else {
 			int i = length-1;
 			long data = Math.abs(input);
-			while (i >= 0) {
+			while (data > 0) {
 				byte digit = (byte) ('0' + (data % 10));
 				temp[i] = digit;
 				data = data /10;
@@ -1342,7 +1370,7 @@ public class BaseClass {
 	                break;
 	            }
 	            isNum = true;
-	        } catch (InvalidDataFormatException e) {
+	        } catch (Exception e) {
 	            isNum = false;
 	        }
 	    }
@@ -1440,7 +1468,7 @@ public class BaseClass {
                     break;
                 }
                 isNum = true;
-            } catch (InvalidDataFormatException e) {
+            } catch (Exception e) {
                 isNum = false;
             }
         }
@@ -1509,6 +1537,21 @@ public class BaseClass {
         public void getCurrentValueFromBytes() {
             this.value = getStringDisplay(offset, length);
         }
+	}
+	
+	public static void main(String[] args) {
+		BaseClass a = new BaseClass(12);
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 10000; i++) {
+			for (int j = i+1; j < 10000; j++) {
+				a.convertLongToDisplay(i, 0, 12, false, false, false);
+			}
+			
+		}
+		System.out.println(a.printByteArray(a.data));
+		
+		long end = System.currentTimeMillis();
+		System.out.println(" TIME TAKEN " + (end - start));
 	}
 	
 }
