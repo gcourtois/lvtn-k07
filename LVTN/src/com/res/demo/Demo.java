@@ -404,7 +404,10 @@ public class Demo {
                     
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     
+                    long s = System.nanoTime();
                     instance.execute(openedFile);
+                    long e = System.nanoTime();
+                    System.out.println(String.format("Time: %s ns = %s ms = %s s", (e - s), (e-s)/1000000.0, (e-s)/1000000000.0));
                     
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     
