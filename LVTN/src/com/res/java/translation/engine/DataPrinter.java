@@ -343,6 +343,12 @@ public class DataPrinter {
         printer.println(String.format("this.%s%s.%s(%s(%s));", fieldName(props), arraySpecifier, setGroupMethodName, "unsignedValue", argName));
         printer.endMethod();
         printer.println();
+        
+        // set group
+        printer.beginMethod("public", "void", setMethodName(props), new String[]{BaseClass.class.getSimpleName() + " " + argName}, null);
+        printer.println(String.format("this.%s.copyFrom(%s, %s);", fieldName(props), argName + ".getOffset()", argName + ".getLength()"));
+        printer.endMethod();
+        printer.println();
 	}
 
 	private void printElementData(SymbolProperties props,
@@ -690,7 +696,6 @@ public class DataPrinter {
 	    String argName = "input";
 	    // set string
 	    printer.beginMethod("public", "void", setGroupMethodName, new String[]{"String " + argName}, null);
-//	    printer.println(setValueMethodName(props, argName, getOffsetWithoutIndex(props)) + ";");
 	    String offset = props.isOccurs() ? "this.offset" : props.getGlobalOffset() + "";
 	    printer.println(setValueMethodName(props, argName, offset) + ";");
 	    // if gen java, synchronize byte[] <-> field

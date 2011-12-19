@@ -41,6 +41,26 @@ public class BaseClass {
 		return this.data;
 	}
 
+	public int getOffset() {
+	    return this.offset;
+	}
+	
+	public int getLength() {
+	    return this.length;
+	}
+	
+	public void copyFrom(int srcOffset, int srcLength) {
+	    int len = 0;
+	    if (this.length <= srcLength) {
+	        len = this.length;
+	    } else if (this.length > srcLength) {
+	        len = srcLength;
+	        fillWithSpace(this.data, this.offset + len, (this.length - srcLength));
+	    }
+	    
+	    System.arraycopy(this.data, srcOffset, this.data, this.offset, len);
+	}
+	
 	/**
 	 * Get BCD Value Remember to calculate length of element int and long. Cast
 	 * is not right if value > Int.MAX_VALUE
@@ -1248,7 +1268,7 @@ public class BaseClass {
 	 * @param length
 	 */
 	private void fillWithSpace(byte[] input, int offset, int length) {
-		for (int i = 0; i < length; i++) {
+		for (int i = offset; i < offset + length; i++) {
 			input[i] = TranslateConstants.asciiSpace;
 		}
 	}
@@ -1540,7 +1560,7 @@ public class BaseClass {
 	}
 	
 	public static void main(String[] args) {
-		BaseClass a = new BaseClass(12);
+		/*BaseClass a = new BaseClass(12);
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
 			for (int j = i+1; j < 10000; j++) {
@@ -1551,7 +1571,17 @@ public class BaseClass {
 		System.out.println(a.printByteArray(a.data));
 		
 		long end = System.currentTimeMillis();
-		System.out.println(" TIME TAKEN " + (end - start));
+		System.out.println(" TIME TAKEN " + (end - start));*/
+	    
+	    byte[] data = new byte[10];
+	    BaseClass g = new BaseClass(data, 0, 10);
+	    BaseClass group1 = new BaseClass(data, 0, 4);
+	    BaseClass group2 = new BaseClass(data, 4, 3);
+	    group1.setStringDisplay("1234", 0, 4, false);
+	    group2.setStringDisplay("abcdef", 4, 3, false);
+	    group1.copyFrom(4, 3);
+	    System.out.println(group1.toString());
+	    System.out.println(g.toString());
 	}
 	
 }
