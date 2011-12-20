@@ -346,7 +346,13 @@ public class DataPrinter {
         
         // set group
         printer.beginMethod("public", "void", setMethodName(props), new String[]{indexName == null ? null : "int " + indexName, BaseClass.class.getSimpleName() + " " + argName}, null);
+        if (genJava(props)) {
+            printer.println(String.format("%s.%s();", argName, setToBytesMethodName));
+        }
         printer.println(String.format("this.%s%s.copyFrom(%s, %s);", fieldName(props), arraySpecifier, argName + ".getOffset()", argName + ".getLength()"));
+        if (genJava(props)) {
+            printer.println(String.format("this.%s%s.%s();", fieldName(props), arraySpecifier, getFromBytesMethodName));
+        }
         printer.endMethod();
         printer.println();
 	}

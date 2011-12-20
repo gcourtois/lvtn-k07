@@ -61,6 +61,10 @@ public class BaseClass {
 	    System.arraycopy(this.data, srcOffset, this.data, this.offset, len);
 	}
 	
+	public void _setToBytes() {}
+	
+	public void _getFromBytes() {}
+	
 	/**
 	 * Get BCD Value Remember to calculate length of element int and long. Cast
 	 * is not right if value > Int.MAX_VALUE
