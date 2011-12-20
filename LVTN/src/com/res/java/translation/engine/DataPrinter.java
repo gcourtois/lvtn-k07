@@ -345,8 +345,8 @@ public class DataPrinter {
         printer.println();
         
         // set group
-        printer.beginMethod("public", "void", setMethodName(props), new String[]{BaseClass.class.getSimpleName() + " " + argName}, null);
-        printer.println(String.format("this.%s.copyFrom(%s, %s);", fieldName(props), argName + ".getOffset()", argName + ".getLength()"));
+        printer.beginMethod("public", "void", setMethodName(props), new String[]{indexName == null ? null : "int " + indexName, BaseClass.class.getSimpleName() + " " + argName}, null);
+        printer.println(String.format("this.%s%s.copyFrom(%s, %s);", fieldName(props), arraySpecifier, argName + ".getOffset()", argName + ".getLength()"));
         printer.endMethod();
         printer.println();
 	}
