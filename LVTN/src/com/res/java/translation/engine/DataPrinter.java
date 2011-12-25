@@ -10,6 +10,7 @@ import com.res.common.RESConfig;
 import com.res.demo.util.GenDetails;
 import com.res.java.lib.BaseClass;
 import com.res.java.lib.Constants;
+import com.res.java.lib.exceptions.InvalidDataFormatException;
 import com.res.java.translation.symbol.SymbolProperties;
 import com.res.java.translation.symbol.SymbolProperties.CobolDataDescription;
 import com.res.java.translation.symbol.SymbolProperties.CoupleValue;
@@ -133,6 +134,7 @@ public class DataPrinter {
 //        printer.printImport(BaseClass.class);
 //        printer.printImport(EditedVar.class);
         printer.printImport("com.res.java.lib.*");
+        printer.printImport("com.res.java.lib.exceptions.*");
         printer.printImport(BigDecimal.class);
         printer.println();
 
@@ -478,7 +480,15 @@ public class DataPrinter {
 	    if (genJava(props)) {
 	        printer.println("return " + getValueJavaField(props, Constants.STRING, indexName) + ";");
 	    } else {
+	        printer.println("try {");
+	        printer.increaseIndent();
 	        printer.println(String.format("return String.format(\"%s\", %s);", outputFormatSpecifier(props), getValueMethodName(props, offset)));
+	        printer.decreaseIndent();
+	        printer.println(String.format("} catch (%s e) {", InvalidDataFormatException.class.getSimpleName()));
+	        printer.increaseIndent();
+	        printer.println(String.format("return %s;", getStringMethod(props, offset)));
+	        printer.decreaseIndent();
+	        printer.println("}");
 	    }
 	    printer.endMethod();
 	    printer.println();

@@ -131,6 +131,7 @@ public class Cobol2Java extends GJDepthFirst<Object, Object> {
 //        printer.printImport(Program.class);
 //        printer.printImport(EditedVar.class);
         printer.printImport("com.res.java.lib.*");
+        printer.printImport("com.res.java.lib.exceptions.*");
         printer.printImport(BigDecimal.class);
         
         if (props.hasChildren()) {

@@ -309,18 +309,30 @@ public class CalculateSymbolLength implements Visitor {
 
     private void processRenames(SymbolProperties props) throws Exception {
         SymbolProperties from = props.getRedefinedBy().get(0);
-
+        
+        // check for occurs
+        if (from.isOccurs() || from.isAParentInOccurs()) {
+            throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "RENAMES cannot references entry has OCCURS.");
+        }
+        
         int len = 0;
         
         if (props.getRedefinedBy().size() > 1) {
             // renames ... thru ...
             SymbolProperties thru = props.getRedefinedBy().get(1);
+            
+            // check for occurs
+            if (thru.isOccurs() || thru.isAParentInOccurs()) {
+                throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(), "RENAMES cannot references entry has OCCURS.");
+            }
+            
             if (thru.getGlobalOffset() - from.getGlobalOffset() - from.getLength() < 0) {
                 throw new ErrorInCobolSourceException(props.getDataDescriptionEntry(),"Invalid RENAMES clause in symbol: " + props.getDataName() + ". Storage area is indeterminate.");
             }
             len = thru.getGlobalOffset() - from.getGlobalOffset() + thru.getLength();
         } else {
             // renames ...
+            
             len = from.getLength();
         }
         

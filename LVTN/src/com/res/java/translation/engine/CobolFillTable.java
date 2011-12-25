@@ -766,7 +766,7 @@ public class CobolFillTable extends DepthFirstVisitor {
                 props.setRedefines(parent);
                 parent = SymbolTable.getInstance().getCurrentProgram();
             } else if (props.getLevelNumber() == 66) {
-            	parent = SymbolTable.getInstance().getCurrentProgram();
+//            	parent = SymbolTable.getInstance().getCurrentProgram();
                 parent.setHasRenames(true);
             } else {
                 while (dataStack.size() > 0
