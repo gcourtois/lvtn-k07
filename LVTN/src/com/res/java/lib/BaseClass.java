@@ -57,7 +57,6 @@ public class BaseClass {
 	        len = srcLength;
 	        fillWithSpace(this.data, this.offset + len, (this.length - srcLength));
 	    }
-	    
 	    System.arraycopy(this.data, srcOffset, this.data, this.offset, len);
 	}
 	
@@ -1307,7 +1306,7 @@ public class BaseClass {
 		} 
 		return returnVal;
 	}
-
+	
 	protected class BigDecimalField {
 	    protected int offset;
 	    protected int length;
@@ -1413,6 +1412,7 @@ public class BaseClass {
                 return getStringDisplay(offset, length);
             }
 	    }
+	   
 	}
 
 	protected class LongField {
@@ -1493,6 +1493,7 @@ public class BaseClass {
                 }
                 isNum = true;
             } catch (Exception e) {
+            	e.printStackTrace();
                 isNum = false;
             }
         }
