@@ -231,7 +231,7 @@ public class EditedVar {
 			}
 		} else if (replaceAsterix == 0) {
 			if (input.compareTo(BigDecimal.ZERO) == 0) {
-				return normalizedPic.replaceAll("\\" + commaChar, "*");
+				return normalizedPic.replaceAll("[^\\" + decimalChar + "]", "*");
 			}
 		} else {
 			char[] floatingSymbols = { '+', '-', '$' };
@@ -256,7 +256,12 @@ public class EditedVar {
 		int compareWithZero = input.compareTo(BigDecimal.ZERO);
 		if (compareWithZero == 0) {
 			String[] temp = stringInput.toPlainString().split("[\\" + decimalChar + "]");
-			intString.append(temp[0]);
+			if (Integer.parseInt(temp[0]) == 0) {
+				intString = new StringBuilder("");
+			} else {
+				intString.append(temp[0]);
+			}
+			
 			if (temp.length == 2) {
 				fractionString.append(temp[1]);
 			}
@@ -269,8 +274,10 @@ public class EditedVar {
 			
 			int scale = input.scale();
 			BigDecimal fractionPart = input.subtract(new BigDecimal(intPart));
+//			System.out.println("INT PART " + intPart);
 			if (intArray.length > 0) {
 				if (intPart == 0) {
+					
 					intString = new StringBuilder("");
 				} else {
 					intString = new StringBuilder(String.valueOf(intPart));
@@ -302,6 +309,7 @@ public class EditedVar {
 			if (currentPos != 0) {
 				prevChar = intArray[prevPos];
 			}
+			
 			if (currentChar == 'Z' || currentChar == '*') {
 				if (currentPos == 0) {
 					if (currentEditingSymbol == ' '
@@ -610,12 +618,27 @@ public class EditedVar {
 												currentEditingSymbol);
 									}
 								} else {
-									if (i >= intString.length()) {
-										intString.append(currentChar);
-										doneFloatingInsert = true;
+									if (prevChar == currentEditingSymbol) {
+										//Immediate Right
+//										System.out.println("RIGHT");
+										if (i >= intString.length()) {
+											intString.append(currentEditingSymbol);
+											doneFloatingInsert = true;
+										} else {
+											intString.insert(i, currentEditingSymbol);
+										}
 									} else {
-										intString.insert(i, currentChar);
+//										System.out.println("NOT RIGHT");
+										currentEditingSymbol = ' ';
+										if (i >= intString.length()) {
+											intString.append(currentChar);
+											doneFloatingInsert = true;
+										} else {
+											System.out.println("NOT RIGHT " + currentChar + i);
+											intString.insert(i, currentChar);
+										}
 									}
+									
 								}
 
 							}
@@ -625,13 +648,13 @@ public class EditedVar {
 
 				}
 			}
+//			System.out.println("INTSTRING | " + currentChar + " " + intString.toString() + "|");
 
 		}
 		if (intString.length() > intArray.length) {
 			intString = intString.delete(intArray.length, intString.length());
 		}
-//		System.out.println("AFTER EDIT INT STRING " + intString.toString()
-//				+ "|");
+
 //
 		boolean isContinueEditing = false;
 		if (!fractionString.equals("")) {
