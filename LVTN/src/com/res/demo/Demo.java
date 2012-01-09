@@ -413,7 +413,7 @@ public class Demo {
                     
                     showResultItem.setEnabled(true);
                     
-                    JOptionPane.showMessageDialog(mainFrame, "Finish");
+                    JOptionPane.showMessageDialog(mainFrame, String.format("Finish in %s ms.", (e-s)/1000000.0));
                     
                     if (showResultView != null) {
                         showResultView.dispose();
